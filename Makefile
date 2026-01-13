@@ -5,3 +5,7 @@ run:
 
 clean:
 	rm -rf */*__pycache__
+
+install:
+	pip install -r ./libs/requierements.txt
+	pip install ./libs/mlx-2.2-py3-ubuntu-any.whl
