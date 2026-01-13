@@ -19,7 +19,7 @@ class Config():
             "EXIT": [None, tuple, 2],
             "OUTPUT_FILE": [None, str],
             "PERFECT": [None, bool],
-            "SEED": [None, str],
+            "SEED": [None, int],
         }
 
         parse_file(file_name, self.__config)
@@ -75,10 +75,12 @@ def fill_param(config: dict[str, list[None, type, Any]],
         if len(new_value) != parameter_list[2]:
             raise (ConfigError(f"invalid argument\"{value}\" for {parameter}"))
 
-        for num in new_value:
-            num = int(num)
+        value = []
 
-        value = new_value
+        for i in new_value:
+            value.append(int(i))
+
+        value = tuple(value)
     else:
         value = parameter_list[1](value)
 
