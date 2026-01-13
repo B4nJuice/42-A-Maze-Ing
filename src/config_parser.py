@@ -23,8 +23,16 @@ class Config():
 
         parse_file(file_name, self.__config)
 
-    def get_config(self):
+    def get_config(self) -> dict[str, list[None, type, Any]]:
         return self.__config
+
+    def get_value(self, parameter: str) -> Any:
+        config = self.get_config()
+        parameters = config.keys()
+
+        if parameter in parameters:
+            return (config[parameter][0])
+        return None
 
 
 def get_next_line(file: BinaryIO) -> Generator[int, str, None]:
@@ -47,9 +55,33 @@ def get_value(line: str) -> tuple:
 
 def check_config(config: dict[str, list[None, type, Any]]) -> None:
     values = config.values()
-    if None in values:
-        keys = [key for key, value in config.items() if value[0] is None]
-        raise ConfigError(f"missing value(s): {keys}")
+    for value in values:
+        if None in value:
+            keys = [key for key, v in config.items() if v[0] is None]
+            raise ConfigError(f"missing value(s): {keys}")
+
+
+def fill_param(config: dict[str, list[None, type, Any]],
+               parameter: str, value: str):
+    parameter_list = config[parameter]
+    if parameter_list[0] is not None:
+        raise ConfigError(f"Double declaration for \"{parameter}\"")
+
+    if parameter_list[1] == tuple:
+        parameter_list[0] = "Error"
+        new_value = value.split(",")
+
+        if len(new_value) != parameter_list[2]:
+            raise (ConfigError(f"invalid argument\"{value}\" for {parameter}"))
+
+        for num in new_value:
+            num = int(num)
+
+        value = new_value
+    else:
+        value = parameter_list[1](value)
+
+    parameter_list[0] = value
 
 
 def parse_file(file_name: str, config: list[None, type, Any]) -> None:
@@ -61,29 +93,13 @@ def parse_file(file_name: str, config: list[None, type, Any]) -> None:
             for line in get_next_line(file):
                 parameter, value = get_value(line)
                 if parameter in parameters:
-                    parameter_list = config[parameter]
-                    try:
-                        if parameter_list[1] == tuple:
-                            try:
-                                new_value = value.split(",")
-                                if len(new_value) != parameter_list[2]:
-                                    raise (ConfigError(f"invalid argument\
-\"{value}\" for {parameter}"))
-                                for num in new_value:
-                                    num = int(num)
-                                value = new_value
-                            except Exception as e:
-                                raise ConfigError(e)
-                        else:
-                            value = parameter_list[1](value)
-                        parameter_list[0] = value
-                    except Exception as e:
-                        print(e)
+                    fill_param(config, parameter, value)
                 else:
                     raise ConfigError(f"unknown parameter: {parameter}")
 
             check_config(config)
-        except ConfigError as e:
+        except Exception as e:
+            config.clear()
             print(e)
 
         file.close()

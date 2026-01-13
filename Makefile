@@ -1,4 +1,4 @@
-MAIN_PROGRAM = a-maze-ing.py
+MAIN_PROGRAM = a_maze_ing.py
 
 run: 
 	python3 $(MAIN_PROGRAM)
