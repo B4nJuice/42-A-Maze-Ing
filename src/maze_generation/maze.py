@@ -3,10 +3,13 @@ from src.maze_generation.cell import Cell
 
 
 class Maze():
-    def __init__(self, widht: int, height: int) -> None:
+    def __init__(self, widht: int, height: int, entry: tuple[int, int],
+                 exit: tuple[int, int]) -> None:
         self.__matrix: list[list[Cell]] = []
         self.__widht: int = widht
         self.__height: int = height
+        self.__entry: tuple[int, int] = entry
+        self.__exit: tuple[int, int] = exit
 
         for _ in range(height):
             row: list[int] = []
@@ -73,4 +76,10 @@ class Maze():
                 value: str = cell.get_hex_value()
                 output += value
             output += "\n"
+
+        output += "\n"
+
+        for x, y in [self.__entry, self.__exit]:
+            output += f"{x},{y}\n"
+
         file.write(output)

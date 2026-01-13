@@ -8,7 +8,11 @@ config = Config("config.txt")
 widht = config.get_value("WIDHT")
 height = config.get_value("HEIGHT")
 
-maze = Maze(widht, height)
+entry = config.get_value("ENTRY")
+exit = config.get_value("EXIT")
+
+
+maze = Maze(widht, height, entry, exit)
 
 output_file = config.get_value("OUTPUT_FILE")
 
