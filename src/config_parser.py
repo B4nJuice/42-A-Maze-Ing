@@ -19,6 +19,7 @@ class Config():
             "EXIT": [None, tuple, 2],
             "OUTPUT_FILE": [None, str],
             "PERFECT": [None, bool],
+            "SEED": [None, str],
         }
 
         parse_file(file_name, self.__config)
