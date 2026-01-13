@@ -4,7 +4,7 @@ run:
 	python3 $(MAIN_PROGRAM)
 
 clean:
-	rm -rf */*__pycache__
+	rm -rf */*/*__pycache__
 
 install:
 	pip install -r ./libs/requierements.txt

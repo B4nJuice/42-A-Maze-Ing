@@ -45,7 +45,7 @@ def get_next_line(file: BinaryIO) -> Generator[int, str, None]:
         yield line
 
 
-def get_value(line: str) -> tuple:
+def get_value(line: str) -> tuple[str, str]:
     if line.count("=") != 1:
         raise ConfigError(f"undefined config line : {line}")
     parameter, value = line.split("=")
