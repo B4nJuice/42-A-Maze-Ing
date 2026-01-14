@@ -52,27 +52,28 @@ class Maze():
 
         x, y = coords
         next_dir: str = None
+        next_coords: tuple[int, int] = None
 
         match direction:
             case "NORTH":
                 if y - 1 >= 0:
-                    y -= 1
+                    next_coords = (x, y - 1)
                     next_dir = "SOUTH"
             case "WEST":
                 if x - 1 >= 0:
-                    x -= 1
+                    next_coords = (x - 1, y)
                     next_dir = "EST"
             case "SOUTH":
                 if y + 1 < self.__height:
-                    y += 1
+                    next_coords = (x, y + 1)
                     next_dir = "NORTH"
-            case "EAST":
+            case "EST":
                 if x + 1 < self.__widht:
-                    x += 1
+                    next_coords = (x + 1, y)
                     next_dir = "WEST"
 
         if next_dir is not None:
-            next_cell: Cell = self.get_cell((x, y))
+            next_cell: Cell = self.get_cell(next_coords)
             next_cell.set_wall(next_dir, state)
 
     def output_in_file(self, file: BinaryIO) -> None:
@@ -123,7 +124,7 @@ class Maze():
             (x, y - 1): "NORTH",
         }
 
-        self.set_wall(coords, directions[next_coords], False)
+        self.set_wall((coords), directions[next_coords], False)
         self.create_path(next_coords)
 
     def check_surroundings(self,
@@ -132,22 +133,27 @@ class Maze():
         valid_cells: list[str] = []
 
         cell: Cell = None
+        cell_coords: tuple[int, int] = None
 
         if y + 1 < self.__height:
-            cell = self.get_cell((x, y + 1))
-            if not cell.is_visited():
-                valid_cells.append((x, y + 1))
+            cell_coords = (x, y + 1)
+            cell = self.get_cell(cell_coords)
+            if cell.is_visited() is False:
+                valid_cells.append(cell_coords)
         if y - 1 >= 0:
-            cell = self.get_cell((x, y - 1))
-            if not cell.is_visited():
-                valid_cells.append((x, y - 1))
+            cell_coords = (x, y - 1)
+            cell = self.get_cell(cell_coords)
+            if cell.is_visited() is False:
+                valid_cells.append(cell_coords)
 
         if x + 1 < self.__widht:
-            cell = self.get_cell((x + 1, y))
-            if not cell.is_visited():
-                valid_cells.append((x + 1, y))
+            cell_coords = (x + 1, y)
+            cell = self.get_cell(cell_coords)
+            if cell.is_visited() is False:
+                valid_cells.append(cell_coords)
         if x - 1 >= 0:
-            cell = self.get_cell((x - 1, y))
-            if not cell.is_visited():
-                valid_cells.append((x - 1, y))
+            cell_coords = (x - 1, y)
+            cell = self.get_cell(cell_coords)
+            if cell.is_visited() is False:
+                valid_cells.append(cell_coords)
         return valid_cells

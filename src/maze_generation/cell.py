@@ -32,7 +32,7 @@ class Cell():
         hex: str = "0123456789ABCDEF"
         dec: int = 0
         i: int = 1
-        for direction in ["NORTH", "WEST", "SOUTH", "EST"]:
+        for direction in ["NORTH", "EST", "SOUTH", "WEST"]:
             if self.get_wall(direction):
                 dec += i
             i *= 2
