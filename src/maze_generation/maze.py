@@ -5,13 +5,14 @@ from src.maze_generation.seed import (create_seed, next_randint)
 
 class Maze():
     def __init__(self, widht: int, height: int, entry: tuple[int, int],
-                 exit: tuple[int, int], seed: int) -> None:
+                 exit: tuple[int, int], perfect: bool, seed: int) -> None:
         self.__matrix: list[list[Cell]] = []
         self.__widht: int = widht
         self.__height: int = height
         self.__entry: tuple[int, int] = entry
         self.__exit: tuple[int, int] = exit
         self.__seed: int = create_seed(seed)
+        self.__perfect = perfect
 
         for _ in range(height):
             row: list[int] = []
@@ -24,17 +25,9 @@ class Maze():
                 row.append(cell)
             self.__matrix.append(row)
 
-        # for y in range(height):
-        #     for x in range(widht):
-        #         if y == height - 1:
-        #             self.set_wall((x, y), "SOUTH", True)
-        #         if y == 0:
-        #             self.set_wall((x, y), "NORTH", True)
-
-        #         if x == widht - 1:
-        #             self.set_wall((x, y), "EST", True)
-        #         if x == 0:
-        #             self.set_wall((x, y), "WEST", True)
+        if perfect:
+            exit_cell: Cell = self.get_cell(exit)
+            exit_cell.set_exit()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix
@@ -42,8 +35,13 @@ class Maze():
     def get_cell(self, coords: tuple[int, int]) -> Cell:
         matrix = self.get_matrix()
         x, y = coords
+        if x < 0 or y < 0 or x >= self.__widht or y >= self.__height:
+            return None
         cell = matrix[y][x]
         return cell
+
+    def is_perfect(self) -> bool:
+        return self.__perfect
 
     def set_wall(self, coords: tuple[int, int], direction: str,
                  state: bool) -> None:
@@ -101,7 +99,7 @@ class Maze():
     def get_exit(self) -> tuple[int, int]:
         return self.__exit
 
-    def create_path(self, coords: tuple[int, int]) -> None:
+    def create_path(self, coords: tuple[int, int]) -> tuple[int, int]:
         seed: int = self.get_seed()
 
         cell: Cell = self.get_cell(coords)
@@ -111,7 +109,7 @@ class Maze():
         n_valid_cells: int = len(valid_cells)
 
         if n_valid_cells == 0:
-            return None
+            return coords
 
         next_coords: tuple[int, int] = valid_cells[
             next_randint(seed, 0, n_valid_cells)]
@@ -125,7 +123,43 @@ class Maze():
         }
 
         self.set_wall((coords), directions[next_coords], False)
-        self.create_path(next_coords)
+        return self.create_path(next_coords)
+
+    def find_next_cell(self, coords: tuple[int, int]) -> tuple[int, int]:
+        cell: Cell = self.get_cell(coords)
+
+        x, y = coords
+        directions: dict[str, tuple[int, int]] = {
+            "EST": (x + 1, y),
+            "WEST": (x - 1, y),
+            "SOUTH": (x, y + 1),
+            "NORTH": (x, y - 1),
+        }
+
+        open_walls = cell.get_state_walls(False)
+        valid_cells: list[tuple[int, int]] = []
+        visited_cells: list[tuple[int, int]] = []
+
+        for direction in open_walls:
+            check_coords: tuple[int, int] = directions[direction]
+            check_cell: Cell = self.get_cell(check_coords)
+            if check_cell is not None and not check_cell.is_dead():
+                visited_cells.append(check_coords)
+
+        valid_cells = self.check_surroundings(coords)
+        n_valid_cells: int = len(valid_cells)
+
+        if n_valid_cells == 0:
+            cell.set_dead()
+            n_visited_cells: int = len(visited_cells)
+            if n_visited_cells == 0:
+                return None
+            seed = self.get_seed()
+            next_cell: tuple[int, int] = visited_cells[
+                next_randint(seed, 0, n_visited_cells)]
+            return self.find_next_cell(next_cell)
+
+        return coords
 
     def check_surroundings(self,
                            coords: tuple[int, int]) -> list[tuple[int, int]]:
@@ -157,3 +191,38 @@ class Maze():
             if cell.is_visited() is False:
                 valid_cells.append(cell_coords)
         return valid_cells
+
+    def create_full_maze(self):
+        entry_coords: tuple[int, int] = self.get_entry()
+        next_coords: tuple[int, int] = self.create_path(entry_coords)
+        next_coords = self.find_next_cell(next_coords)
+
+        while next_coords is not None:
+            next_coords = self.create_path(next_coords)
+            next_coords = self.find_next_cell(next_coords)
+
+        if not self.is_perfect():
+            end_path_coords: tuple[int, int] = self.get_exit()
+            x, y = end_path_coords
+
+            possible_outputs: list[str] = []
+
+            if y + 1 < self.__height:
+                possible_outputs.append("SOUTH")
+            if y - 1 >= 0:
+                possible_outputs.append("NORTH")
+
+            if x + 1 < self.__widht:
+                possible_outputs.append("EST")
+            if x - 1 >= 0:
+                possible_outputs.append("WEST")
+
+            cell: Cell = self.get_cell(end_path_coords)
+            possible_outputs = list(set(possible_outputs) -
+                                    set(cell.get_state_walls(False)))
+            n_possible_outputs = len(possible_outputs)
+
+            if n_possible_outputs != 0:
+                seed = self.get_seed()
+                self.set_wall(end_path_coords, possible_outputs[
+                    next_randint(seed, 0, n_possible_outputs)], False)

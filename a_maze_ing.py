@@ -12,12 +12,15 @@ seed = config.get_value("SEED")
 entry = config.get_value("ENTRY")
 exit = config.get_value("EXIT")
 
-maze = Maze(widht, height, entry, exit, seed)
+perfect = config.get_value("PERFECT")
+
+
+maze = Maze(widht, height, entry, exit, perfect, seed)
 
 output_file = config.get_value("OUTPUT_FILE")
 
 file = open(output_file, "w")
 
-maze.create_path(entry)
+maze.create_full_maze()
 
 maze.output_in_file(file)

@@ -22,8 +22,19 @@ class Cell():
         self.set_visited()
         self.__dead = True
 
+    def set_exit(self) -> None:
+        self.__dead = True
+
     def get_wall(self, direction: str) -> bool:
         return self.__walls[direction]
+
+    def get_state_walls(self, state: bool) -> list[str]:
+        dir_list: list[str] = []
+
+        for direction in ["NORTH", "EST", "SOUTH", "WEST"]:
+            if self.get_wall(direction) is state:
+                dir_list.append(direction)
+        return dir_list
 
     def set_wall(self, direction: str, state: bool) -> None:
         self.__walls[direction] = state
