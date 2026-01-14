@@ -1,3 +1,0 @@
-typing
-flake8
-mypy

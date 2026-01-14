@@ -1,4 +1,4 @@
-#!/home/lgirard/Documents/A-Maze-ing/.venv/bin/python3
+#!/home/flauweri/Documents/6.A-Maze-Ing/.venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
