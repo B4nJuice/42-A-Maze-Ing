@@ -25,7 +25,7 @@ class Maze():
                 row.append(cell)
             self.__matrix.append(row)
 
-        if perfect:
+        if perfect is True:
             exit_cell: Cell = self.get_cell(exit)
             exit_cell.set_exit()
 
@@ -99,7 +99,8 @@ class Maze():
     def get_exit(self) -> tuple[int, int]:
         return self.__exit
 
-    def create_path(self, coords: tuple[int, int]) -> tuple[int, int]:
+    def create_path(self, coords: tuple[int, int],
+                    last_coords: tuple[int, int] = None) -> tuple[int, int]:
         seed: int = self.get_seed()
 
         cell: Cell = self.get_cell(coords)
@@ -110,6 +111,12 @@ class Maze():
 
         if n_valid_cells == 0:
             return coords
+
+        if cell.is_exit():
+            cell.set_dead()
+            if last_coords is None:
+                return coords
+            return last_coords
 
         next_coords: tuple[int, int] = valid_cells[
             next_randint(seed, 0, n_valid_cells)]
@@ -123,7 +130,7 @@ class Maze():
         }
 
         self.set_wall((coords), directions[next_coords], False)
-        return self.create_path(next_coords)
+        return self.create_path(next_coords, coords)
 
     def find_next_cell(self, coords: tuple[int, int]) -> tuple[int, int]:
         cell: Cell = self.get_cell(coords)

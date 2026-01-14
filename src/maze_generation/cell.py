@@ -2,6 +2,7 @@ class Cell():
     def __init__(self) -> None:
         self.__visited: bool = False
         self.__dead: bool = False
+        self.__exit: bool = False
         self.__walls: dict[str, bool] = {
             "NORTH": False,
             "WEST": False,
@@ -23,7 +24,10 @@ class Cell():
         self.__dead = True
 
     def set_exit(self) -> None:
-        self.__dead = True
+        self.__exit = True
+
+    def is_exit(self) -> bool:
+        return self.__exit
 
     def get_wall(self, direction: str) -> bool:
         return self.__walls[direction]
