@@ -81,6 +81,13 @@ def fill_param(config: dict[str, list[None, type, Any]],
             value.append(int(i))
 
         value = tuple(value)
+    elif parameter_list[1] == bool:
+        if value.capitalize() == "True":
+            value = True
+        elif value.capitalize() == "False":
+            value = False
+        else:
+            raise (ConfigError(f"invalid argument\"{value}\" for {parameter}"))
     else:
         value = parameter_list[1](value)
 

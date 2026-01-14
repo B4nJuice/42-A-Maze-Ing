@@ -14,8 +14,7 @@ exit = config.get_value("EXIT")
 
 perfect = config.get_value("PERFECT")
 
-
-maze = Maze(widht, height, entry, exit, True, seed)
+maze = Maze(widht, height, entry, exit, perfect, seed)
 
 output_file = config.get_value("OUTPUT_FILE")
 
