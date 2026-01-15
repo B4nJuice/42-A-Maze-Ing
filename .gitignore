@@ -3,3 +3,5 @@ mlx_CLXV
 maze.txt
 */__pycache__
 */*/__pycache__
+/mlx
+/mlx-2.2.dist-info
