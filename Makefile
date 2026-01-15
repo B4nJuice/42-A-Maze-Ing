@@ -4,7 +4,8 @@ run:
 	./.venv/bin/python3 $(MAIN_PROGRAM)
 
 clean:
-	rm -rf */*/*__pycache__
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 
 install:
 	pip install -r ./libs/requierements.txt
