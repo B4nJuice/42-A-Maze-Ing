@@ -1,6 +1,6 @@
 MAIN_PROGRAM = a_maze_ing.py
 
-run: 
+run:
 	./.venv/bin/python3 $(MAIN_PROGRAM)
 
 clean:
