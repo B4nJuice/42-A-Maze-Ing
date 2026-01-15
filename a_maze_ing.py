@@ -1,7 +1,6 @@
-# !/usr/bin/env python3
-
 from src.config_parser import Config
 from src.maze_generation.maze import Maze
+from src.display.display import Displayer
 
 config = Config("config.txt")
 
@@ -26,3 +25,7 @@ maze = Maze(width, height, entry, exit, perfect, seed, icon_file)
 maze.create_full_maze()
 
 maze.output_in_file(file)
+
+displayer = Displayer((1000, 1000), (900, 900), maze)
+
+displayer.display()
