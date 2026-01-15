@@ -13,6 +13,7 @@ class Maze():
         self.__exit: tuple[int, int] = exit
         self.__seed: int = create_seed(seed)
         self.__perfect = perfect
+        self.__after_exit = False
 
         for _ in range(height):
             row: list[int] = []
@@ -25,9 +26,8 @@ class Maze():
                 row.append(cell)
             self.__matrix.append(row)
 
-        if perfect is True:
-            exit_cell: Cell = self.get_cell(exit)
-            exit_cell.set_exit()
+        exit_cell: Cell = self.get_cell(exit)
+        exit_cell.set_exit()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix
@@ -42,6 +42,12 @@ class Maze():
 
     def is_perfect(self) -> bool:
         return self.__perfect
+
+    def is_after_exit(self) -> bool:
+        return self.__after_exit
+
+    def invert_after_exit(self) -> None:
+        self.__after_exit = True is not self.__after_exit
 
     def set_wall(self, coords: tuple[int, int], direction: str,
                  state: bool) -> None:
@@ -106,6 +112,9 @@ class Maze():
         cell: Cell = self.get_cell(coords)
         cell.set_visited()
 
+        if self.is_after_exit():
+            cell.set_after_exit()
+
         valid_cells: list[tuple[int, int]] = self.check_surroundings(coords)
         n_valid_cells: int = len(valid_cells)
 
@@ -113,10 +122,12 @@ class Maze():
             return coords
 
         if cell.is_exit():
-            cell.set_dead()
-            if last_coords is None:
-                return coords
-            return last_coords
+            self.invert_after_exit()
+            if self.is_perfect():
+                cell.set_dead()
+                if last_coords is None:
+                    return coords
+                return last_coords
 
         next_coords: tuple[int, int] = valid_cells[
             next_randint(seed, 0, n_valid_cells)]
@@ -134,6 +145,9 @@ class Maze():
 
     def find_next_cell(self, coords: tuple[int, int]) -> tuple[int, int]:
         cell: Cell = self.get_cell(coords)
+
+        if cell.is_exit():
+            self.invert_after_exit()
 
         x, y = coords
         directions: dict[str, tuple[int, int]] = {
@@ -209,27 +223,37 @@ class Maze():
             next_coords = self.find_next_cell(next_coords)
 
         if not self.is_perfect():
-            end_path_coords: tuple[int, int] = self.get_exit()
-            x, y = end_path_coords
+            possible_breach: list[tuple[str, tuple[int, int]]] = []
 
-            possible_outputs: list[str] = []
+            for y in range(self.__height):
+                for x in range(self.__widht):
+                    cell: Cell = self.get_cell((x, y))
 
-            if y + 1 < self.__height:
-                possible_outputs.append("SOUTH")
-            if y - 1 >= 0:
-                possible_outputs.append("NORTH")
+                    if cell.is_exit():
+                        continue
 
-            if x + 1 < self.__widht:
-                possible_outputs.append("EST")
-            if x - 1 >= 0:
-                possible_outputs.append("WEST")
+                    closed_walls = cell.get_state_walls(True)
 
-            cell: Cell = self.get_cell(end_path_coords)
-            possible_outputs = list(set(possible_outputs) -
-                                    set(cell.get_state_walls(False)))
-            n_possible_outputs = len(possible_outputs)
+                    next_cell: Cell = self.get_cell((x, y + 1))
+                    if "SOUTH" in closed_walls and next_cell is not None:
+                        if next_cell.is_exit():
+                            continue
+                        if next_cell.is_after_exit() != cell.is_after_exit():
+                            possible_breach.append(tuple(("SOUTH", (x, y))))
 
-            if n_possible_outputs != 0:
-                seed = self.get_seed()
-                self.set_wall(end_path_coords, possible_outputs[
-                    next_randint(seed, 0, n_possible_outputs)], False)
+                    next_cell: Cell = self.get_cell((x + 1, y))
+                    if "EST" in closed_walls and next_cell is not None:
+                        if next_cell.is_exit():
+                            continue
+                        if next_cell.is_after_exit() != cell.is_after_exit():
+                            possible_breach.append(tuple(("EST", (x, y))))
+
+            n_possible_breach: int = len(possible_breach)
+
+            if n_possible_breach > 0:
+                seed: int = self.get_seed()
+                n_breach: int = next_randint(seed, 1, 3)
+                for _ in range(n_breach):
+                    direction, coords = possible_breach[
+                        next_randint(seed, 0, n_possible_breach)]
+                    self.set_wall(coords, direction, False)

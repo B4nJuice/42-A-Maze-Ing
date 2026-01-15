@@ -3,6 +3,7 @@ class Cell():
         self.__visited: bool = False
         self.__dead: bool = False
         self.__exit: bool = False
+        self.__after_exit = False
         self.__walls: dict[str, bool] = {
             "NORTH": False,
             "WEST": False,
@@ -25,6 +26,12 @@ class Cell():
 
     def set_exit(self) -> None:
         self.__exit = True
+
+    def set_after_exit(self) -> None:
+        self.__after_exit = True
+
+    def is_after_exit(self) -> bool:
+        return self.__after_exit
 
     def is_exit(self) -> bool:
         return self.__exit
