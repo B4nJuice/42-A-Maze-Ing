@@ -17,3 +17,4 @@ lint:
 lint-strict:
 	flake8 .
 	mypy . --strict
+
