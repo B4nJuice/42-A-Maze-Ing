@@ -156,15 +156,9 @@ class Maze():
         next_coords: tuple[int, int] = valid_cells[
             next_randint(seed, 0, n_valid_cells)]
 
-        x, y = coords
-        directions: dict[tuple[int, int], str] = {
-            (x + 1, y): "EST",
-            (x - 1, y): "WEST",
-            (x, y + 1): "SOUTH",
-            (x, y - 1): "NORTH",
-        }
+        next_direction = self.get_dir_by_coords(coords, next_coords)
 
-        self.set_wall((coords), directions[next_coords], False)
+        self.set_wall((coords), next_direction, False)
         return self.create_path(next_coords, coords)
 
     def find_next_cell(self, coords: tuple[int, int]) -> tuple[int, int]:
@@ -173,20 +167,13 @@ class Maze():
         if cell.is_exit():
             self.invert_after_exit()
 
-        x, y = coords
-        directions: dict[str, tuple[int, int]] = {
-            "EST": (x + 1, y),
-            "WEST": (x - 1, y),
-            "SOUTH": (x, y + 1),
-            "NORTH": (x, y - 1),
-        }
-
         open_walls = cell.get_state_walls(False)
         valid_cells: list[tuple[int, int]] = []
         visited_cells: list[tuple[int, int]] = []
 
         for direction in open_walls:
-            check_coords: tuple[int, int] = directions[direction]
+            check_coords: tuple[int, int] = self.get_coords_by_dir(coords,
+                                                                   direction)
             check_cell: Cell = self.get_cell(check_coords)
             if check_cell is not None and not check_cell.is_dead():
                 visited_cells.append(check_coords)
@@ -281,3 +268,29 @@ class Maze():
                     direction, coords = possible_breach[
                         next_randint(seed, 0, n_possible_breach)]
                     self.set_wall(coords, direction, False)
+
+    @staticmethod
+    def get_coords_by_dir(coords: tuple[int, int],
+                          direction: str) -> tuple[int, int]:
+        x, y = coords
+        directions: dict[str, tuple[int, int]] = {
+            "EST": (x + 1, y),
+            "WEST": (x - 1, y),
+            "SOUTH": (x, y + 1),
+            "NORTH": (x, y - 1),
+        }
+        direction = directions[direction]
+        return direction
+
+    @staticmethod
+    def get_dir_by_coords(coords: tuple[int, int],
+                          next_coords: tuple[int, int]) -> str:
+        x, y = coords
+        directions: dict[tuple[int, int], str] = {
+            (x + 1, y): "EST",
+            (x - 1, y): "WEST",
+            (x, y + 1): "SOUTH",
+            (x, y - 1): "NORTH",
+        }
+        direction = directions[next_coords]
+        return direction

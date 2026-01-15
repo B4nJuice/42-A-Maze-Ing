@@ -1,2 +1,5 @@
 .venv
 mlx_CLXV
+maze.txt
+*/__pycache__
+*/*/__pycache__
