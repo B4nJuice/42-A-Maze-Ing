@@ -5,7 +5,8 @@ from src.maze_generation.seed import (create_seed, next_randint)
 
 class Maze():
     def __init__(self, widht: int, height: int, entry: tuple[int, int],
-                 exit: tuple[int, int], perfect: bool, seed: int) -> None:
+                 exit: tuple[int, int], perfect: bool, seed: int,
+                 icon_file: BinaryIO) -> None:
         self.__matrix: list[list[Cell]] = []
         self.__widht: int = widht
         self.__height: int = height
@@ -28,6 +29,29 @@ class Maze():
 
         exit_cell: Cell = self.get_cell(exit)
         exit_cell.set_exit()
+
+        icon_txt: str = icon_file.read(-1)
+        icon_rows: list[str] = icon_txt.split("\n")
+
+        icon_height: int = len(icon_rows)
+        if icon_height > 0:
+            icon_widht: int = len(icon_rows[0])
+            for row in icon_rows:
+                if len(row) != icon_widht:
+                    icon_rows.clear()
+                    break
+
+        start_x: int = round((widht - icon_widht) / 2)
+        start_y: int = round((height - icon_height) / 2)
+
+        icon_txt = icon_txt.replace("\n", "")
+
+        for y in range(icon_height):
+            for x in range(icon_widht):
+                if icon_txt[y * icon_widht + x] != "0":
+                    icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
+                    icon_cell: Cell = self.get_cell(icon_cell_coords)
+                    icon_cell.set_dead()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix

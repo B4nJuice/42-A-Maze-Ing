@@ -20,6 +20,7 @@ class Config():
             "OUTPUT_FILE": [None, str],
             "PERFECT": [None, bool],
             "SEED": [None, int],
+            "ICON_FILE": [None, str]
         }
 
         parse_file(file_name, self.__config)

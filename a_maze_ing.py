@@ -14,11 +14,14 @@ exit = config.get_value("EXIT")
 
 perfect = config.get_value("PERFECT")
 
-maze = Maze(widht, height, entry, exit, perfect, seed)
-
 output_file = config.get_value("OUTPUT_FILE")
+icon_file = config.get_value("ICON_FILE")
 
 file = open(output_file, "w")
+
+icon_file = open(icon_file, "r")
+
+maze = Maze(widht, height, entry, exit, perfect, seed, icon_file)
 
 maze.create_full_maze()
 
