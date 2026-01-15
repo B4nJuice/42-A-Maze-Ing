@@ -4,11 +4,11 @@ from src.maze_generation.seed import (create_seed, next_randint)
 
 
 class Maze():
-    def __init__(self, widht: int, height: int, entry: tuple[int, int],
+    def __init__(self, width: int, height: int, entry: tuple[int, int],
                  exit: tuple[int, int], perfect: bool, seed: int,
                  icon_file: BinaryIO) -> None:
         self.__matrix: list[list[Cell]] = []
-        self.__widht: int = widht
+        self.__width: int = width
         self.__height: int = height
         self.__entry: tuple[int, int] = entry
         self.__exit: tuple[int, int] = exit
@@ -18,7 +18,7 @@ class Maze():
 
         for _ in range(height):
             row: list[int] = []
-            for _ in range(widht):
+            for _ in range(width):
                 cell: Cell = Cell()
                 cell.set_wall("SOUTH", True)
                 cell.set_wall("NORTH", True)
@@ -35,20 +35,20 @@ class Maze():
 
         icon_height: int = len(icon_rows)
         if icon_height > 0:
-            icon_widht: int = len(icon_rows[0])
+            icon_width: int = len(icon_rows[0])
             for row in icon_rows:
-                if len(row) != icon_widht:
+                if len(row) != icon_width:
                     icon_rows.clear()
                     break
 
-        start_x: int = round((widht - icon_widht) / 2)
+        start_x: int = round((width - icon_width) / 2)
         start_y: int = round((height - icon_height) / 2)
 
         icon_txt = icon_txt.replace("\n", "")
 
         for y in range(icon_height):
-            for x in range(icon_widht):
-                if icon_txt[y * icon_widht + x] != "0":
+            for x in range(icon_width):
+                if icon_txt[y * icon_width + x] != "0":
                     icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_dead()
@@ -59,7 +59,7 @@ class Maze():
     def get_cell(self, coords: tuple[int, int]) -> Cell:
         matrix = self.get_matrix()
         x, y = coords
-        if x < 0 or y < 0 or x >= self.__widht or y >= self.__height:
+        if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
             return None
         cell = matrix[y][x]
         return cell
@@ -96,7 +96,7 @@ class Maze():
                     next_coords = (x, y + 1)
                     next_dir = "NORTH"
             case "EST":
-                if x + 1 < self.__widht:
+                if x + 1 < self.__width:
                     next_coords = (x + 1, y)
                     next_dir = "WEST"
 
@@ -107,7 +107,7 @@ class Maze():
     def output_in_file(self, file: BinaryIO) -> None:
         output: str = ""
         for y in range(self.__height):
-            for x in range(self.__widht):
+            for x in range(self.__width):
                 cell: Cell = self.get_cell((x, y))
                 value: str = cell.get_hex_value()
                 output += value
@@ -225,7 +225,7 @@ class Maze():
             if cell.is_visited() is False:
                 valid_cells.append(cell_coords)
 
-        if x + 1 < self.__widht:
+        if x + 1 < self.__width:
             cell_coords = (x + 1, y)
             cell = self.get_cell(cell_coords)
             if cell.is_visited() is False:
@@ -250,7 +250,7 @@ class Maze():
             possible_breach: list[tuple[str, tuple[int, int]]] = []
 
             for y in range(self.__height):
-                for x in range(self.__widht):
+                for x in range(self.__width):
                     cell: Cell = self.get_cell((x, y))
 
                     if cell.is_exit():

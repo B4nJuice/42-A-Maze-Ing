@@ -5,7 +5,7 @@ from src.maze_generation.maze import Maze
 
 config = Config("config.txt")
 
-widht = config.get_value("WIDHT")
+width = config.get_value("WIDTH")
 height = config.get_value("HEIGHT")
 seed = config.get_value("SEED")
 
@@ -21,7 +21,7 @@ file = open(output_file, "w")
 
 icon_file = open(icon_file, "r")
 
-maze = Maze(widht, height, entry, exit, perfect, seed, icon_file)
+maze = Maze(width, height, entry, exit, perfect, seed, icon_file)
 
 maze.create_full_maze()
 
