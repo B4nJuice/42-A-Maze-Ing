@@ -3,6 +3,21 @@ from src.maze_generation.cell import Cell
 from src.maze_generation.seed import (create_seed, next_randint)
 
 
+class MazeError(Exception):
+    def __init__(self, message="undefined"):
+        super().__init__(f"Maze error: {message}")
+
+
+class IconError(MazeError):
+    def __init__(self, message="undefined"):
+        super().__init__(f"Icon error: {message}")
+
+
+class EntryExitError(MazeError):
+    def __init__(self, message="undefined"):
+        super().__init__(f"Entry Exit error: {message}")
+
+
 class Maze():
     def __init__(self, width: int, height: int, entry: tuple[int, int],
                  exit: tuple[int, int], perfect: bool, seed: int,
@@ -15,6 +30,14 @@ class Maze():
         self.__seed: int = create_seed(seed)
         self.__perfect = perfect
         self.__after_exit = False
+
+        for coords in [entry, exit]:
+            x, y = coords
+            if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
+                raise EntryExitError("entry/exit cannot be outside the maze.")
+
+        if entry == exit:
+            raise EntryExitError("entry/exit cannot be the same cell.")
 
         for _ in range(height):
             row: list[int] = []
@@ -50,8 +73,13 @@ class Maze():
             for x in range(icon_width):
                 if icon_txt[y * icon_width + x] != "0":
                     icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
+                    if entry == icon_cell_coords or exit == icon_cell_coords:
+                        raise EntryExitError("entry/exit cannot be in the\
+icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_dead()
+
+        self.check_maze()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix
@@ -294,3 +322,22 @@ class Maze():
         }
         direction = directions[next_coords]
         return direction
+
+    def is_isolate_cell(self, coords: tuple[int, int]) -> bool:
+        cell: Cell = self.get_cell(coords)
+        if cell.is_dead():
+            return False
+
+        x, y = coords
+        for check_coords in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
+            check_cell: Cell = self.get_cell(check_coords)
+            if check_cell is not None and not check_cell.is_dead():
+                return False
+        return True
+
+    def check_maze(self) -> None:
+        for y in range(self.__height):
+            for x in range(self.__width):
+                coords: tuple[int, int] = (x, y)
+                if self.is_isolate_cell(coords):
+                    raise IconError(f"isolated cell : {coords}")
