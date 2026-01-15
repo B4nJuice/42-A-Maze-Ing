@@ -14,7 +14,7 @@ def put_pixel(data, x, y, color, bpp, size_line):
 
 
 def put_cell(x, y, X, Y, wall):
-    
+
 
 mlx = Mlx()
 mlx_ptr = mlx.mlx_init()
@@ -22,9 +22,8 @@ win_ptr = mlx.mlx_new_window(mlx_ptr, 1500, 1000, "A-Maze-ing")
 mlx.mlx_hook(win_ptr, 33, 1 << 17, close, (mlx, mlx_ptr, win_ptr))
 new_img = mlx.mlx_new_image(mlx_ptr, 900, 1000)
 data, bpp, size_line, endian = mlx.mlx_get_data_addr(new_img)
-for y in range(200):
-    for x in range(200):
-        put_pixel(data, x, y, 0xFFFFFFFF, bpp, size_line)
+
+put_pixel(data, 500, 500, 0xFFFFFFFF, bpp, size_line)
 
 mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 mlx.mlx_loop(mlx_ptr)
