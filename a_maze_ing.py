@@ -25,6 +25,7 @@ maze.create_full_maze()
 
 maze.output_in_file(file)
 
+
 displayer = Displayer((1000, 1000), (900, 900), maze)
 
 displayer.display()
