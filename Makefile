@@ -10,6 +10,8 @@ clean:
 install:
 	pip install -r ./libs/requierements.txt
 	pip install ./libs/mlx-2.2-py3-ubuntu-any.whl
+	sh install-mlx-zsh.sh
+	unzip mlx-2.2-py3-none-any.whl	
 
 lint:
 	flake8 .
@@ -19,3 +21,4 @@ lint-strict:
 	flake8 .
 	mypy . --strict
 
+.phony = run clean install lint lint-strict
