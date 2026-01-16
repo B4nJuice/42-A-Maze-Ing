@@ -69,7 +69,7 @@ class Maze():
                     icon_rows.clear()
                     raise IconError("icon line length has to stay the same.")
 
-        if icon_height > height - 2 or icon_width > width - 2:
+        if icon_height > height or icon_width > width:
             raise IconError("icon too big or maze too small.")
 
         start_x: int = round((width - icon_width) / 2)
@@ -83,9 +83,9 @@ class Maze():
                     icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
                     if entry == icon_cell_coords or exit == icon_cell_coords:
                         raise EntryExitError("entry/exit cannot be in the\
-icon")
+ icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
-                    icon_cell.set_dead()
+                    icon_cell.set_icon()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix

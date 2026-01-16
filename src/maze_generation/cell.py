@@ -22,6 +22,7 @@ class Cell():
         return self.__icon
 
     def set_icon(self) -> None:
+        self.set_dead()
         self.__icon = True
 
     def is_dead(self) -> bool:
