@@ -38,7 +38,7 @@ class Displayer():
         entry_color = 0xFFF8F7FF
         exit_color = 0xFFFFD8BE
         path_color = 0xFFFFEEDD
-        icon_color = 0xFFFF0000
+        icon_color = 0xFFFF92C2
         self.__background_color = background_color
         self.__walls_color = walls_color
         self.__entry_color = entry_color
@@ -84,6 +84,9 @@ class Displayer():
 
     def get_icon_color(self) -> int:
         return self.__icon_color
+    
+    def get_path_color(self) -> int:
+        return self.__path_color
 
     def display(self):
         maze = self.get_maze()
