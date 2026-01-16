@@ -57,13 +57,20 @@ class Maze():
         icon_txt: str = icon_file.read(-1)
         icon_rows: list[str] = icon_txt.split("\n")
 
+        for row in icon_rows:
+            if row == "":
+                icon_rows.remove(row)
+
         icon_height: int = len(icon_rows)
         if icon_height > 0:
             icon_width: int = len(icon_rows[0])
             for row in icon_rows:
                 if len(row) != icon_width:
                     icon_rows.clear()
-                    break
+                    raise IconError("icon line length has to stay the same.")
+
+        if icon_height > height - 2 or icon_width > width - 2:
+            raise IconError("icon too big or maze too small.")
 
         start_x: int = round((width - icon_width) / 2)
         start_y: int = round((height - icon_height) / 2)
@@ -79,8 +86,6 @@ class Maze():
 icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_dead()
-
-        self.check_maze()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix
@@ -312,6 +317,7 @@ icon")
                     direction, coords = possible_breach[
                         next_randint(seed, 0, n_possible_breach)]
                     self.set_wall(coords, direction, False)
+        self.check_maze()
 
     @staticmethod
     def get_coords_by_dir(coords: tuple[int, int],
@@ -358,12 +364,9 @@ icon")
         if cell.is_dead():
             return False
 
-        x, y = coords
-        for check_coords in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
-            check_cell: Cell = self.get_cell(check_coords)
-            if check_cell is not None and not check_cell.is_dead():
-                return False
-        return True
+        if len(cell.get_state_walls(True)) == 4:
+            return True
+        return False
 
     def check_maze(self) -> None:
         for y in range(self.__height):
