@@ -31,6 +31,7 @@ class Maze():
         self.__seed: int = create_seed(seed)
         self.__perfect = perfect
         self.__after_exit = False
+        self.__shortest_path = []
 
         for coords in [entry, exit]:
             x, y = coords
@@ -152,7 +153,7 @@ class Maze():
         for x, y in [self.get_entry(), self.get_exit()]:
             output += f"{x},{y}\n"
 
-        for direction in self.find_shortest_path():
+        for direction in self.get_shortest_path():
             output += direction[0]
 
         output += "\n"
@@ -173,6 +174,9 @@ class Maze():
 
     def get_height(self) -> int:
         return self.__height
+
+    def get_shortest_path(self) -> list[str]:
+        return self.__shortest_path
 
     def create_path(self, coords: tuple[int, int],
                     last_coords: tuple[int, int] = None) -> tuple[int, int]:
@@ -318,6 +322,7 @@ class Maze():
                         next_randint(seed, 0, n_possible_breach)]
                     self.set_wall(coords, direction, False)
         self.check_maze()
+        self.__shortest_path = self.find_shortest_path()
 
     @staticmethod
     def get_coords_by_dir(coords: tuple[int, int],
