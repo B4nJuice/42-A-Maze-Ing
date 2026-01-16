@@ -3,12 +3,27 @@ from src.maze_generation.cell import Cell
 from src.maze_generation.seed import (create_seed, next_randint)
 
 
+class MazeError(Exception):
+    def __init__(self, message="undefined"):
+        super().__init__(f"Maze error: {message}")
+
+
+class IconError(MazeError):
+    def __init__(self, message="undefined"):
+        super().__init__(f"Icon error: {message}")
+
+
+class EntryExitError(MazeError):
+    def __init__(self, message="undefined"):
+        super().__init__(f"Entry Exit error: {message}")
+
+
 class Maze():
-    def __init__(self, widht: int, height: int, entry: tuple[int, int],
+    def __init__(self, width: int, height: int, entry: tuple[int, int],
                  exit: tuple[int, int], perfect: bool, seed: int,
                  icon_file: BinaryIO) -> None:
         self.__matrix: list[list[Cell]] = []
-        self.__widht: int = widht
+        self.__width: int = width
         self.__height: int = height
         self.__entry: tuple[int, int] = entry
         self.__exit: tuple[int, int] = exit
@@ -16,9 +31,17 @@ class Maze():
         self.__perfect = perfect
         self.__after_exit = False
 
+        for coords in [entry, exit]:
+            x, y = coords
+            if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
+                raise EntryExitError("entry/exit cannot be outside the maze.")
+
+        if entry == exit:
+            raise EntryExitError("entry/exit cannot be the same cell.")
+
         for _ in range(height):
             row: list[int] = []
-            for _ in range(widht):
+            for _ in range(width):
                 cell: Cell = Cell()
                 cell.set_wall("SOUTH", True)
                 cell.set_wall("NORTH", True)
@@ -35,23 +58,28 @@ class Maze():
 
         icon_height: int = len(icon_rows)
         if icon_height > 0:
-            icon_widht: int = len(icon_rows[0])
+            icon_width: int = len(icon_rows[0])
             for row in icon_rows:
-                if len(row) != icon_widht:
+                if len(row) != icon_width:
                     icon_rows.clear()
                     break
 
-        start_x: int = round((widht - icon_widht) / 2)
+        start_x: int = round((width - icon_width) / 2)
         start_y: int = round((height - icon_height) / 2)
 
         icon_txt = icon_txt.replace("\n", "")
 
         for y in range(icon_height):
-            for x in range(icon_widht):
-                if icon_txt[y * icon_widht + x] != "0":
+            for x in range(icon_width):
+                if icon_txt[y * icon_width + x] != "0":
                     icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
+                    if entry == icon_cell_coords or exit == icon_cell_coords:
+                        raise EntryExitError("entry/exit cannot be in the\
+icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_dead()
+
+        self.check_maze()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix
@@ -59,7 +87,7 @@ class Maze():
     def get_cell(self, coords: tuple[int, int]) -> Cell:
         matrix = self.get_matrix()
         x, y = coords
-        if x < 0 or y < 0 or x >= self.__widht or y >= self.__height:
+        if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
             return None
         cell = matrix[y][x]
         return cell
@@ -96,7 +124,7 @@ class Maze():
                     next_coords = (x, y + 1)
                     next_dir = "NORTH"
             case "EST":
-                if x + 1 < self.__widht:
+                if x + 1 < self.__width:
                     next_coords = (x + 1, y)
                     next_dir = "WEST"
 
@@ -107,7 +135,7 @@ class Maze():
     def output_in_file(self, file: BinaryIO) -> None:
         output: str = ""
         for y in range(self.__height):
-            for x in range(self.__widht):
+            for x in range(self.__width):
                 cell: Cell = self.get_cell((x, y))
                 value: str = cell.get_hex_value()
                 output += value
@@ -156,15 +184,9 @@ class Maze():
         next_coords: tuple[int, int] = valid_cells[
             next_randint(seed, 0, n_valid_cells)]
 
-        x, y = coords
-        directions: dict[tuple[int, int], str] = {
-            (x + 1, y): "EST",
-            (x - 1, y): "WEST",
-            (x, y + 1): "SOUTH",
-            (x, y - 1): "NORTH",
-        }
+        next_direction = self.get_dir_by_coords(coords, next_coords)
 
-        self.set_wall((coords), directions[next_coords], False)
+        self.set_wall((coords), next_direction, False)
         return self.create_path(next_coords, coords)
 
     def find_next_cell(self, coords: tuple[int, int]) -> tuple[int, int]:
@@ -173,20 +195,13 @@ class Maze():
         if cell.is_exit():
             self.invert_after_exit()
 
-        x, y = coords
-        directions: dict[str, tuple[int, int]] = {
-            "EST": (x + 1, y),
-            "WEST": (x - 1, y),
-            "SOUTH": (x, y + 1),
-            "NORTH": (x, y - 1),
-        }
-
         open_walls = cell.get_state_walls(False)
         valid_cells: list[tuple[int, int]] = []
         visited_cells: list[tuple[int, int]] = []
 
         for direction in open_walls:
-            check_coords: tuple[int, int] = directions[direction]
+            check_coords: tuple[int, int] = self.get_coords_by_dir(coords,
+                                                                   direction)
             check_cell: Cell = self.get_cell(check_coords)
             if check_cell is not None and not check_cell.is_dead():
                 visited_cells.append(check_coords)
@@ -225,7 +240,7 @@ class Maze():
             if cell.is_visited() is False:
                 valid_cells.append(cell_coords)
 
-        if x + 1 < self.__widht:
+        if x + 1 < self.__width:
             cell_coords = (x + 1, y)
             cell = self.get_cell(cell_coords)
             if cell.is_visited() is False:
@@ -250,7 +265,7 @@ class Maze():
             possible_breach: list[tuple[str, tuple[int, int]]] = []
 
             for y in range(self.__height):
-                for x in range(self.__widht):
+                for x in range(self.__width):
                     cell: Cell = self.get_cell((x, y))
 
                     if cell.is_exit():
@@ -281,3 +296,48 @@ class Maze():
                     direction, coords = possible_breach[
                         next_randint(seed, 0, n_possible_breach)]
                     self.set_wall(coords, direction, False)
+
+    @staticmethod
+    def get_coords_by_dir(coords: tuple[int, int],
+                          direction: str) -> tuple[int, int]:
+        x, y = coords
+        directions: dict[str, tuple[int, int]] = {
+            "EST": (x + 1, y),
+            "WEST": (x - 1, y),
+            "SOUTH": (x, y + 1),
+            "NORTH": (x, y - 1),
+        }
+        direction = directions[direction]
+        return direction
+
+    @staticmethod
+    def get_dir_by_coords(coords: tuple[int, int],
+                          next_coords: tuple[int, int]) -> str:
+        x, y = coords
+        directions: dict[tuple[int, int], str] = {
+            (x + 1, y): "EST",
+            (x - 1, y): "WEST",
+            (x, y + 1): "SOUTH",
+            (x, y - 1): "NORTH",
+        }
+        direction = directions[next_coords]
+        return direction
+
+    def is_isolate_cell(self, coords: tuple[int, int]) -> bool:
+        cell: Cell = self.get_cell(coords)
+        if cell.is_dead():
+            return False
+
+        x, y = coords
+        for check_coords in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
+            check_cell: Cell = self.get_cell(check_coords)
+            if check_cell is not None and not check_cell.is_dead():
+                return False
+        return True
+
+    def check_maze(self) -> None:
+        for y in range(self.__height):
+            for x in range(self.__width):
+                coords: tuple[int, int] = (x, y)
+                if self.is_isolate_cell(coords):
+                    raise IconError(f"isolated cell : {coords}")

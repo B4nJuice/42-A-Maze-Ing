@@ -13,7 +13,7 @@ class ConfigError(Exception):
 class Config():
     def __init__(self, file_name: str):
         self.__config = {
-            "WIDHT": [None, int],
+            "WIDTH": [None, int],
             "HEIGHT": [None, int],
             "ENTRY": [None, tuple, 2],
             "EXIT": [None, tuple, 2],
