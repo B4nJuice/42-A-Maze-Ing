@@ -1,3 +1,4 @@
+import copy
 from typing import BinaryIO
 from src.maze_generation.cell import Cell
 from src.maze_generation.seed import (create_seed, next_randint)
@@ -56,13 +57,20 @@ class Maze():
         icon_txt: str = icon_file.read(-1)
         icon_rows: list[str] = icon_txt.split("\n")
 
+        for row in icon_rows:
+            if row == "":
+                icon_rows.remove(row)
+
         icon_height: int = len(icon_rows)
         if icon_height > 0:
             icon_width: int = len(icon_rows[0])
             for row in icon_rows:
                 if len(row) != icon_width:
                     icon_rows.clear()
-                    break
+                    raise IconError("icon line length has to stay the same.")
+
+        if icon_height > height - 2 or icon_width > width - 2:
+            raise IconError("icon too big or maze too small.")
 
         start_x: int = round((width - icon_width) / 2)
         start_y: int = round((height - icon_height) / 2)
@@ -78,8 +86,6 @@ class Maze():
 icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_dead()
-
-        self.check_maze()
 
     def get_matrix(self) -> list[list[Cell]]:
         return self.__matrix
@@ -143,8 +149,13 @@ icon")
 
         output += "\n"
 
-        for x, y in [self.__entry, self.__exit]:
+        for x, y in [self.get_entry(), self.get_exit()]:
             output += f"{x},{y}\n"
+
+        for direction in self.find_shortest_path():
+            output += direction[0]
+
+        output += "\n"
 
         file.write(output)
 
@@ -283,12 +294,16 @@ icon")
                     if "SOUTH" in closed_walls and next_cell is not None:
                         if next_cell.is_exit():
                             continue
+                        if next_cell.is_icon() or cell.is_icon():
+                            continue
                         if next_cell.is_after_exit() != cell.is_after_exit():
                             possible_breach.append(tuple(("SOUTH", (x, y))))
 
                     next_cell: Cell = self.get_cell((x + 1, y))
                     if "EST" in closed_walls and next_cell is not None:
                         if next_cell.is_exit():
+                            continue
+                        if next_cell.is_icon() or cell.is_icon():
                             continue
                         if next_cell.is_after_exit() != cell.is_after_exit():
                             possible_breach.append(tuple(("EST", (x, y))))
@@ -302,6 +317,7 @@ icon")
                     direction, coords = possible_breach[
                         next_randint(seed, 0, n_possible_breach)]
                     self.set_wall(coords, direction, False)
+        self.check_maze()
 
     @staticmethod
     def get_coords_by_dir(coords: tuple[int, int],
@@ -329,17 +345,28 @@ icon")
         direction = directions[next_coords]
         return direction
 
+    @staticmethod
+    def get_opposite_dir(direction: str) -> str | None:
+        directions: dict[tuple[int, int], str] = {
+            "WEST": "EST",
+            "EST": "WEST",
+            "NORTH": "SOUTH",
+            "SOUTH": "NORTH",
+        }
+
+        if direction is None:
+            return None
+
+        return directions[direction]
+
     def is_isolate_cell(self, coords: tuple[int, int]) -> bool:
         cell: Cell = self.get_cell(coords)
         if cell.is_dead():
             return False
 
-        x, y = coords
-        for check_coords in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]:
-            check_cell: Cell = self.get_cell(check_coords)
-            if check_cell is not None and not check_cell.is_dead():
-                return False
-        return True
+        if len(cell.get_state_walls(True)) == 4:
+            return True
+        return False
 
     def check_maze(self) -> None:
         for y in range(self.__height):
@@ -347,3 +374,53 @@ icon")
                 coords: tuple[int, int] = (x, y)
                 if self.is_isolate_cell(coords):
                     raise IconError(f"isolated cell : {coords}")
+
+    def find_shortest_path(self) -> str:
+        entry_coords: tuple[int, int] = self.get_entry()
+        entry_cell: Cell = self.get_cell(entry_coords)
+
+        entry_path: list[list[str], Cell] = [[], entry_cell, entry_coords]
+
+        paths = []
+        paths.append(entry_path)
+
+        while True:
+            for path in paths:
+                cell: Cell = path[1]
+                if cell.is_exit():
+                    return path[0]
+                coords: tuple[int, int] = path[2]
+                directions: list[str] | str = cell.get_state_walls(False)
+
+                if len(directions) <= 2:
+                    last_dir: str | None = None
+                    if len(path[0]) > 0:
+                        last_dir = path[0][-1]
+                    for direction in directions:
+                        if len(path[0]) == 0 or direction !=\
+                                self.get_opposite_dir(last_dir):
+                            path[0].append(direction)
+                            next_coords: tuple[int, int] =\
+                                self.get_coords_by_dir(coords, direction)
+                            next_cell: Cell = self.get_cell(next_coords)
+                            path[2] = next_coords
+                            path[1] = next_cell
+                    if len(directions) == 1 and directions[0] ==\
+                            self.get_opposite_dir(last_dir):
+                        paths.remove(path)
+                else:
+                    last_dir: str | None = None
+                    if len(path[0]) > 0:
+                        last_dir = path[0][-1]
+                    for direction in directions:
+                        if direction != self.get_opposite_dir(last_dir):
+                            new_path: list[list[str], Cell] =\
+                                copy.deepcopy(path)
+                            new_path[0].append(direction)
+                            next_coords: tuple[int, int] =\
+                                self.get_coords_by_dir(coords, direction)
+                            next_cell: Cell = self.get_cell(next_coords)
+                            new_path[2] = next_coords
+                            new_path[1] = next_cell
+                            paths.append(new_path)
+                    paths.remove(path)

@@ -21,7 +21,6 @@ file = open(output_file, "w")
 icon_file = open(icon_file, "r")
 
 maze = Maze(width, height, entry, exit, perfect, seed, icon_file)
-
 maze.create_full_maze()
 
 maze.output_in_file(file)
