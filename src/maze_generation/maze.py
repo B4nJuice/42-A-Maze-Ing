@@ -79,7 +79,7 @@ class Maze():
 
         for y in range(icon_height):
             for x in range(icon_width):
-                if icon_txt[y * icon_width + x] != "0":
+                if icon_txt[y * icon_width + x] not in ["0", " "]:
                     icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
                     if entry == icon_cell_coords or exit == icon_cell_coords:
                         raise EntryExitError("entry/exit cannot be in the\
