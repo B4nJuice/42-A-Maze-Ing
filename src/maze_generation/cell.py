@@ -3,7 +3,8 @@ class Cell():
         self.__visited: bool = False
         self.__dead: bool = False
         self.__exit: bool = False
-        self.__after_exit = False
+        self.__after_exit: bool = False
+        self.__icon: bool = False
         self.__walls: dict[str, bool] = {
             "NORTH": False,
             "WEST": False,
@@ -16,6 +17,12 @@ class Cell():
 
     def set_visited(self) -> None:
         self.__visited = True
+
+    def is_icon(self) -> bool:
+        return self.__icon
+
+    def set_icon(self) -> None:
+        self.__icon = True
 
     def is_dead(self) -> bool:
         return self.__dead
