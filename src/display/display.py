@@ -113,6 +113,7 @@ class Displayer():
 
         self.print_entry()
         self.print_exit()
+        self.print_path()
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
         mlx.mlx_loop(mlx_ptr)
 
@@ -131,7 +132,6 @@ class Displayer():
         self.print_cell(entry, entry_color)
 
         cell: Cell = maze.get_cell(entry)
-
         walls = cell.get_state_walls(False)
         self.print_walls(entry, walls, background_color)
         walls = cell.get_state_walls(True)
@@ -147,7 +147,6 @@ class Displayer():
         self.print_cell(exit, exit_color)
 
         cell: Cell = maze.get_cell(exit)
-
         walls = cell.get_state_walls(False)
         self.print_walls(exit, walls, background_color)
         walls = cell.get_state_walls(True)
@@ -197,6 +196,18 @@ class Displayer():
             self.print_north_south(pixel_x, pixel_y, color)
         if "SOUTH" in walls:
             self.print_north_south(pixel_x, pixel_y + math.ceil(size * 3/4), color)
+
+    def print_path(self):
+        maze = self.get_maze(entry)
+        path_str = maze.find_shortest_path()
+        coords = maze.get_entry()
+        path_color = self.get_path_color()
+        for char in path_str:
+            coords = maze.get_coords_by_dir(coords, char)
+            self.print_cell(coords, path_color)
+            cell = maze.get_cell()
+            walls = cell.get_state_walls()
+            self.print_walls(coords, walls, path_color)
 
     def close(self, _):
         mlx = self.get_mlx()
