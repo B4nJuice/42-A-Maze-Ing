@@ -157,6 +157,12 @@ icon")
     def get_exit(self) -> tuple[int, int]:
         return self.__exit
 
+    def get_width(self) -> int:
+        return self.__width
+
+    def get_height(self) -> int:
+        return self.__height
+
     def create_path(self, coords: tuple[int, int],
                     last_coords: tuple[int, int] = None) -> tuple[int, int]:
         seed: int = self.get_seed()
