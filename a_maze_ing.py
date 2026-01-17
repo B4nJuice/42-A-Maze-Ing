@@ -27,4 +27,4 @@ maze.output_in_file(file)
 
 displayer = Displayer((700, 700), (600, 600), maze)
 
-displayer.display()
+displayer.animate_display(60)
