@@ -33,6 +33,8 @@ class Displayer():
             size = image_y // height
         self.__cell_size = size
 
+        div = 4
+        self.__div = div
         background_color = 0xFFB8B8FF
         walls_color = 0xFF9381FF
         entry_color = 0xFFF8F7FF
@@ -70,6 +72,9 @@ class Displayer():
     def get_win_ptr(self) -> Any:
         return self.__win_ptr
 
+    def get_div(self) -> int:
+        return self.__div
+
     def get_background_color(self) -> int:
         return self.__background_color
 
@@ -84,7 +89,7 @@ class Displayer():
 
     def get_icon_color(self) -> int:
         return self.__icon_color
-    
+
     def get_path_color(self) -> int:
         return self.__path_color
 
@@ -167,47 +172,51 @@ class Displayer():
     def print_west_east(self, pixel_x_start, pixel_y_start, walls_color):
         size = self.get_cell_size()
         new_img = self.get_new_img()
+        div = self.get_div()
         mlx = self.get_mlx()
         data, bpb, size_line, endian = mlx.mlx_get_data_addr(new_img)
         for y in range(pixel_y_start, pixel_y_start + size):
-            for x in range(pixel_x_start, pixel_x_start + size // 4):
+            for x in range(pixel_x_start, pixel_x_start + size // div):
                 Displayer.put_pixel(data, x, y, walls_color, bpb, size_line)
 
     def print_north_south(self, pixel_x_start, pixel_y_start, walls_color):
         size = self.get_cell_size()
         new_img = self.get_new_img()
+        div = self.get_div()
         mlx = self.get_mlx()
         data, bpb, size_line, endian = mlx.mlx_get_data_addr(new_img)
-        for y in range(pixel_y_start, pixel_y_start + size // 4):
+        for y in range(pixel_y_start, pixel_y_start + size // div):
             for x in range(pixel_x_start, pixel_x_start + size):
                 Displayer.put_pixel(data, x, y, walls_color, bpb, size_line)
 
     def print_walls(self, coords: tuple[int, int], walls: list[str], color: int):
         x, y = coords
         size = self.get_cell_size()
+        div = self.get_div()
+        add_to_coord = math.ceil(size * (div-1)/div)
         pixel_x = x * size
         pixel_y = y * size
 
         if "WEST" in walls:
             self.print_west_east(pixel_x, pixel_y, color)
         if "EST" in walls:
-            self.print_west_east(pixel_x + math.ceil(size * 3/4), pixel_y, color)
+            self.print_west_east(pixel_x + add_to_coord, pixel_y, color)
         if "NORTH" in walls:
             self.print_north_south(pixel_x, pixel_y, color)
         if "SOUTH" in walls:
-            self.print_north_south(pixel_x, pixel_y + math.ceil(size * 3/4), color)
+            self.print_north_south(pixel_x, pixel_y + add_to_coord, color)
 
     def print_path(self):
-        maze = self.get_maze(entry)
-        path_str = maze.find_shortest_path()
+        maze = self.get_maze()
         coords = maze.get_entry()
         path_color = self.get_path_color()
-        for char in path_str:
+        walls_color = self.get_walls_color()
+        for char in maze.get_shortest_path():
             coords = maze.get_coords_by_dir(coords, char)
             self.print_cell(coords, path_color)
-            cell = maze.get_cell()
-            walls = cell.get_state_walls()
-            self.print_walls(coords, walls, path_color)
+            cell = maze.get_cell(coords)
+            walls = cell.get_state_walls(True)
+            self.print_walls(coords, walls, walls_color)
 
     def close(self, _):
         mlx = self.get_mlx()
