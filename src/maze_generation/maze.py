@@ -63,8 +63,9 @@ class Maze():
                 icon_rows.remove(row)
 
         icon_height: int = len(icon_rows)
+        icon_width: int = 0
         if icon_height > 0:
-            icon_width: int = len(icon_rows[0])
+            icon_width = len(icon_rows[0])
             for row in icon_rows:
                 if len(row) != icon_width:
                     icon_rows.clear()
