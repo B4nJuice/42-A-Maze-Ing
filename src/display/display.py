@@ -10,7 +10,8 @@ class Displayer():
     def __init__(self,
                  window_size: tuple[int, int],
                  image_size: tuple[int, int],
-                 maze: Maze) -> None:
+                 maze: Maze,
+                 wall_percent: int) -> None:
         self.__window_size = window_size
         self.__image_size = image_size
         self.__maze = maze
@@ -37,7 +38,9 @@ class Displayer():
             size = image_y // height
         self.__cell_size = size
 
-        div = 4
+        if wall_percent <= 0:
+            wall_percent = 1
+        div = round(1 / wall_percent * 100)
         self.__div = div
         background_color = 0xFFB8B8FF
         walls_color = 0xFF9381FF
@@ -126,7 +129,18 @@ class Displayer():
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
         mlx.mlx_loop(mlx_ptr)
 
-    def animate_display(self, fps: int):
+    def start_animated_display(self, fps: int):
+        mlx = self.get_mlx()
+        mlx_ptr = self.get_mlx_ptr()
+
+        self.fps = fps
+        self.timestamp = time.time()
+        self.first = True
+
+        mlx.mlx_loop_hook(mlx_ptr, self.__animate_display, None)
+        mlx.mlx_loop(mlx_ptr)
+
+    def __animate_display(self, _):
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -138,66 +152,66 @@ class Displayer():
         icon_color = self.get_icon_color()
         walls_color = self.get_walls_color()
 
-        for x in range(width):
-            for y in range(height):
-                coords: tuple[int, int] = (x, y)
+        if self.first:
+            for x in range(width):
+                for y in range(height):
+                    coords: tuple[int, int] = (x, y)
+                    cell: Cell = maze.get_cell(coords)
+                    if cell.is_icon():
+                        self.print_cell(coords, icon_color)
+                        walls = cell.get_state_walls(True)
+                        self.print_walls(coords, walls, walls_color)
+                    else:
+                        self.print_cell(coords, walls_color)
+            mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
+
+            entry_coords: tuple[int, int] = maze.get_entry()
+
+            self.visited: set[tuple[int, int]] = set()
+            self.stack: list[tuple[int, int]] = [entry_coords]
+
+        if self.fps <= 0:
+            self.fps = 1
+        frame_delay = 1 / self.fps
+
+        if time.time() - self.timestamp >= frame_delay or self.first:
+            self.timestamp = time.time()
+        else:
+            return
+
+        if len(self.stack) or self.first:
+            actual_len: int = len(self.visited)
+            while len(self.visited) == actual_len:
+                coords = self.stack.pop()
+                if coords in self.visited:
+                    continue
+                self.visited.add(coords)
+
                 cell: Cell = maze.get_cell(coords)
-                if cell.is_icon():
-                    self.print_cell(coords, icon_color)
-                    walls = cell.get_state_walls(True)
-                    self.print_walls(coords, walls, walls_color)
-                else:
-                    self.print_cell(coords, walls_color)
-        mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
-        entry_coords: tuple[int, int] = maze.get_entry()
+                self.print_cell(coords, background_color)
+                walls = cell.get_state_walls(True)
+                self.print_walls(coords, walls, walls_color)
 
-        visited: set[tuple[int, int]] = set()
-        stack: list[tuple[int, int]] = [entry_coords]
+                mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0,
+                                            0)
 
-        if fps <= 0:
-            fps = 1
-        frame_delay = 1 / fps
-        update_every = 0
-        painted_since_update = 0
+                directions = cell.get_state_walls(False)
+                if isinstance(directions, str):
+                    directions = [directions]
 
-        while stack:
-            coords = stack.pop()
-            if coords in visited:
-                continue
-            visited.add(coords)
-
-            cell: Cell = maze.get_cell(coords)
-
-            self.print_cell(coords, background_color)
-            walls = cell.get_state_walls(True)
-            self.print_walls(coords, walls, walls_color)
-
-            painted_since_update += 1
-            if painted_since_update >= update_every:
-                for _ in range(50):
-                    mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0,
-                                                0)
-                time.sleep(frame_delay)
-                painted_since_update = 0
-
-            directions = cell.get_state_walls(False)
-            if isinstance(directions, str):
-                directions = [directions]
-
-            for direction in directions:
-                next_coords: tuple[int, int] = (
-                    maze.get_coords_by_dir(coords, direction)
-                )
-                if next_coords not in visited:
-                    stack.append(next_coords)
-
-        self.print_path()
-        self.print_entry()
-        self.print_exit()
-        mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
-
-        mlx.mlx_loop(mlx_ptr)
+                for direction in directions:
+                    next_coords: tuple[int, int] = (
+                        maze.get_coords_by_dir(coords, direction)
+                    )
+                    if next_coords not in self.visited:
+                        self.stack.append(next_coords)
+                self.first = False
+        else:
+            self.print_path()
+            self.print_entry()
+            self.print_exit()
+            mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
     @staticmethod
     def put_pixel(data, x, y, color, bpp, size_line):
