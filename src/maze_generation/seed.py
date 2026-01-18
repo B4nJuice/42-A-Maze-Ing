@@ -9,6 +9,6 @@ def create_seed(seed: int) -> int:
     return seed
 
 
-def next_randint(seed: int, min: int, max: int):
+def next_randint(min: int, max: int):
     r: float = random.random()
     return math.floor(min + r * (max - min))

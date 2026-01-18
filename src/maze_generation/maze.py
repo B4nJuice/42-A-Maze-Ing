@@ -181,7 +181,6 @@ class Maze():
 
     def create_path(self, coords: tuple[int, int],
                     last_coords: tuple[int, int] = None) -> tuple[int, int]:
-        seed: int = self.get_seed()
 
         cell: Cell = self.get_cell(coords)
         cell.set_visited()
@@ -204,7 +203,7 @@ class Maze():
                 return last_coords
 
         next_coords: tuple[int, int] = valid_cells[
-            next_randint(seed, 0, n_valid_cells)]
+            next_randint(0, n_valid_cells)]
 
         next_direction = self.get_dir_by_coords(coords, next_coords)
 
@@ -236,9 +235,8 @@ class Maze():
             n_visited_cells: int = len(visited_cells)
             if n_visited_cells == 0:
                 return None
-            seed = self.get_seed()
             next_cell: tuple[int, int] = visited_cells[
-                next_randint(seed, 0, n_visited_cells)]
+                next_randint(0, n_visited_cells)]
             return self.find_next_cell(next_cell)
 
         return coords
@@ -316,11 +314,10 @@ class Maze():
             n_possible_breach: int = len(possible_breach)
 
             if n_possible_breach > 0:
-                seed: int = self.get_seed()
-                n_breach: int = next_randint(seed, 1, 3)
+                n_breach: int = next_randint(1, 3)
                 for _ in range(n_breach):
                     direction, coords = possible_breach[
-                        next_randint(seed, 0, n_possible_breach)]
+                        next_randint(0, n_possible_breach)]
                     self.set_wall(coords, direction, False)
         self.check_maze()
         self.__shortest_path = self.find_shortest_path()
