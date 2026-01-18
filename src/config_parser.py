@@ -11,22 +11,35 @@ class ConfigError(Exception):
 
 
 class Config():
-    def __init__(self, file_name: str):
-        self.__config = {
-            "WIDTH": [None, int],
-            "HEIGHT": [None, int],
-            "ENTRY": [None, tuple, 2],
-            "EXIT": [None, tuple, 2],
-            "OUTPUT_FILE": [None, str],
-            "PERFECT": [None, bool],
-            "SEED": [None, int],
-            "ICON_FILE": [None, str]
-        }
+    def __init__(self):
+        self.__config = {}
 
-        parse_file(file_name, self.__config)
+    def add_parameter(self, name: str, param: list[
+            Any, type, int, list[type], str]) -> None:
+        param.append(False)
+        self.__config.update({name: param})
 
     def get_config(self) -> dict[str, list[Any, type, Any]]:
         return self.__config
+
+    def parse_file(self, file: BinaryIO) -> None:
+        config = self.get_config()
+        try:
+            try:
+                parameters = config.keys()
+                for line in get_next_line(file):
+                    parameter, value = get_value(line)
+                    if parameter in parameters:
+                        fill_param(config, parameter, value)
+                    else:
+                        raise ConfigError(f"unknown parameter: {parameter}")
+
+                check_config(config)
+            except Exception as e:
+                config.clear()
+                print(e)
+        except FileNotFoundError as e:
+            print(f"Parsing error :{e}")
 
     def get_value(self, parameter: str) -> Any:
         config = self.get_config()
@@ -66,20 +79,31 @@ def check_config(config: dict[str, list[None, type, Any]]) -> None:
 def fill_param(config: dict[str, list[None, type, Any]],
                parameter: str, value: str):
     parameter_list = config[parameter]
-    if parameter_list[0] is not None:
+    if parameter_list[-1] is True:
         raise ConfigError(f"Double declaration for \"{parameter}\"")
+    else:
+        parameter_list[-1] = True
 
     if parameter_list[1] == tuple:
+        separator = parameter_list[4]
         parameter_list[0] = "Error"
-        new_value = value.split(",")
+        new_value = value.split(separator)
 
         if len(new_value) != parameter_list[2]:
             raise (ConfigError(f"invalid argument\"{value}\" for {parameter}"))
 
+        types = parameter_list[3]
+
+        if len(types) != parameter_list[2]:
+            raise (ConfigError(f"invalid argument\"{value}\" for {parameter}"))
+
         value = []
 
-        for i in new_value:
-            value.append(int(i))
+        for i, v in enumerate(new_value):
+            try:
+                value.append(types[i](v))
+            except Exception as e:
+                raise ConfigError(e)
 
         value = tuple(value)
     elif parameter_list[1] == bool:
@@ -93,26 +117,3 @@ def fill_param(config: dict[str, list[None, type, Any]],
         value = parameter_list[1](value)
 
     parameter_list[0] = value
-
-
-def parse_file(file_name: str, config: list[None, type, Any]) -> None:
-    try:
-        file = open(file_name)
-
-        try:
-            parameters = config.keys()
-            for line in get_next_line(file):
-                parameter, value = get_value(line)
-                if parameter in parameters:
-                    fill_param(config, parameter, value)
-                else:
-                    raise ConfigError(f"unknown parameter: {parameter}")
-
-            check_config(config)
-        except Exception as e:
-            config.clear()
-            print(e)
-
-        file.close()
-    except FileNotFoundError as e:
-        print(f"Parsing error :{e}")

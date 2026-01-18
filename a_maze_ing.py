@@ -2,7 +2,22 @@ from src.config_parser import Config
 from src.maze_generation.maze import Maze
 from src.display.display import Displayer
 
-config = Config("config.txt")
+config = Config()
+
+config.add_parameter("WIDTH", [None, int])
+config.add_parameter("HEIGHT", [None, int])
+config.add_parameter("ENTRY", [None, tuple, 2, [int, int], ","])
+config.add_parameter("EXIT", [None, tuple, 2, [int, int], ","])
+config.add_parameter("OUTPUT_FILE", [None, str])
+config.add_parameter("PERFECT", [None, bool])
+config.add_parameter("SEED", [0, int])
+config.add_parameter("ICON_FILE", [None, str])
+
+config_file = open("config.txt")
+
+config.parse_file(config_file)
+
+config_file.close()
 
 width = config.get_value("WIDTH")
 height = config.get_value("HEIGHT")
