@@ -25,6 +25,6 @@ maze.create_full_maze()
 
 maze.output_in_file(file)
 
-displayer = Displayer((1500, 1500), (1500, 1500), maze, 25)
+displayer = Displayer((3000, 2000), (2000, 2000), maze, 2.5)
 
-displayer.start_animated_display(240)
+displayer.start_animated_display(60)

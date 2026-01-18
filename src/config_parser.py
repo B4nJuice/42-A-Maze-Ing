@@ -25,7 +25,7 @@ class Config():
 
         parse_file(file_name, self.__config)
 
-    def get_config(self) -> dict[str, list[None, type, Any]]:
+    def get_config(self) -> dict[str, list[Any, type, Any]]:
         return self.__config
 
     def get_value(self, parameter: str) -> Any:
