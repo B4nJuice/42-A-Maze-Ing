@@ -1,5 +1,3 @@
-# !/usr/bin/env python3
-
 from typing import BinaryIO
 from typing import Any
 from collections.abc import Generator
@@ -26,8 +24,8 @@ class Config():
     def parse_file(self, file: BinaryIO) -> None:
         config = self.get_config()
         parameters = config.keys()
-        for line in get_next_line(file):
-            parameter, value = get_value(line)
+        for line in self.get_next_line(file):
+            parameter, value = self.get_unprocessed_value(line)
             if parameter in parameters:
                 new_value = self.apply_types(parameter, config[parameter],
                                              value)
@@ -37,7 +35,7 @@ class Config():
             else:
                 raise ConfigError(f"unknown parameter: {parameter}")
 
-        check_config(config)
+        self.check_config()
 
     def get_value(self, parameter: str) -> Any:
         config = self.get_config()
@@ -138,28 +136,28 @@ class Config():
 
         parameter_list[0] = value
 
+    @staticmethod
+    def get_next_line(file: BinaryIO) -> Generator[int, str, None]:
+        line = 1
+        while line:
+            line = file.readline()
+            if line == "" or line is None:
+                return None
+            yield line
 
-def get_next_line(file: BinaryIO) -> Generator[int, str, None]:
-    line = 1
-    while line:
-        line = file.readline()
-        if line == "" or line is None:
-            return None
-        yield line
+    @staticmethod
+    def get_unprocessed_value(line: str) -> tuple[str, str]:
+        if line.count("=") != 1:
+            raise ConfigError(f"undefined config line : {line}")
+        parameter, value = line.split("=")
+        value = value.replace('\n', '')
+        value = value.strip()
+        return (parameter, value)
 
-
-def get_value(line: str) -> tuple[str, str]:
-    if line.count("=") != 1:
-        raise ConfigError(f"undefined config line : {line}")
-    parameter, value = line.split("=")
-    value = value.replace('\n', '')
-    value = value.strip()
-    return (parameter, value)
-
-
-def check_config(config: dict[str, list[None, type, Any]]) -> None:
-    values = config.values()
-    for value in values:
-        if value[0] is None:
-            keys = [key for key, v in config.items() if v[0] is None]
-            raise ConfigError(f"missing value(s): {keys}")
+    def check_config(self) -> None:
+        config = self.get_config()
+        values = config.values()
+        for value in values:
+            if value[0] is None:
+                keys = [key for key, v in config.items() if v[0] is None]
+                raise ConfigError(f"missing value(s): {keys}")
