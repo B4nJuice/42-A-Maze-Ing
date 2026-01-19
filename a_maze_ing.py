@@ -4,14 +4,14 @@ from src.display.display import Displayer
 
 config = Config()
 
-config.add_parameter("WIDTH", [None, int])
-config.add_parameter("HEIGHT", [None, int])
-config.add_parameter("ENTRY", [None, tuple, 2, [int, int], ","])
-config.add_parameter("EXIT", [None, tuple, 2, [int, int], ","])
-config.add_parameter("OUTPUT_FILE", [None, str])
-config.add_parameter("PERFECT", [None, bool])
-config.add_parameter("SEED", [0, int])
-config.add_parameter("ICON_FILE", [None, str])
+config.add_parameter("WIDTH", [None, [int]])
+config.add_parameter("HEIGHT", [None, [int]])
+config.add_parameter("ENTRY", [None, [tuple, 2, [[int], [int]], ","]])
+config.add_parameter("EXIT", [None, [tuple, 2, [[int], [int]], ","]])
+config.add_parameter("OUTPUT_FILE", [None, [str]])
+config.add_parameter("PERFECT", [None, [bool]])
+config.add_parameter("SEED", [0, [int]])
+config.add_parameter("ICON_FILE", [None, [str]])
 
 config_file = open("config.txt")
 
