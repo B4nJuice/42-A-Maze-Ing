@@ -31,7 +31,6 @@ class Config():
                                              value)
                 config[parameter][0] = new_value
                 config[parameter][2] = True
-                # self.fill_param(config, parameter, value)
             else:
                 raise ConfigError(f"unknown parameter: {parameter}")
 

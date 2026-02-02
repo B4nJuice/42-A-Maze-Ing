@@ -12,6 +12,11 @@ config.add_parameter("OUTPUT_FILE", [None, [str]])
 config.add_parameter("PERFECT", [None, [bool]])
 config.add_parameter("SEED", [0, [int]])
 config.add_parameter("ICON_FILE", [None, [str]])
+config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
+    tuple, 2, [
+        [tuple, 2, [[int], [int]], ","], [tuple, 2, [[int], [int]], ","]
+        ], " "
+    ]])
 
 config_file = open("config.txt")
 
@@ -40,6 +45,10 @@ maze.create_full_maze()
 
 maze.output_in_file(file)
 
-displayer = Displayer((3000, 2000), (2000, 2000), maze, 2.5)
+screen_size, maze_size = config.get_value("MAZE_SIZE")
+
+# probleme dans display quand screen size == 0
+
+displayer = Displayer(screen_size, maze_size, maze, 10)
 
 displayer.start_animated_display(60)
