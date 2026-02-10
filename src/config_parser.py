@@ -24,6 +24,17 @@ class Config():
         Initialize the configuration as empty.
         """
         self.__config = {}
+        self.__commentary_str: str = "#"
+
+    def set_commentary_str(self, commentary_str: str):
+        if not isinstance(commentary_str, str):
+            raise ConfigError(
+                f"commentary_str: {commentary_str} is not a string"
+                )
+        self.__commentary_str = commentary_str
+
+    def get_commentary_str(self):
+        return self.__commentary_str
 
     def add_parameter(self, name: str, param: list[
             Any, type, int, list[type], str]) -> None:
@@ -51,6 +62,8 @@ class Config():
         config = self.get_config()
         parameters = config.keys()
         for line in self.get_next_line(file):
+            if line == "\n" or line.startswith(self.get_commentary_str()):
+                continue
             parameter, value = self.get_unprocessed_value(line)
             if parameter in parameters:
                 new_value = self.apply_types(parameter, config[parameter],
