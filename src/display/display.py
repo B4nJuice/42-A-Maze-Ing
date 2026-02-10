@@ -20,8 +20,9 @@ class Displayer():
 
         for x, y in (window_size, image_size):
             if x <= 0 or y <= 0:
-                window_size = (screen_size_x, screen_size_y)
-                image_size = (screen_size_x, screen_size_y)
+                size: int = round(min(screen_size_x, screen_size_y)*0.75)
+                window_size = (size, size)
+                image_size = (size, size)
                 break
 
         self.__window_size = window_size
