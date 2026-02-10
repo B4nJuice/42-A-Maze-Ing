@@ -57,26 +57,22 @@ class Displayer():
             wall_percent = 1
         div = round(1 / wall_percent * 100)
         self.__div = div
-        background_color = 0xFFB8B8FF
-        walls_color = 0xFF9381FF
-        entry_color = 0xFFF8F7FF
-        exit_color = 0xFFFFD8BE
-        path_color = 0xFFFFEEDD
-        icon_color = 0xFFFF92C2
-        self.__background_color = background_color
-        self.__walls_color = walls_color
-        self.__entry_color = entry_color
-        self.__exit_color = exit_color
-        self.__path_color = path_color
-        self.__icon_color = icon_color
+
+        self.set_color("walls", (0, 0, 0))
+        self.set_color("background", (239, 233, 244))
+        self.set_color("icon",  (0, 0, 0))
+        self.set_color("entry", (88, 99, 248))
+        self.set_color("exit", (88, 99, 248))
+        self.set_color("path", (95, 191, 249))
 
     def set_color(
                 self,
                 location: str,
-                red: int,
-                green: int,
-                blue: int
+                rgb: tuple[int, int, int]
             ) -> bool:
+
+        red, green, blue = rgb
+
         red = abs(red) % 256
         green = abs(green) % 256
         blue = abs(blue) % 256
@@ -96,7 +92,7 @@ class Displayer():
             case "exit":
                 self.__exit_color = color
                 return True
-            case "background":
+            case "path":
                 self.__path_color = color
                 return True
             case "icon":
