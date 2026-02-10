@@ -1,24 +1,33 @@
-MAIN_PROGRAM = a_maze_ing.py
+MAIN_PROGRAM	= a_maze_ing.py
+VENV			= .venv
+PYTHON			= python3
+V_PYTHON		= $(VENV)/bin/python3
+V_FLAKE			= $(VENV)/bin/flake8
+V_MYPY			= $(VENV)/bin/mypy
+V_PIP			= $(V_PYTHON) -m pip
+
+DEPENDENCIES	= flake8 mypy lib/mlx-2.2-py3-none-any.whl
 
 run:
-	./.venv/bin/python3 $(MAIN_PROGRAM)
+	./$(VENV)/bin/python3 $(MAIN_PROGRAM)
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 
-install:
-	pip install -r ./libs/requierements.txt
-	pip install ./libs/mlx-2.2-py3-ubuntu-any.whl
-	sh install-mlx-zsh.sh
-	unzip mlx-2.2-py3-none-any.whl	
+install: $(VENV)
+	$(V_PIP) install $(DEPENDENCIES)
+
+$(VENV):
+	$(PYTHON) -m venv $(VENV)
+	$(V_PIP) install --upgrade pip
 
 lint:
-	flake8 .
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	$(V_FLAKE) .
+	$(V_MYPY) . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
-	flake8 .
-	mypy . --strict
+	$(V_FLAKE) .
+	$(V_MYPY) . --strict
 
-.phony = run clean install lint lint-strict
+.PHONY = run clean install lint lint-strict
