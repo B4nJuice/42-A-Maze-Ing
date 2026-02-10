@@ -30,7 +30,7 @@ height = config.get_value("HEIGHT")
 seed = config.get_value("SEED")
 
 entry = config.get_value("ENTRY")
-exit = config.get_value("EXIT")
+_exit = config.get_value("EXIT")
 
 perfect = config.get_value("PERFECT")
 
@@ -41,7 +41,7 @@ file = open(output_file, "w")
 
 icon_file = open(icon_file, "r")
 
-maze = Maze(width, height, entry, exit, perfect, seed, icon_file)
+maze = Maze(width, height, entry, _exit, perfect, seed, icon_file)
 maze.create_full_maze()
 
 maze.output_in_file(file)
@@ -51,5 +51,9 @@ screen_size, maze_size = config.get_value("MAZE_SIZE")
 wall_thickness = config.get_value("WALL_THICKNESS")
 
 displayer = Displayer(screen_size, maze_size, maze, wall_thickness)
+
+displayer.set_color("background", 255, 255, 255)
+displayer.set_color("walls", 0, 0, 0)
+displayer.set_color("icon", 0, 0, 0)
 
 displayer.start_animated_display(60)

@@ -70,6 +70,41 @@ class Displayer():
         self.__path_color = path_color
         self.__icon_color = icon_color
 
+    def set_color(
+                self,
+                location: str,
+                red: int,
+                green: int,
+                blue: int
+            ) -> bool:
+        red = abs(red) % 256
+        green = abs(green) % 256
+        blue = abs(blue) % 256
+
+        color: int = (0xFF << 24) | (red << 16) | (green << 8) | blue
+
+        match location:
+            case "background":
+                self.__background_color = color
+                return True
+            case "walls":
+                self.__walls_color = color
+                return True
+            case "entry":
+                self.__entry_color = color
+                return True
+            case "exit":
+                self.__exit_color = color
+                return True
+            case "background":
+                self.__path_color = color
+                return True
+            case "icon":
+                self.__icon_color = color
+                return True
+            case _:
+                return False
+
     def get_window_size(self) -> Any:
         return self.__window_size
 
