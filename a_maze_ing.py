@@ -52,4 +52,8 @@ wall_thickness = config.get_value("WALL_THICKNESS")
 
 displayer = Displayer(screen_size, maze_size, maze, wall_thickness)
 
+displayer.set_color("background", 255, 255, 255)
+displayer.set_color("walls", 0, 0, 0)
+displayer.set_color("icon", 0, 0, 0)
+
 displayer.start_animated_display(60)
