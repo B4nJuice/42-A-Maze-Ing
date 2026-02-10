@@ -4,24 +4,50 @@ from collections.abc import Generator
 
 
 class ConfigError(Exception):
+    """
+    Custom exception for configuration errors.
+    """
     def __init__(self, message="undefined"):
+        """
+        Initialize the exception with a custom message.
+        :param message: Error message to display.
+        """
         super().__init__(f"Config error: {message}")
 
 
 class Config():
+    """
+    Class for managing and parsing configuration files (config.txt).
+    """
     def __init__(self):
+        """
+        Initialize the configuration as empty.
+        """
         self.__config = {}
 
     def add_parameter(self, name: str, param: list[
             Any, type, int, list[type], str]) -> None:
+        """
+        Add a parameter to the configuration.
+        :name: Name of the parameter.
+        :param: List describing the parameter (value, type, etc).
+        """
         config = self.get_config()
         param.append(False)
         config.update({name: param})
 
     def get_config(self) -> dict[str, list[Any, type, Any]]:
+        """
+        Return the internal configuration dictionary.
+        :return: Configuration dictionary.
+        """
         return self.__config
 
     def parse_file(self, file: BinaryIO) -> None:
+        """
+        Parse a configuration file and update parameters.
+        :param file: Binary file to parse.
+        """
         config = self.get_config()
         parameters = config.keys()
         for line in self.get_next_line(file):
@@ -37,6 +63,11 @@ class Config():
         self.check_config()
 
     def get_value(self, parameter: str) -> Any:
+        """
+        Get the value of a given parameter.
+        :param parameter: Name of the parameter.
+        :return: Value of the parameter or None if it does not exist.
+        """
         config = self.get_config()
         parameters = config.keys()
 
@@ -46,7 +77,14 @@ class Config():
 
     def apply_types(self, parameter: str, parameter_list: list[Any],
                     value: str) -> list[Any]:
-
+        """
+        Apply the appropriate type to a parameter's value.
+        Handles booleans, tuples, and simple types.
+        :param parameter: Name of the parameter.
+        :param parameter_list: List describing the parameter.
+        :param value: Value to convert.
+        :return: Value converted to the correct type.
+        """
         already_processed = parameter_list[2]
         if already_processed is True:
             raise ConfigError(f"Double declaration for \"{parameter}\"")
@@ -91,6 +129,11 @@ class Config():
         return value
 
     def fill_param(self, parameter: str, value: str) -> None:
+        """
+        Fill the value of a parameter in the configuration.
+        :param parameter: Name of the parameter.
+        :param value: Value to assign.
+        """
         config = self.get_config()
         parameter_list = config[parameter]
 
@@ -137,6 +180,11 @@ class Config():
 
     @staticmethod
     def get_next_line(file: BinaryIO) -> Generator[int, str, None]:
+        """
+        Generator that reads lines from a file one by one.
+        :param file: Binary file to read.
+        :yield: Line read from the file.
+        """
         line = 1
         while line:
             line = file.readline()
@@ -146,6 +194,11 @@ class Config():
 
     @staticmethod
     def get_unprocessed_value(line: str) -> tuple[str, str]:
+        """
+        Split a line into parameter and raw value.
+        :param line: Line to process.
+        :return: Tuple (parameter, value).
+        """
         if line.count("=") != 1:
             raise ConfigError(f"undefined config line : {line}")
         parameter, value = line.split("=")
@@ -154,6 +207,10 @@ class Config():
         return (parameter, value)
 
     def check_config(self) -> None:
+        """
+        Check that all configuration parameters have a value.
+        Raises an exception if one or more parameters are missing.
+        """
         config = self.get_config()
         values = config.values()
         for value in values:
