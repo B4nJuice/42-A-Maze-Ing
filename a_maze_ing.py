@@ -17,6 +17,7 @@ config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
         [tuple, 2, [[int], [int]], ","], [tuple, 2, [[int], [int]], ","]
         ], " "
     ]])
+config.add_parameter("WALL_THICKNESS", [10, [int]])
 
 config_file = open("config.txt")
 
@@ -47,8 +48,8 @@ maze.output_in_file(file)
 
 screen_size, maze_size = config.get_value("MAZE_SIZE")
 
-# probleme dans display quand screen size == 0
+wall_thickness = config.get_value("WALL_THICKNESS")
 
-displayer = Displayer(screen_size, maze_size, maze, 5)
+displayer = Displayer(screen_size, maze_size, maze, wall_thickness)
 
 displayer.start_animated_display(60)
