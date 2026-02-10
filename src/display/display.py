@@ -12,22 +12,24 @@ class Displayer():
                  image_size: tuple[int, int],
                  maze: Maze,
                  wall_percent: int) -> None:
+
+        mlx = Mlx()
+        mlx_ptr = mlx.mlx_init()
+
+        _, screen_size_x, screen_size_y = mlx.mlx_get_screen_size(mlx_ptr)
+
+        for x, y in (window_size, image_size):
+            if x <= 0 or y <= 0:
+                window_size = (screen_size_x, screen_size_y)
+                image_size = (screen_size_x, screen_size_y)
+                break
+
         self.__window_size = window_size
         self.__image_size = image_size
         self.__maze = maze
 
-        mlx = Mlx()
         window_x, window_y = self.get_window_size()
         image_x, image_y = self.get_image_size()
-        mlx_ptr = mlx.mlx_init()
-        win_ptr = mlx.mlx_new_window(mlx_ptr, window_x, window_y, "A-Maze-ing")
-        mlx.mlx_hook(win_ptr, 33, 1 << 17, self.close, None)
-        new_img = mlx.mlx_new_image(mlx_ptr, image_x, image_y)
-
-        self.__mlx = mlx
-        self.__mlx_ptr = mlx_ptr
-        self.__win_ptr = win_ptr
-        self.__new_img = new_img
 
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -37,6 +39,18 @@ class Displayer():
         elif width < height:
             size = image_y // height
         self.__cell_size = size
+
+        self.x_offset = (image_x - size*width) // 2
+        self.y_offset = (image_y - size*height) // 2
+
+        win_ptr = mlx.mlx_new_window(mlx_ptr, window_x, window_y, "A-Maze-ing")
+        mlx.mlx_hook(win_ptr, 33, 1 << 17, self.close, None)
+        new_img = mlx.mlx_new_image(mlx_ptr, image_x, image_y)
+
+        self.__mlx = mlx
+        self.__mlx_ptr = mlx_ptr
+        self.__win_ptr = win_ptr
+        self.__new_img = new_img
 
         if wall_percent <= 0:
             wall_percent = 1
@@ -258,7 +272,14 @@ class Displayer():
         data, bpb, size_line, endian = mlx.mlx_get_data_addr(new_img)
         for y in range(pixel_y, pixel_y + size):
             for x in range(pixel_x, pixel_x + size):
-                Displayer.put_pixel(data, x, y, color, bpb, size_line)
+                Displayer.put_pixel(
+                    data,
+                    x + self.x_offset,
+                    y + self.y_offset,
+                    color,
+                    bpb,
+                    size_line
+                )
 
     def print_west_east(self, pixel_x_start, pixel_y_start, walls_color):
         size = self.get_cell_size()
@@ -290,8 +311,8 @@ class Displayer():
         size = self.get_cell_size()
         div = self.get_div()
         add_to_coord = math.ceil(size * (div-1)/div)
-        pixel_x = x * size
-        pixel_y = y * size
+        pixel_x = x * size + self.x_offset
+        pixel_y = y * size + self.y_offset
 
         if "WEST" in walls:
             self.print_west_east(pixel_x, pixel_y, color)

@@ -2,7 +2,27 @@ from src.config_parser import Config
 from src.maze_generation.maze import Maze
 from src.display.display import Displayer
 
-config = Config("config.txt")
+config = Config()
+
+config.add_parameter("WIDTH", [None, [int]])
+config.add_parameter("HEIGHT", [None, [int]])
+config.add_parameter("ENTRY", [None, [tuple, 2, [[int], [int]], ","]])
+config.add_parameter("EXIT", [None, [tuple, 2, [[int], [int]], ","]])
+config.add_parameter("OUTPUT_FILE", [None, [str]])
+config.add_parameter("PERFECT", [None, [bool]])
+config.add_parameter("SEED", [0, [int]])
+config.add_parameter("ICON_FILE", [None, [str]])
+config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
+    tuple, 2, [
+        [tuple, 2, [[int], [int]], ","], [tuple, 2, [[int], [int]], ","]
+        ], " "
+    ]])
+
+config_file = open("config.txt")
+
+config.parse_file(config_file)
+
+config_file.close()
 
 width = config.get_value("WIDTH")
 height = config.get_value("HEIGHT")
@@ -25,6 +45,10 @@ maze.create_full_maze()
 
 maze.output_in_file(file)
 
-displayer = Displayer((3000, 2000), (2000, 2000), maze, 2.5)
+screen_size, maze_size = config.get_value("MAZE_SIZE")
+
+# probleme dans display quand screen size == 0
+
+displayer = Displayer(screen_size, maze_size, maze, 5)
 
 displayer.start_animated_display(60)

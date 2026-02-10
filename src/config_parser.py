@@ -1,5 +1,3 @@
-# !/usr/bin/env python3
-
 from typing import BinaryIO
 from typing import Any
 from collections.abc import Generator
@@ -11,22 +9,32 @@ class ConfigError(Exception):
 
 
 class Config():
-    def __init__(self, file_name: str):
-        self.__config = {
-            "WIDTH": [None, int],
-            "HEIGHT": [None, int],
-            "ENTRY": [None, tuple, 2],
-            "EXIT": [None, tuple, 2],
-            "OUTPUT_FILE": [None, str],
-            "PERFECT": [None, bool],
-            "SEED": [None, int],
-            "ICON_FILE": [None, str]
-        }
+    def __init__(self):
+        self.__config = {}
 
-        parse_file(file_name, self.__config)
+    def add_parameter(self, name: str, param: list[
+            Any, type, int, list[type], str]) -> None:
+        config = self.get_config()
+        param.append(False)
+        config.update({name: param})
 
     def get_config(self) -> dict[str, list[Any, type, Any]]:
         return self.__config
+
+    def parse_file(self, file: BinaryIO) -> None:
+        config = self.get_config()
+        parameters = config.keys()
+        for line in self.get_next_line(file):
+            parameter, value = self.get_unprocessed_value(line)
+            if parameter in parameters:
+                new_value = self.apply_types(parameter, config[parameter],
+                                             value)
+                config[parameter][0] = new_value
+                config[parameter][2] = True
+            else:
+                raise ConfigError(f"unknown parameter: {parameter}")
+
+        self.check_config()
 
     def get_value(self, parameter: str) -> Any:
         config = self.get_config()
@@ -36,83 +44,119 @@ class Config():
             return (config[parameter][0])
         return None
 
+    def apply_types(self, parameter: str, parameter_list: list[Any],
+                    value: str) -> list[Any]:
 
-def get_next_line(file: BinaryIO) -> Generator[int, str, None]:
-    line = 1
-    while line:
-        line = file.readline()
-        if line == "" or line is None:
-            return None
-        yield line
+        already_processed = parameter_list[2]
+        if already_processed is True:
+            raise ConfigError(f"Double declaration for \"{parameter}\"")
 
+        real_type = parameter_list[1]
+        if real_type[0] == bool:
+            if value.capitalize() == "True":
+                value = True
+            elif value.capitalize() == "False":
+                value = False
+            else:
+                raise (ConfigError(f"invalid argument\"{value}\"\
+ for {parameter}"))
+        elif real_type[0] == tuple:
+            separator = real_type[3]
+            n_types = real_type[1]
+            new_value = value.split(separator)
 
-def get_value(line: str) -> tuple[str, str]:
-    if line.count("=") != 1:
-        raise ConfigError(f"undefined config line : {line}")
-    parameter, value = line.split("=")
-    value = value.replace('\n', '')
-    value = value.strip()
-    return (parameter, value)
+            if n_types != len(new_value):
+                raise (ConfigError(f"invalid argument\"{value}\"\
+ for {parameter}"))
 
+            types = real_type[2]
 
-def check_config(config: dict[str, list[None, type, Any]]) -> None:
-    values = config.values()
-    for value in values:
-        if None in value:
-            keys = [key for key, v in config.items() if v[0] is None]
-            raise ConfigError(f"missing value(s): {keys}")
+            if n_types != len(types):
+                raise (ConfigError(f"invalid argument\"{value}\"\
+ for {parameter}"))
 
+            value = []
+            for i, nested_real_type in enumerate(types):
+                type_list = []
+                type_list.append(None)
+                type_list.append(nested_real_type)
+                type_list.append(False)
+                value.append(self.apply_types(parameter,
+                                              type_list, new_value[i]))
+            value = tuple(value)
 
-def fill_param(config: dict[str, list[None, type, Any]],
-               parameter: str, value: str):
-    parameter_list = config[parameter]
-    if parameter_list[0] is not None:
-        raise ConfigError(f"Double declaration for \"{parameter}\"")
-
-    if parameter_list[1] == tuple:
-        parameter_list[0] = "Error"
-        new_value = value.split(",")
-
-        if len(new_value) != parameter_list[2]:
-            raise (ConfigError(f"invalid argument\"{value}\" for {parameter}"))
-
-        value = []
-
-        for i in new_value:
-            value.append(int(i))
-
-        value = tuple(value)
-    elif parameter_list[1] == bool:
-        if value.capitalize() == "True":
-            value = True
-        elif value.capitalize() == "False":
-            value = False
         else:
-            raise (ConfigError(f"invalid argument\"{value}\" for {parameter}"))
-    else:
-        value = parameter_list[1](value)
+            value = real_type[0](value)
 
-    parameter_list[0] = value
+        return value
 
+    def fill_param(self, parameter: str, value: str) -> None:
+        config = self.get_config()
+        parameter_list = config[parameter]
 
-def parse_file(file_name: str, config: list[None, type, Any]) -> None:
-    try:
-        file = open(file_name)
+        if parameter_list[-1] is True:
+            raise ConfigError(f"Double declaration for \"{parameter}\"")
+            parameter_list[-1] = True
 
-        try:
-            parameters = config.keys()
-            for line in get_next_line(file):
-                parameter, value = get_value(line)
-                if parameter in parameters:
-                    fill_param(config, parameter, value)
-                else:
-                    raise ConfigError(f"unknown parameter: {parameter}")
+        if parameter_list[1] == tuple:
+            separator = parameter_list[4]
+            parameter_list[0] = "Error"
+            new_value = value.split(separator)
 
-            check_config(config)
-        except Exception as e:
-            config.clear()
-            print(e)
+            if len(new_value) != parameter_list[2]:
+                raise (ConfigError(f"invalid argument\"{value}\"\
+ for {parameter}"))
 
-        file.close()
-    except FileNotFoundError as e:
-        print(f"Parsing error :{e}")
+            types = parameter_list[3]
+
+            if len(types) != parameter_list[2]:
+                raise (ConfigError(f"invalid argument\"{value}\"\
+ for {parameter}"))
+
+            value = []
+
+            for i, v in enumerate(new_value):
+                try:
+                    value.append(types[i](v))
+                except Exception as e:
+                    raise ConfigError(e)
+
+            value = tuple(value)
+        elif parameter_list[1] == bool:
+            if value.capitalize() == "True":
+                value = True
+            elif value.capitalize() == "False":
+                value = False
+            else:
+                raise (ConfigError(f"invalid argument\"{value}\"\
+ for {parameter}"))
+        else:
+            value = parameter_list[1](value)
+
+        parameter_list[0] = value
+
+    @staticmethod
+    def get_next_line(file: BinaryIO) -> Generator[int, str, None]:
+        line = 1
+        while line:
+            line = file.readline()
+            if line == "" or line is None:
+                return None
+            yield line
+
+    @staticmethod
+    def get_unprocessed_value(line: str) -> tuple[str, str]:
+        if line.count("=") != 1:
+            raise ConfigError(f"undefined config line : {line}")
+        parameter, value = line.split("=")
+        value = value.replace('\n', '')
+        value = value.strip()
+        return (parameter, value)
+
+    def check_config(self) -> None:
+        config = self.get_config()
+        values = config.values()
+        for value in values:
+            if value[0] is None:
+                keys = [key for key, v in config.items() if v[0] is None]
+                raise ConfigError(f"missing value(s): {keys}")
