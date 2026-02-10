@@ -49,6 +49,6 @@ screen_size, maze_size = config.get_value("MAZE_SIZE")
 
 # probleme dans display quand screen size == 0
 
-displayer = Displayer(screen_size, maze_size, maze, 10)
+displayer = Displayer(screen_size, maze_size, maze, 5)
 
 displayer.start_animated_display(60)
