@@ -24,7 +24,7 @@ SEED=42
 # Example: 5 means each wall occupy 5% of a cell
 WALL_THICKNESS=5
 
-# Screen / maze image size in pixels
+# Window / maze image size in pixels
 # Format: width,height
 MAZE_SIZE=900,900 900,900
 
@@ -34,7 +34,7 @@ MAZE_SIZE=900,900 900,900
 CUSTOM_COLORS=True
 
 # Color used to draw the shortest path
-PATH_COLOR=200,200,200
+PATH_COLOR=255,0,0
 
 # Color for the entry cell
 ENTRY_COLOR=100,100,255

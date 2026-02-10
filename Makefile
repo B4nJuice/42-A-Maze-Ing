@@ -6,12 +6,12 @@ V_FLAKE			= $(VENV)/bin/flake8
 V_MYPY			= $(VENV)/bin/mypy
 V_PIP			= $(V_PYTHON) -m pip
 
-SRCS			= a_maze_ing.py ./src
+SRCS			= $(MAIN_PROGRAM) ./src
 
 DEPENDENCIES	= flake8 mypy lib/mlx-2.2-py3-none-any.whl
 
 run: install
-	./$(VENV)/bin/python3 $(MAIN_PROGRAM)
+	$(V_PYTHON) $(MAIN_PROGRAM)
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -36,4 +36,4 @@ lint-strict: install
 	$(V_MYPY) $(SRCS) --strict
 
 
-.PHONY = run clean fclean install lint lint-strict
+.PHONY: run clean fclean install lint lint-strict
