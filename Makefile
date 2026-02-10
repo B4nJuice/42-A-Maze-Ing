@@ -21,4 +21,4 @@ lint-strict:
 	flake8 .
 	mypy . --strict
 
-.phony = run clean install lint lint-strict
+.PHONY = run clean install lint lint-strict
