@@ -30,7 +30,7 @@ height = config.get_value("HEIGHT")
 seed = config.get_value("SEED")
 
 entry = config.get_value("ENTRY")
-exit = config.get_value("EXIT")
+_exit = config.get_value("EXIT")
 
 perfect = config.get_value("PERFECT")
 
@@ -41,7 +41,7 @@ file = open(output_file, "w")
 
 icon_file = open(icon_file, "r")
 
-maze = Maze(width, height, entry, exit, perfect, seed, icon_file)
+maze = Maze(width, height, entry, _exit, perfect, seed, icon_file)
 maze.create_full_maze()
 
 maze.output_in_file(file)
