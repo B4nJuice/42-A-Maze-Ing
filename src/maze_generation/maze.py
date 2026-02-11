@@ -1,35 +1,69 @@
 import copy
-from typing import BinaryIO
+from typing import TextIO
 from src.maze_generation.cell import Cell
 from src.maze_generation.seed import (create_seed, next_randint)
 
 
 class MazeError(Exception):
+    """
+    Custom exception for maze-related errors.
+    """
     def __init__(self, message="undefined"):
+        """
+        Initialize the exception with a custom message.
+        :param message: Error message to display.
+        """
         super().__init__(f"Maze error: {message}")
 
 
 class IconError(MazeError):
+    """
+    Exception for errors related to the maze icon.
+    """
     def __init__(self, message="undefined"):
+        """
+        Initialize the exception with a custom message.
+        :param message: Error message to display.
+        """
         super().__init__(f"Icon error: {message}")
 
 
 class EntryExitError(MazeError):
+    """
+    Exception for errors related to maze entry or exit.
+    """
     def __init__(self, message="undefined"):
+        """
+        Initialize the exception with a custom message.
+        :param message: Error message to display.
+        """
         super().__init__(f"Entry Exit error: {message}")
 
 
 class Maze():
+    """
+    Main class representing a maze.
+    """
     def __init__(self, width: int, height: int, entry: tuple[int, int],
                  exit: tuple[int, int], perfect: bool, seed: int,
-                 icon_file: BinaryIO) -> None:
+                 icon_file: TextIO) -> None:
+        """
+        Initialize a maze with its characteristics and closing icon cells.
+        :param width: Maze width.
+        :param height: Maze height.
+        :param entry: Entry coordinates.
+        :param exit: Exit coordinates.
+        :param perfect: If the maze is perfect (only one solution path).
+        :param seed: Seed for random generation.
+        :param icon_file: Text file containing the center icon.
+        """
         self.__matrix: list[list[Cell]] = []
         self.__width: int = width
         self.__height: int = height
         self.__entry: tuple[int, int] = entry
         self.__exit: tuple[int, int] = exit
         self.__seed: int = create_seed(seed)
-        self.__perfect = perfect
+        self.__perfect: bool = perfect
         self.__after_exit = False
         self.__shortest_path = []
 
@@ -84,15 +118,24 @@ class Maze():
                 if icon_txt[y * icon_width + x] not in ["0", " "]:
                     icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
                     if entry == icon_cell_coords or exit == icon_cell_coords:
-                        raise EntryExitError("entry/exit cannot be in the\
- icon")
+                        raise EntryExitError(
+                            "entry/exit cannot be in the icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_icon()
 
     def get_matrix(self) -> list[list[Cell]]:
+        """
+        Returns the matrix of maze cells.
+        :return: Matrix (list of lists) of Cell.
+        """
         return self.__matrix
 
-    def get_cell(self, coords: tuple[int, int]) -> Cell:
+    def get_cell(self, coords: tuple[int, int]) -> None | Cell:
+        """
+        Returns the cell at the given coordinates.
+        :param coords: Tuple (x, y) coordinates.
+        :return: Corresponding cell or None if out of bounds.
+        """
         matrix = self.get_matrix()
         x, y = coords
         if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
@@ -100,17 +143,76 @@ class Maze():
         cell = matrix[y][x]
         return cell
 
+    def get_seed(self) -> int:
+        """
+        Returns the seed used for random generation.
+        :return: Integer.
+        """
+        return self.__seed
+
+    def get_entry(self) -> tuple[int, int]:
+        """
+        Returns the maze entry coordinates.
+        :return: Tuple (x, y).
+        """
+        return self.__entry
+
+    def get_exit(self) -> tuple[int, int]:
+        """
+        Returns the maze exit coordinates.
+        :return: Tuple (x, y).
+        """
+        return self.__exit
+
+    def get_width(self) -> int:
+        """
+        Returns the maze width.
+        :return: Integer.
+        """
+        return self.__width
+
+    def get_height(self) -> int:
+        """
+        Returns the maze height.
+        :return: Integer.
+        """
+        return self.__height
+
+    def get_shortest_path(self) -> list[str]:
+        """
+        Returns the shortest path found in the maze.
+        :return: List of directions.
+        """
+        return self.__shortest_path
+
     def is_perfect(self) -> bool:
+        """
+        Indicates if the maze is perfect (no loops).
+        :return: Boolean.
+        """
         return self.__perfect
 
     def is_after_exit(self) -> bool:
+        """
+        Indicates if the generation is after the exit.
+        :return: Boolean.
+        """
         return self.__after_exit
 
     def invert_after_exit(self) -> None:
+        """
+        Inverts the 'after exit' flag state.
+        """
         self.__after_exit = True is not self.__after_exit
 
     def set_wall(self, coords: tuple[int, int], direction: str,
                  state: bool) -> None:
+        """
+        Places or removes a wall in a given direction for a cell and its neighbor.
+        :param coords: Cell coordinates.
+        :param direction: Wall direction (NORTH, SOUTH, EST, WEST).
+        :param state: True to place, False to remove.
+        """
         cell: Cell = self.get_cell(coords)
         cell.set_wall(direction, state)
 
@@ -140,7 +242,11 @@ class Maze():
             next_cell: Cell = self.get_cell(next_coords)
             next_cell.set_wall(next_dir, state)
 
-    def output_in_file(self, file: BinaryIO) -> None:
+    def output_in_file(self, file: TextIO) -> None:
+        """
+        Writes the maze representation to a text file.
+        :param file: Output text file.
+        """
         output: str = ""
         for y in range(self.__height):
             for x in range(self.__width):
@@ -161,26 +267,14 @@ class Maze():
 
         file.write(output)
 
-    def get_seed(self) -> int:
-        return self.__seed
-
-    def get_entry(self) -> tuple[int, int]:
-        return self.__entry
-
-    def get_exit(self) -> tuple[int, int]:
-        return self.__exit
-
-    def get_width(self) -> int:
-        return self.__width
-
-    def get_height(self) -> int:
-        return self.__height
-
-    def get_shortest_path(self) -> list[str]:
-        return self.__shortest_path
-
     def create_path(self, coords: tuple[int, int],
                     last_coords: tuple[int, int] = None) -> tuple[int, int]:
+        """
+        Recursively creates a path from a given cell.
+        :param coords: Starting coordinates.
+        :param last_coords: Previous coordinates (for backtracking).
+        :return: Coordinates of the last cell reached.
+        """
 
         cell: Cell = self.get_cell(coords)
         cell.set_visited()
@@ -211,6 +305,11 @@ class Maze():
         return self.create_path(next_coords, coords)
 
     def find_next_cell(self, coords: tuple[int, int]) -> tuple[int, int]:
+        """
+        Finds the next cell to visit during maze generation.
+        :param coords: Current cell coordinates.
+        :return: Next cell coordinates or None.
+        """
         cell: Cell = self.get_cell(coords)
 
         if cell.is_exit():
@@ -243,6 +342,11 @@ class Maze():
 
     def check_surroundings(self,
                            coords: tuple[int, int]) -> list[tuple[int, int]]:
+        """
+        Checks for unvisited neighboring cells around a cell.
+        :param coords: Cell coordinates.
+        :return: List of valid cell coordinates.
+        """
         x, y = coords
         valid_cells: list[str] = []
 
@@ -272,7 +376,10 @@ class Maze():
                 valid_cells.append(cell_coords)
         return valid_cells
 
-    def create_full_maze(self):
+    def create_full_maze(self) -> None:
+        """
+        Generates the complete maze (perfect or not) from the entry.
+        """
         entry_coords: tuple[int, int] = self.get_entry()
         next_coords: tuple[int, int] = self.create_path(entry_coords)
         next_coords = self.find_next_cell(next_coords)
@@ -325,6 +432,12 @@ class Maze():
     @staticmethod
     def get_coords_by_dir(coords: tuple[int, int],
                           direction: str) -> tuple[int, int]:
+        """
+        Returns the coordinates of the neighboring cell in a given direction.
+        :param coords: Starting coordinates.
+        :param direction: Direction (NORTH, SOUTH, EST, WEST).
+        :return: Neighboring cell coordinates.
+        """
         x, y = coords
         directions: dict[str, tuple[int, int]] = {
             "EST": (x + 1, y),
@@ -338,6 +451,12 @@ class Maze():
     @staticmethod
     def get_dir_by_coords(coords: tuple[int, int],
                           next_coords: tuple[int, int]) -> str:
+        """
+        Returns the direction to take to go from one cell to another.
+        :param coords: Starting coordinates.
+        :param next_coords: Target coordinates.
+        :return: Direction as a string.
+        """
         x, y = coords
         directions: dict[tuple[int, int], str] = {
             (x + 1, y): "EST",
@@ -350,6 +469,11 @@ class Maze():
 
     @staticmethod
     def get_opposite_dir(direction: str) -> str | None:
+        """
+        Returns the opposite direction to the one given.
+        :param direction: Base direction.
+        :return: Opposite direction or None.
+        """
         directions: dict[tuple[int, int], str] = {
             "WEST": "EST",
             "EST": "WEST",
@@ -363,6 +487,11 @@ class Maze():
         return directions[direction]
 
     def is_isolate_cell(self, coords: tuple[int, int]) -> bool:
+        """
+        Checks if a cell is isolated (surrounded by walls).
+        :param coords: Cell coordinates.
+        :return: True if isolated, False otherwise.
+        """
         cell: Cell = self.get_cell(coords)
         if cell.is_dead():
             return False
@@ -372,6 +501,10 @@ class Maze():
         return False
 
     def check_maze(self) -> None:
+        """
+        Checks that no cell is isolated in the maze.
+        Raises an exception if so.
+        """
         for y in range(self.__height):
             for x in range(self.__width):
                 coords: tuple[int, int] = (x, y)
@@ -379,6 +512,10 @@ class Maze():
                     raise IconError(f"isolated cell : {coords}")
 
     def find_shortest_path(self) -> str:
+        """
+        Finds the shortest path from entry to exit.
+        :return: List of directions to follow.
+        """
         entry_coords: tuple[int, int] = self.get_entry()
         entry_cell: Cell = self.get_cell(entry_coords)
 

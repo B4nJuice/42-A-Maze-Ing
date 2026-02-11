@@ -7,11 +7,22 @@ from src.maze_generation.cell import Cell
 
 
 class Displayer():
+    """
+    Class for displaying a maze using the MLX library.
+    Manages the window, image, colors, and rendering of cells, walls, path, entry, and exit.
+    """
     def __init__(self,
                  window_size: tuple[int, int],
                  image_size: tuple[int, int],
                  maze: Maze,
                  wall_percent: int) -> None:
+        """
+        Initialize the Displayer with sizes, maze, and colors.
+        :param window_size: Window size (x, y).
+        :param image_size: Image size (x, y).
+        :param maze: Maze object to display.
+        :param wall_percent: Wall size percentage.
+        """
 
         mlx = Mlx()
         mlx_ptr = mlx.mlx_init()
@@ -101,52 +112,115 @@ class Displayer():
             case _:
                 return False
 
-    def get_window_size(self) -> Any:
+    def get_window_size(self) -> tuple[int, int]:
+        """
+        Returns the window size.
+        :return: Tuple (x, y).
+        """
         return self.__window_size
 
     def get_mlx(self) -> Mlx:
+        """
+        Returns the Mlx object used.
+        :return: Mlx object.
+        """
         return self.__mlx
 
     def get_new_img(self) -> Any:
+        """
+        Returns the Mlx image used for rendering.
+        :return: Mlx image.
+        """
         return self.__new_img
 
     def get_maze(self) -> Maze:
+        """
+        Returns the maze to display.
+        :return: Maze object.
+        """
         return self.__maze
 
     def get_image_size(self) -> tuple[int, int]:
+        """
+        Returns the image size.
+        :return: Tuple (x, y).
+        """
         return self.__image_size
 
     def get_cell_size(self) -> int:
+        """
+        Returns the size of a cell.
+        :return: Integer.
+        """
         return self.__cell_size
 
     def get_mlx_ptr(self) -> Any:
+        """
+        Returns the MLX pointer.
+        :return: MLX pointer.
+        """
         return self.__mlx_ptr
 
     def get_win_ptr(self) -> Any:
+        """
+        Returns the MLX window pointer.
+        :return: Window pointer.
+        """
         return self.__win_ptr
 
     def get_div(self) -> int:
+        """
+        Returns the divider used for wall size.
+        :return: Integer.
+        """
         return self.__div
 
     def get_background_color(self) -> int:
+        """
+        Returns the background color.
+        :return: Color (int).
+        """
         return self.__background_color
 
     def get_walls_color(self) -> int:
+        """
+        Returns the wall color.
+        :return: Color (int).
+        """
         return self.__walls_color
 
     def get_entry_color(self) -> int:
+        """
+        Returns the entry color.
+        :return: Color (int).
+        """
         return self.__entry_color
 
     def get_exit_color(self) -> int:
+        """
+        Returns the exit color.
+        :return: Color (int).
+        """
         return self.__exit_color
 
     def get_icon_color(self) -> int:
+        """
+        Returns the central icon color.
+        :return: Color (int).
+        """
         return self.__icon_color
 
     def get_path_color(self) -> int:
+        """
+        Returns the path color.
+        :return: Color (int).
+        """
         return self.__path_color
 
     def display(self):
+        """
+        Displays the complete maze in the MLX window.
+        """
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -176,6 +250,10 @@ class Displayer():
         mlx.mlx_loop(mlx_ptr)
 
     def start_animated_display(self, fps: int):
+        """
+        Starts the animated display of the maze with a given number of frames per second.
+        :param fps: Frames per second.
+        """
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
 
@@ -187,6 +265,9 @@ class Displayer():
         mlx.mlx_loop(mlx_ptr)
 
     def __animate_display(self, _):
+        """
+        Internal function to handle display animation.
+        """
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -261,10 +342,22 @@ class Displayer():
 
     @staticmethod
     def put_pixel(data, x, y, color, bpp, size_line):
+        """
+        Puts a colored pixel at a given position in the MLX image.
+        :param data: Image data.
+        :param x: X position.
+        :param y: Y position.
+        :param color: Pixel color.
+        :param bpp: Bits per pixel.
+        :param size_line: Line size.
+        """
         offset = y * size_line + x * (bpp // 8)
         data[offset:offset + 4] = color.to_bytes(4, 'little')
 
     def print_entry(self) -> None:
+        """
+        Displays the maze entry cell.
+        """
         maze = self.get_maze()
         entry = maze.get_entry()
         entry_color = self.get_entry_color()
@@ -280,6 +373,9 @@ class Displayer():
         self.print_walls(entry, walls, walls_color)
 
     def print_exit(self) -> None:
+        """
+        Displays the maze exit cell.
+        """
         maze = self.get_maze()
         exit = maze.get_exit()
         exit_color = self.get_exit_color()
@@ -295,6 +391,11 @@ class Displayer():
         self.print_walls(exit, walls, walls_color)
 
     def print_cell(self, coords: tuple[int, int], color: int):
+        """
+        Displays a cell at given coordinates with a given color.
+        :param coords: Cell coordinates.
+        :param color: Color to use.
+        """
         x, y = coords
         size = self.get_cell_size()
         pixel_x = x * size
@@ -314,6 +415,12 @@ class Displayer():
                 )
 
     def print_west_east(self, pixel_x_start, pixel_y_start, walls_color):
+        """
+        Displays a West or East wall for a cell.
+        :param pixel_x_start: Starting x position.
+        :param pixel_y_start: Starting y position.
+        :param walls_color: Wall color.
+        """
         size = self.get_cell_size()
         new_img = self.get_new_img()
         div = self.get_div()
@@ -324,6 +431,12 @@ class Displayer():
                 Displayer.put_pixel(data, x, y, walls_color, bpb, size_line)
 
     def print_north_south(self, pixel_x_start, pixel_y_start, walls_color):
+        """
+        Displays a North or South wall for a cell.
+        :param pixel_x_start: Starting x position.
+        :param pixel_y_start: Starting y position.
+        :param walls_color: Wall color.
+        """
         size = self.get_cell_size()
         new_img = self.get_new_img()
         div = self.get_div()
@@ -333,12 +446,14 @@ class Displayer():
             for x in range(pixel_x_start, pixel_x_start + size):
                 Displayer.put_pixel(data, x, y, walls_color, bpb, size_line)
 
-    def print_walls(
-        self,
-        coords: tuple[int, int],
-        walls: list[str],
-        color: int,
-    ):
+    def print_walls(self, coords: tuple[int, int], walls: list[str],
+                    color: int):
+        """
+        Displays all the walls of a cell according to the directions.
+        :param coords: Cell coordinates.
+        :param walls: List of wall directions.
+        :param color: Wall color.
+        """
         x, y = coords
         size = self.get_cell_size()
         div = self.get_div()
@@ -356,6 +471,9 @@ class Displayer():
             self.print_north_south(pixel_x, pixel_y + add_to_coord, color)
 
     def print_path(self):
+        """
+        Displays the shortest path in the maze.
+        """
         maze = self.get_maze()
         coords = maze.get_entry()
         path_color = self.get_path_color()
@@ -368,6 +486,9 @@ class Displayer():
             self.print_walls(coords, walls, walls_color)
 
     def close(self, _):
+        """
+        Closes the MLX window and exits the loop.
+        """
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
         win_ptr = self.get_win_ptr()
