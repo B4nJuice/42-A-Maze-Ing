@@ -1,0 +1,43 @@
+# A-Maze-ing — Default configuration
+# --------------------------------------------------
+# Maze dimensions (in cells)
+WIDTH=42
+HEIGHT=42
+
+# Entry and exit coordinates (format: x,y)
+ENTRY=0,0
+EXIT=41,41
+
+# Output file for the generated maze
+OUTPUT_FILE=maze.txt
+
+# Generate a perfect maze
+PERFECT=True
+
+# Path to the icon file used in the display
+ICON_FILE=src/default_icon.txt
+
+# Random seed for reproducible generation (integer)
+SEED=42
+
+# Wall thickness expressed as a percentage
+# Example: 5 means each wall occupy 5% of a cell
+WALL_THICKNESS=5
+
+# Window / maze image size in pixels
+# Format: width,height
+MAZE_SIZE=900,900 900,900
+
+# --------------------------------------------------
+# Color section (values in r,g,b format; 0..255)
+# Set CUSTOM_COLORS to True to use the values below
+CUSTOM_COLORS=True
+
+# Color used to draw the shortest path
+PATH_COLOR=255,0,0
+
+# Color for the entry cell
+ENTRY_COLOR=100,100,255
+
+# Color for the exit cell
+EXIT_COLOR=65,80,255

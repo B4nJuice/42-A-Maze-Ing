@@ -1,55 +1,112 @@
+#! .venv/bin/python3
+
 from src.config_parser import Config
 from src.maze_generation.maze import Maze
 from src.display.display import Displayer
+import sys
 
-config = Config()
 
-config.add_parameter("WIDTH", [None, [int]])
-config.add_parameter("HEIGHT", [None, [int]])
-config.add_parameter("ENTRY", [None, [tuple, 2, [[int], [int]], ","]])
-config.add_parameter("EXIT", [None, [tuple, 2, [[int], [int]], ","]])
-config.add_parameter("OUTPUT_FILE", [None, [str]])
-config.add_parameter("PERFECT", [None, [bool]])
-config.add_parameter("SEED", [0, [int]])
-config.add_parameter("ICON_FILE", [None, [str]])
-config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
-    tuple, 2, [
-        [tuple, 2, [[int], [int]], ","], [tuple, 2, [[int], [int]], ","]
-        ], " "
-    ]])
-config.add_parameter("WALL_THICKNESS", [10, [int]])
+def create_config(config: Config) -> None:
+    config.add_parameter("WIDTH", [20, [int]])
+    config.add_parameter("HEIGHT", [15, [int]])
+    config.add_parameter("ENTRY", [(0, 0), [tuple, 2, [[int], [int]], ","]])
+    config.add_parameter("EXIT", [(19, 14), [tuple, 2, [[int], [int]], ","]])
+    config.add_parameter("OUTPUT_FILE", ["maze.txt", [str]])
+    config.add_parameter("PERFECT", [True, [bool]])
+    config.add_parameter("SEED", [42, [int]])
+    config.add_parameter("ICON_FILE", ["src/default_icon.txt", [str]])
+    config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
+        tuple, 2, [
+            [tuple, 2, [[int], [int]], ","], [tuple, 2, [[int], [int]], ","]
+            ], " "
+        ]])
+    config.add_parameter("WALL_THICKNESS", [5, [int]])
 
-config_file = open("config.txt")
+    config.add_parameter("CUSTOM_COLORS", [False, [bool]])
+    config.add_parameter("BACKGROUND_COLOR", [
+            (255, 255, 255), [tuple, 3, [[int], [int], [int]], ","]
+        ])
+    config.add_parameter("WALLS_COLOR", [
+            (0, 0, 0), [tuple, 3, [[int], [int], [int]], ","]
+        ])
+    config.add_parameter("ICON_COLOR", [
+            (0, 0, 0), [tuple, 3, [[int], [int], [int]], ","]
+        ])
+    config.add_parameter("ENTRY_COLOR", [
+            (0, 255, 0), [tuple, 3, [[int], [int], [int]], ","]
+        ])
+    config.add_parameter("EXIT_COLOR", [
+            (255, 0, 0), [tuple, 3, [[int], [int], [int]], ","]
+        ])
+    config.add_parameter("PATH_COLOR", [
+            (0, 0, 255), [tuple, 3, [[int], [int], [int]], ","]
+        ])
 
-config.parse_file(config_file)
 
-config_file.close()
+if __name__ == "__main__":
+    argv: list[str] = sys.argv
+    argc: int = len(argv)
 
-width = config.get_value("WIDTH")
-height = config.get_value("HEIGHT")
-seed = config.get_value("SEED")
+    config_file_name: str = ""
 
-entry = config.get_value("ENTRY")
-exit = config.get_value("EXIT")
+    if argc >= 2:
+        config_file_name = argv[1]
 
-perfect = config.get_value("PERFECT")
+    config: Config = Config()
 
-output_file = config.get_value("OUTPUT_FILE")
-icon_file = config.get_value("ICON_FILE")
+    try:
+        create_config(config)
 
-file = open(output_file, "w")
+        if config_file_name != "":
+            with open(config_file_name) as config_file:
+                config.parse_file(config_file)
 
-icon_file = open(icon_file, "r")
+        width: int = config.get_value("WIDTH")
+        height: int = config.get_value("HEIGHT")
+        seed: int = config.get_value("SEED")
 
-maze = Maze(width, height, entry, exit, perfect, seed, icon_file)
-maze.create_full_maze()
+        entry: tuple[int, int] = config.get_value("ENTRY")
+        _exit: tuple[int, int] = config.get_value("EXIT")
 
-maze.output_in_file(file)
+        perfect: bool = config.get_value("PERFECT")
 
-screen_size, maze_size = config.get_value("MAZE_SIZE")
+        output_file_name: str = config.get_value("OUTPUT_FILE")
+        icon_file_name: str = config.get_value("ICON_FILE")
 
-wall_thickness = config.get_value("WALL_THICKNESS")
+        with open(output_file_name, "w") as output_file:
+            with open(icon_file_name, "r") as icon_file:
+                maze: Maze = Maze(
+                                width,
+                                height,
+                                entry,
+                                _exit,
+                                perfect,
+                                seed,
+                                icon_file
+                            )
 
-displayer = Displayer(screen_size, maze_size, maze, wall_thickness)
+                maze.create_full_maze()
+            maze.output_in_file(output_file)
 
-displayer.start_animated_display(60)
+        screen_size, maze_size = config.get_value("MAZE_SIZE")
+        wall_thickness: int = config.get_value("WALL_THICKNESS")
+
+        displayer: Displayer = Displayer(
+                                    screen_size,
+                                    maze_size,
+                                    maze,
+                                    wall_thickness
+                                )
+
+        if config.get_value("CUSTOM_COLORS"):
+            displayer.set_color("background", config.get_value(
+                "BACKGROUND_COLOR"))
+            displayer.set_color("walls", config.get_value("WALLS_COLOR"))
+            displayer.set_color("icon", config.get_value("ICON_COLOR"))
+            displayer.set_color("entry", config.get_value("ENTRY_COLOR"))
+            displayer.set_color("exit", config.get_value("EXIT_COLOR"))
+            displayer.set_color("path", config.get_value("PATH_COLOR"))
+
+        displayer.start_animated_display(60)
+    except Exception as e:
+        print(e)
