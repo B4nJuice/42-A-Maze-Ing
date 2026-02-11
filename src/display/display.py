@@ -65,6 +65,9 @@ class Displayer():
         self.set_color("exit", (88, 99, 248))
         self.set_color("path", (95, 191, 249))
 
+        self.move_mode: bool = False
+        self.player_pos: tuple[int, int] = (0, 0)
+
     def set_color(
                 self,
                 location: str,
@@ -172,10 +175,36 @@ class Displayer():
         self.print_path()
         self.print_entry()
         self.print_exit()
+        if self.move_mode is False:
+            self.print_player()
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
+        mlx.mlx_hook(win_ptr, 2, 1 << 0, self.key_press, None)
         mlx.mlx_loop(mlx_ptr)
 
-    def start_animated_display(self, fps: int):
+    def key_press(self, keycode, param) -> None:
+        if keycode == 109:
+            self.move_mode = not self.move_mode
+            if self.move_mode:
+                self.player_pos = self.get_maze().get_entry()
+
+        x, y = self.player_pos
+        if keycode == 65361:
+            if not self.get_maze().get_cell(self.player_pos).get_wall("WEST"):
+                self.player_pos = x - 1, y
+        if keycode == 65362:
+            if not self.get_maze().get_cell(self.player_pos).get_wall("NORTH"):
+                self.player_pos = x, y - 1
+        if keycode == 65363:
+            if not self.get_maze().get_cell(self.player_pos).get_wall("EST"):
+                self.player_pos = x + 1, y
+        if keycode == 65364:
+            if not self.get_maze().get_cell(self.player_pos).get_wall("SOUTH"):
+                self.player_pos = x, y + 1
+
+        if keycode == 65307:
+            self.close(None)
+
+    def start_animated_display(self, fps: int) -> None:
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
 
@@ -186,7 +215,7 @@ class Displayer():
         mlx.mlx_loop_hook(mlx_ptr, self.__animate_display, None)
         mlx.mlx_loop(mlx_ptr)
 
-    def __animate_display(self, _):
+    def __animate_display(self, _) -> None:
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -260,7 +289,7 @@ class Displayer():
             mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
     @staticmethod
-    def put_pixel(data, x, y, color, bpp, size_line):
+    def put_pixel(data, x, y, color, bpp, size_line) -> None:
         offset = y * size_line + x * (bpp // 8)
         data[offset:offset + 4] = color.to_bytes(4, 'little')
 
@@ -294,7 +323,21 @@ class Displayer():
         walls = cell.get_state_walls(True)
         self.print_walls(exit, walls, walls_color)
 
-    def print_cell(self, coords: tuple[int, int], color: int):
+    def print_player(self) -> None:
+        x, y = self.player_pos
+        player_color = self.get_walls_color()
+        size = self.get_cell_size()
+        pixel_x = x * size + size // 3
+        pixel_y = y * size + size // 3
+        mlx = self.get_mlx()
+        new_img = self.get_new_img()
+        data, bpb, size_line, endian = mlx.mlx_get_data_addr(new_img)
+        for y in range(pixel_y, pixel_y + size // 3):
+            for x in range(pixel_x, pixel_x + size // 3):
+                Displayer.put_pixel(data, x + self.x_offset, y + self.y_offset,
+                    player_color, bpb, size_line)
+
+    def print_cell(self, coords: tuple[int, int], color: int) -> None:
         x, y = coords
         size = self.get_cell_size()
         pixel_x = x * size
