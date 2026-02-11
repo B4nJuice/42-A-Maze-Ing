@@ -48,7 +48,7 @@ class Maze():
                  exit: tuple[int, int], perfect: bool, seed: int,
                  icon_file: TextIO) -> None:
         """
-        Initialize a maze with its characteristics.
+        Initialize a maze with its characteristics and closing icon cells.
         :param width: Maze width.
         :param height: Maze height.
         :param entry: Entry coordinates.
@@ -118,8 +118,8 @@ class Maze():
                 if icon_txt[y * icon_width + x] not in ["0", " "]:
                     icon_cell_coords: tuple[int, int] = (x+start_x, y+start_y)
                     if entry == icon_cell_coords or exit == icon_cell_coords:
-                        raise EntryExitError("entry/exit cannot be in the\
- icon")
+                        raise EntryExitError(
+                            "entry/exit cannot be in the icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_icon()
 
@@ -142,6 +142,48 @@ class Maze():
             return None
         cell = matrix[y][x]
         return cell
+
+    def get_seed(self) -> int:
+        """
+        Returns the seed used for random generation.
+        :return: Integer.
+        """
+        return self.__seed
+
+    def get_entry(self) -> tuple[int, int]:
+        """
+        Returns the maze entry coordinates.
+        :return: Tuple (x, y).
+        """
+        return self.__entry
+
+    def get_exit(self) -> tuple[int, int]:
+        """
+        Returns the maze exit coordinates.
+        :return: Tuple (x, y).
+        """
+        return self.__exit
+
+    def get_width(self) -> int:
+        """
+        Returns the maze width.
+        :return: Integer.
+        """
+        return self.__width
+
+    def get_height(self) -> int:
+        """
+        Returns the maze height.
+        :return: Integer.
+        """
+        return self.__height
+
+    def get_shortest_path(self) -> list[str]:
+        """
+        Returns the shortest path found in the maze.
+        :return: List of directions.
+        """
+        return self.__shortest_path
 
     def is_perfect(self) -> bool:
         """
@@ -224,48 +266,6 @@ class Maze():
         output += "\n"
 
         file.write(output)
-
-    def get_seed(self) -> int:
-        """
-        Returns the seed used for random generation.
-        :return: Integer.
-        """
-        return self.__seed
-
-    def get_entry(self) -> tuple[int, int]:
-        """
-        Returns the maze entry coordinates.
-        :return: Tuple (x, y).
-        """
-        return self.__entry
-
-    def get_exit(self) -> tuple[int, int]:
-        """
-        Returns the maze exit coordinates.
-        :return: Tuple (x, y).
-        """
-        return self.__exit
-
-    def get_width(self) -> int:
-        """
-        Returns the maze width.
-        :return: Integer.
-        """
-        return self.__width
-
-    def get_height(self) -> int:
-        """
-        Returns the maze height.
-        :return: Integer.
-        """
-        return self.__height
-
-    def get_shortest_path(self) -> list[str]:
-        """
-        Returns the shortest path found in the maze.
-        :return: List of directions.
-        """
-        return self.__shortest_path
 
     def create_path(self, coords: tuple[int, int],
                     last_coords: tuple[int, int] = None) -> tuple[int, int]:
@@ -376,7 +376,7 @@ class Maze():
                 valid_cells.append(cell_coords)
         return valid_cells
 
-    def create_full_maze(self):
+    def create_full_maze(self) -> None:
         """
         Generates the complete maze (perfect or not) from the entry.
         """
