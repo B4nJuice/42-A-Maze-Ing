@@ -108,6 +108,7 @@ if __name__ == "__main__":
             displayer.set_color("path", config.get_value("PATH_COLOR"))
 
         # displayer.start_animated_display(60)
-        displayer.display()
+        # displayer.display()
+        displayer.start_static_display()
     except Exception as e:
         print(e)

@@ -149,7 +149,7 @@ class Displayer():
     def get_path_color(self) -> int:
         return self.__path_color
 
-    def display(self):
+    def display(self, _):
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -175,34 +175,45 @@ class Displayer():
         self.print_path()
         self.print_entry()
         self.print_exit()
-        if self.move_mode is False:
+        if self.move_mode is True:
             self.print_player()
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
-        mlx.mlx_hook(win_ptr, 2, 1 << 0, self.key_press, None)
-        mlx.mlx_loop(mlx_ptr)
 
-    def key_press(self, keycode, param) -> None:
+    def key_press(self, keycode, _) -> None:
+        if keycode == 65307:
+            self.close(None)
+
         if keycode == 109:
             self.move_mode = not self.move_mode
             if self.move_mode:
                 self.player_pos = self.get_maze().get_entry()
+            self.print_player()
 
-        x, y = self.player_pos
-        if keycode == 65361:
-            if not self.get_maze().get_cell(self.player_pos).get_wall("WEST"):
-                self.player_pos = x - 1, y
-        if keycode == 65362:
-            if not self.get_maze().get_cell(self.player_pos).get_wall("NORTH"):
-                self.player_pos = x, y - 1
-        if keycode == 65363:
-            if not self.get_maze().get_cell(self.player_pos).get_wall("EST"):
-                self.player_pos = x + 1, y
-        if keycode == 65364:
-            if not self.get_maze().get_cell(self.player_pos).get_wall("SOUTH"):
-                self.player_pos = x, y + 1
+        if keycode in range(65361, 65365):
+            x, y = self.player_pos
+            if keycode == 65361:
+                if not self.get_maze().get_cell(self.player_pos).get_wall("WEST"):
+                    self.player_pos = x - 1, y
+            if keycode == 65362:
+                if not self.get_maze().get_cell(self.player_pos).get_wall("NORTH"):
+                    self.player_pos = x, y - 1
+            if keycode == 65363:
+                if not self.get_maze().get_cell(self.player_pos).get_wall("EST"):
+                    self.player_pos = x + 1, y
+            if keycode == 65364:
+                if not self.get_maze().get_cell(self.player_pos).get_wall("SOUTH"):
+                    self.player_pos = x, y + 1
+            self.print_player()
+            
 
-        if keycode == 65307:
-            self.close(None)
+    def start_static_display(self) -> None:
+        mlx = self.get_mlx()
+        mlx_ptr = self.get_mlx_ptr()
+        win_ptr = self.get_win_ptr()
+
+        mlx.mlx_loop_hook(mlx_ptr, self.display, None)
+        mlx.mlx_hook(win_ptr, 2, 1 << 0, self.key_press, None)
+        mlx.mlx_loop(mlx_ptr)
 
     def start_animated_display(self, fps: int) -> None:
         mlx = self.get_mlx()
