@@ -43,6 +43,7 @@ def create_config(config: Config) -> None:
         ])
 
     config.add_parameter("ANIMATED", [False, [bool]])
+    config.add_parameter("FPS", [60, [int]])
 
 
 if __name__ == "__main__":
@@ -110,7 +111,7 @@ if __name__ == "__main__":
             displayer.set_color("path", config.get_value("PATH_COLOR"))
 
         if config.get_value("ANIMATED"):
-            displayer.start_animated_display(60)
+            displayer.start_animated_display(config.get_value("FPS"))
         else:
             displayer.display()
     except Exception as e:
