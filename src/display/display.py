@@ -4,6 +4,7 @@ import math
 import time
 from src.maze_generation.maze import Maze
 from src.maze_generation.cell import Cell
+from src.display.button import Button
 
 
 class Displayer():
@@ -67,6 +68,8 @@ class Displayer():
 
         self.move_mode: bool = False
         self.player_pos: tuple[int, int] = (0, 0)
+
+        self.buttons: list[Button] = []
 
     def set_color(
                 self,
@@ -149,7 +152,7 @@ class Displayer():
     def get_path_color(self) -> int:
         return self.__path_color
 
-    def display(self, _):
+    def display(self, _) -> None:
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -213,6 +216,12 @@ class Displayer():
 
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
+    def mouse_event(self, mousecode, x, y, _) -> None:
+        for button in self.buttons:
+            if x in range(button.start_x, button.width):
+                if y in range(button.start_y, button.height):
+                    button.function(button.param)
+
     def start_static_display(self) -> None:
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
@@ -220,6 +229,7 @@ class Displayer():
 
         mlx.mlx_loop_hook(mlx_ptr, self.display, None)
         mlx.mlx_hook(win_ptr, 2, 1 << 0, self.key_press, None)
+        mlx.mlx_hook(win_ptr, 4, 1 << 2, self.mouse_event, None)
         mlx.mlx_loop(mlx_ptr)
 
     def start_animated_display(self, fps: int) -> None:
