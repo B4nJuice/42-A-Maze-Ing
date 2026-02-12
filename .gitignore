@@ -8,3 +8,4 @@ maze.txt
 /mlx-2.2.dist-info
 .vscode
 .gitignore
+.mypy_cache
