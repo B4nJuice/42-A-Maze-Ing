@@ -113,6 +113,6 @@ if __name__ == "__main__":
         if config.get_value("ANIMATED"):
             displayer.start_animated_display(config.get_value("FPS"))
         else:
-            displayer.start_static_display()
+            displayer.display()
     except Exception as e:
         print(e)
