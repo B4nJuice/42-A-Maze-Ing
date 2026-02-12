@@ -41,3 +41,8 @@ ENTRY_COLOR=100,100,255
 
 # Color for the exit cell
 EXIT_COLOR=65,80,255
+
+# --------------------------------------------------
+# Animation parameters
+ANIMATED=True
+FPS=60
