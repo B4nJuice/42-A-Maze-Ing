@@ -183,11 +183,17 @@ class Displayer():
         if keycode == 65307:
             self.close(None)
 
+        mlx = self.get_mlx()
+        mlx_ptr = self.get_mlx_ptr()
+        win_ptr = self.get_win_ptr()
+        new_img = self.get_new_img()
         if keycode == 109:
             self.move_mode = not self.move_mode
             if self.move_mode:
                 self.player_pos = self.get_maze().get_entry()
-            self.print_player()
+                self.print_player()
+            else:
+                self.display(None)
 
         if keycode in range(65361, 65365):
             x, y = self.player_pos
@@ -204,7 +210,8 @@ class Displayer():
                 if not self.get_maze().get_cell(self.player_pos).get_wall("SOUTH"):
                     self.player_pos = x, y + 1
             self.print_player()
-            
+
+        mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
     def start_static_display(self) -> None:
         mlx = self.get_mlx()
