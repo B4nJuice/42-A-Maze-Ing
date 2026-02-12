@@ -58,6 +58,13 @@ class Maze():
         :param icon_file: Text file containing the center icon.
         """
         self.__matrix: list[list[Cell]] = []
+
+        if (
+            not isinstance(width, int) or not isinstance(height, int)
+            or min(height, width) <= 0
+                ):
+            raise MazeError("width and height has to be positive integers.")
+
         self.__width: int = width
         self.__height: int = height
         self.__entry: tuple[int, int] = entry
