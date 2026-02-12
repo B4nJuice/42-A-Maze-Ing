@@ -90,10 +90,17 @@ class Displayer():
         self.set_color("exit", (88, 99, 248))
         self.set_color("path", (95, 191, 249))
 
+        self.set_toggle_path(False)
+
         self.move_mode: bool = False
         self.player_pos: tuple[int, int] = (0, 0)
 
         self.buttons: list[Button] = []
+
+    def set_toggle_path(self, toggle: bool) -> None:
+        if not isinstance(toggle, bool):
+            raise ValueError("toggle has to be a bool.")
+        self.toggle_path = toggle
 
     def set_color(
                 self,
@@ -750,7 +757,7 @@ class Displayer():
         if "SOUTH" in walls:
             self.print_north_south(pixel_x, pixel_y + add_to_coord, color)
 
-    def print_path(self):
+    def print_path(self) -> None:
         """
         Draw the shortest path in the maze.
 
@@ -761,16 +768,17 @@ class Displayer():
         -------
         None
         """
-        maze = self.get_maze()
-        coords = maze.get_entry()
-        path_color = self.get_path_color()
-        walls_color = self.get_walls_color()
-        for char in maze.get_shortest_path():
-            coords = maze.get_coords_by_dir(coords, char)
-            self.print_cell(coords, path_color)
-            cell = maze.get_cell(coords)
-            walls = cell.get_state_walls(True)
-            self.print_walls(coords, walls, walls_color)
+        if self.toggle_path:
+            maze = self.get_maze()
+            coords = maze.get_entry()
+            path_color = self.get_path_color()
+            walls_color = self.get_walls_color()
+            for char in maze.get_shortest_path():
+                coords = maze.get_coords_by_dir(coords, char)
+                self.print_cell(coords, path_color)
+                cell = maze.get_cell(coords)
+                walls = cell.get_state_walls(True)
+                self.print_walls(coords, walls, walls_color)
 
     def close(self, _):
         """
