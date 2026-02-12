@@ -55,7 +55,7 @@ class Displayer():
 
         if wall_percent <= 0:
             wall_percent = 1
-        div = round(1 / wall_percent * 100)
+        div = math.ceil(1 / wall_percent * 100)
         self.__div = div
 
         self.set_color("walls", (0, 0, 0))
@@ -204,7 +204,7 @@ class Displayer():
                 if not self.get_maze().get_cell(self.player_pos).get_wall("SOUTH"):
                     self.player_pos = x, y + 1
             self.print_player()
-            
+
 
     def start_static_display(self) -> None:
         mlx = self.get_mlx()
@@ -346,7 +346,7 @@ class Displayer():
         for y in range(pixel_y, pixel_y + size // 3):
             for x in range(pixel_x, pixel_x + size // 3):
                 Displayer.put_pixel(data, x + self.x_offset, y + self.y_offset,
-                    player_color, bpb, size_line)
+                                    player_color, bpb, size_line)
 
     def print_cell(self, coords: tuple[int, int], color: int) -> None:
         x, y = coords
