@@ -215,7 +215,8 @@ class Maze():
     def set_wall(self, coords: tuple[int, int], direction: str,
                  state: bool) -> None:
         """
-        Places or removes a wall in a given direction for a cell and its neighbor.
+        Places or removes a wall in a given direction for a cell and its
+        neighbor.
         :param coords: Cell coordinates.
         :param direction: Wall direction (NORTH, SOUTH, EST, WEST).
         :param state: True to place, False to remove.
@@ -539,7 +540,7 @@ class Maze():
                 coords: tuple[int, int] = path[2]
                 directions: list[str] | str = cell.get_state_walls(False)
 
-                if len(directions) <= 2:
+                if len(directions) <= 2 and len(paths) >= 2:
                     last_dir: str | None = None
                     if len(path[0]) > 0:
                         last_dir = path[0][-1]
