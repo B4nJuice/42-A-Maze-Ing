@@ -9,25 +9,50 @@ class ConfigError(Exception):
     """
     def __init__(self, message="undefined") -> None:
         """
-        Initialize the exception with a custom message.
-        :param message: Error message to display.
+        Initialize the exception with a custom error message.
+
+        Parameters
+        ----------
+        message : str, optional
+            The error message describing the configuration issue.
+            Defaults to "undefined".
         """
         super().__init__(f"Config error: {message}")
 
 
 class Config():
     """
-    Class for managing and parsing configuration files (config.txt).
+    Manage and parse a configuration file.
+
+    This class provides utilities to register configuration parameters,
+    parse them from a file, validate their types, and retrieve their values.
     """
     def __init__(self) -> None:
         """
-        Initialize the configuration as empty.
+        Initialize an empty configuration registry.
+
+        Creates the internal dictionary used to store configuration
+        parameters and sets the default commentary prefix to "#".
         """
         self.__config: dict = {}
         self.__config = {}
         self.__commentary_str: str = "#"
 
     def set_commentary_str(self, commentary_str: str):
+        """
+        Set the prefix used to identify comment lines in the configuration
+        file.
+
+        Parameters
+        ----------
+        commentary_str : str
+            The string that marks a line as a comment.
+
+        Raises
+        ------
+        ConfigError
+            If `commentary_str` is not a string.
+        """
         if not isinstance(commentary_str, str):
             raise ConfigError(
                 f"commentary_str: {commentary_str} is not a string"
@@ -35,14 +60,66 @@ class Config():
         self.__commentary_str = commentary_str
 
     def get_commentary_str(self):
+        """
+        Return the current comment prefix string.
+
+        Returns
+        -------
+        str
+            The string used to identify comment lines.
+        """
         return self.__commentary_str
 
     def add_parameter(self, name: str, param: list[
             Any, type, int, list[type], str]) -> None:
         """
-        Add a parameter to the configuration.
-        :name: Name of the parameter.
-        :param: List describing the parameter (Any, type, int, list[type], str)
+        Register a new configuration parameter and its type specification.
+
+        This method adds a parameter to the internal configuration registry.
+        The parameter definition includes its default value and a type
+        specification describing how its value should be validated and
+        converted when parsed.
+
+        The ``param`` argument must follow the structure used by the
+        configuration system:
+
+        - index 0: default value (None to set the parameter as not facultative)
+        - index 1: type specification
+
+        The type specification format is:
+
+        - [int], [str], [bool], etc. for simple types
+        - [tuple, n, nested_types, separator] for structured tuples where:
+            * n is the expected number of elements,
+            * nested_types is a list of type specifications (one per element),
+            * separator is the string used to split the input value
+
+        This method automatically appends an internal boolean flag indicating
+        whether the parameter has already been set.
+
+        Parameters
+        ----------
+        name : str
+            The name of the configuration parameter (e.g., "WIDTH",
+            "BACKGROUND_COLOR").
+        param : list
+            A list containing the default value and its associated type
+            specification.
+
+        Returns
+        -------
+        None
+            This method modifies the internal configuration dictionary in
+            place.
+
+        Examples
+        --------
+        >>> config.add_parameter("WIDTH", [20, [int]])
+        >>> config.add_parameter("ENTRY",
+        ...     [(0, 0), [tuple, 2, [[int], [int]], ","]])
+        >>> config.add_parameter("BACKGROUND_COLOR",
+        ...     [(255, 255, 255),
+        ...      [tuple, 3, [[int], [int], [int]], ","]])
         """
         config = self.get_config()
         param.append(False)
@@ -50,14 +127,34 @@ class Config():
 
     def get_config(self) -> dict[str, list[Any, type, Any]]:
         """
-        getter that return the internal configuration dictionary.
+        Return the internal configuration dictionary.
+
+        Returns
+        -------
+        dict[str, list]
+            The dictionary storing all registered configuration parameters.
         """
         return self.__config
 
     def parse_file(self, file: TextIOWrapper) -> None:
         """
-        Parse a configuration file and update parameters.
-        :param file: file to parse.
+        Parse a configuration file and update parameter values.
+
+        Each non-empty and non-comment line must follow the format:
+        `PARAMETER=VALUE`. The value is validated and converted
+        according to its declared type specification.
+
+        Parameters
+        ----------
+        file : TextIOWrapper
+            The file object to read and parse.
+
+        Raises
+        ------
+        ConfigError
+            If an unknown parameter is encountered.
+            If a value does not match its expected type.
+            If required parameters are missing.
         """
         config = self.get_config()
         parameters = config.keys()
@@ -77,9 +174,17 @@ class Config():
 
     def get_value(self, parameter: str) -> Any:
         """
-        Get the value of a given parameter.
-        :param parameter: Name of the parameter.
-        :return: Value of the parameter or None if it does not exist.
+        Return the value of a configuration parameter.
+
+        Parameters
+        ----------
+        parameter : str
+            The name of the parameter.
+
+        Returns
+        -------
+        Any
+            The value of the parameter if it exists, otherwise None.
         """
         config = self.get_config()
         parameters = config.keys()
@@ -91,13 +196,49 @@ class Config():
     def apply_types(self, parameter: str, parameter_list: list[Any],
                     value: str) -> list[Any]:
         """
-        BABAYAGA
-        Apply the appropriate type to a parameter's value.
-        Handles booleans, tuples, and simple types.
-        :param parameter: Name of the parameter.
-        :param parameter_list: List describing the parameter.
-        :param value: Value to convert.
-        :return: Value converted to the correct type.
+        Convert a configuration parameter value to its declared type.
+
+        This method validates and converts a string value according to the
+        type specification stored in ``parameter_list``. Supported types are:
+
+        - bool: accepts the strings "True" or "False" (not case-insensitive).
+        - simple types: any callable type such as int, str or float.
+        - tuple: a structured tuple with:
+            * a fixed number of elements,
+            * a list of nested type specifications,
+            * a separator used to split the input string.
+
+        Tuple types can be nested recursively (e.g., tuple of tuples).
+
+        The method also ensures that a parameter is not declared more than
+        once.
+
+        Parameters
+        ----------
+        parameter : str
+            The name of the parameter being processed. Used for error
+            reporting.
+        parameter_list : list[Any]
+            A structure describing the parameter:
+            - index 0: default value (unused here),
+            - index 1: type specification,
+            - index 2: boolean indicating whether the parameter was already
+            set.
+        value : str
+            The raw string value to convert.
+
+        Returns
+        -------
+        Any
+            The converted value with the appropriate type applied.
+
+        Raises
+        ------
+        ConfigError
+            If the parameter is declared more than once.
+            If the value does not match the expected type specification.
+            If a tuple has an invalid number of elements.
+            If a boolean value is not "True" or "False".
         """
         already_processed = parameter_list[2]
         if already_processed is True:
@@ -149,9 +290,17 @@ class Config():
     @staticmethod
     def get_next_line(file: TextIOWrapper) -> Generator[int, str, None]:
         """
-        Generator that reads lines from a file one by one.
-        :param file: Binary file to read.
-        :yield: Line read from the file.
+        Yield lines from a file one by one.
+
+        Parameters
+        ----------
+        file : TextIOWrapper
+            The file object to read.
+
+        Yields
+        ------
+        str
+            The next line in the file.
         """
         line = 1
         while line:
@@ -163,9 +312,24 @@ class Config():
     @staticmethod
     def get_unprocessed_value(line: str) -> tuple[str, str]:
         """
-        Split a line into parameter and raw value.
-        :param line: Line to process.
-        :return: Tuple (parameter, value).
+        Split a configuration line into parameter name and raw value.
+
+        The line must contain exactly one "=" character.
+
+        Parameters
+        ----------
+        line : str
+            The line to process.
+
+        Returns
+        -------
+        tuple[str, str]
+            A tuple containing the parameter name and the stripped value.
+
+        Raises
+        ------
+        ConfigError
+            If the line format is invalid.
         """
         if line.count("=") != 1:
             raise ConfigError(f"undefined config line : {line}")
@@ -176,8 +340,12 @@ class Config():
 
     def check_config(self) -> None:
         """
-        Check that all configuration parameters have a value.
-        Raises an exception if one or more parameters are missing.
+        Validate that all configuration parameters have assigned values.
+
+        Raises
+        ------
+        ConfigError
+            If one or more parameters have no value assigned.
         """
         config = self.get_config()
         values = config.values()
