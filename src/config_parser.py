@@ -170,8 +170,8 @@ class Config():
         if line.count("=") != 1:
             raise ConfigError(f"undefined config line : {line}")
         parameter, value = line.split("=")
-        value = value.replace('\n', '')
         value = value.strip()
+        parameter = parameter.strip()
         return (parameter, value)
 
     def check_config(self) -> None:
