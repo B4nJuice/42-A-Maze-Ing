@@ -352,7 +352,7 @@ class Displayer():
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
         mlx.mlx_loop(mlx_ptr)
 
-    def __static_display(self, _):
+    def __static_display(self, _=None):
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -427,9 +427,9 @@ class Displayer():
         mlx_ptr = self.get_mlx_ptr()
         win_ptr = self.get_win_ptr()
 
-        mlx.mlx_loop_hook(mlx_ptr, self.__static_display, None)
         mlx.mlx_hook(win_ptr, 2, 1 << 0, self.key_press, None)
         mlx.mlx_hook(win_ptr, 4, 1 << 2, self.mouse_event, None)
+        mlx.mlx_loop_hook(mlx_ptr, self.__static_display, None)
         mlx.mlx_loop(mlx_ptr)
 
     def start_animated_display(self, fps: int):
