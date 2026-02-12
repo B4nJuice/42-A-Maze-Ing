@@ -195,7 +195,7 @@ class Displayer():
             else:
                 self.display(None)
 
-        if keycode in range(65361, 65365):
+        if self.move_mode is True and keycode in range(65361, 65365):
             x, y = self.player_pos
             if keycode == 65361:
                 if not self.get_maze().get_cell(self.player_pos).get_wall("WEST"):
