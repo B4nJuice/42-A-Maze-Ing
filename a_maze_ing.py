@@ -1,8 +1,8 @@
 #! .venv/bin/python3
 
-from src.config_parser import Config
-from src.maze_generation.maze import Maze
-from src.display.display import Displayer
+from src.config import Config
+from src.maze_generation import Maze
+from src.display import Displayer
 import sys
 
 

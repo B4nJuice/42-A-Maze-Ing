@@ -1,10 +1,21 @@
 class Cell():
     """
-    Class representing a maze cell, with its walls and states (visited, dead, exit, etc).
+    Represent a single maze cell.
+
+    Stores the state of the four walls and boolean flags used during
+    maze generation and pathfinding (visited, dead, exit, after-exit,
+    icon).
     """
     def __init__(self) -> None:
         """
-        Initialize an empty cell with all walls closed and all states set to False.
+        Initialize a cell with default states.
+
+        All walls are initialized as closed and all state flags are set to
+        False.
+
+        Returns
+        -------
+        None
         """
         self.__visited: bool = False
         self.__dead: bool = False
@@ -20,84 +31,142 @@ class Cell():
 
     def is_visited(self) -> bool:
         """
-        Indicates if the cell has been visited.
-        :return: True if visited, False otherwise.
+        Check whether the cell has been visited.
+
+        Returns
+        -------
+        bool
+            True if the cell was visited, False otherwise.
         """
         return self.__visited
 
     def set_visited(self) -> None:
         """
         Mark the cell as visited.
+
+        Returns
+        -------
+        None
         """
         self.__visited = True
 
     def is_icon(self) -> bool:
         """
-        Indicates if the cell is part of the central icon.
-        :return: True if icon, False otherwise.
+        Check whether the cell is part of the central icon.
+
+        Returns
+        -------
+        bool
+            True if the cell is an icon cell, False otherwise.
         """
         return self.__icon
 
     def set_icon(self) -> None:
         """
-        Mark the cell as part of the icon and set it as dead.
+        Mark the cell as part of the icon.
+
+        This also marks the cell as dead (not part of the main path).
+
+        Returns
+        -------
+        None
         """
         self.set_dead()
         self.__icon = True
 
     def is_dead(self) -> bool:
         """
-        Indicates if the cell is dead (no longer part of the path).
-        :return: True if dead, False otherwise.
+        Check whether the cell is dead (excluded from the path).
+
+        Returns
+        -------
+        bool
+            True if dead, False otherwise.
         """
         return self.__dead
 
     def set_dead(self) -> None:
         """
         Mark the cell as dead and visited.
+
+        Returns
+        -------
+        None
         """
         self.set_visited()
         self.__dead = True
 
     def set_exit(self) -> None:
         """
-        Mark the cell as the maze exit.
+        Mark this cell as the maze exit.
+
+        Returns
+        -------
+        None
         """
         self.__exit = True
 
     def set_after_exit(self) -> None:
         """
-        Mark the cell as after the exit (for maze generation).
+        Mark the cell as being located after the exit.
+
+        Returns
+        -------
+        None
         """
         self.__after_exit = True
 
     def is_after_exit(self) -> bool:
         """
-        Indicates if the cell is after the exit.
-        :return: True if after exit, False otherwise.
+        Check whether the cell is after the exit.
+
+        Returns
+        -------
+        bool
+            True if after-exit, False otherwise.
         """
         return self.__after_exit
 
     def is_exit(self) -> bool:
         """
-        Indicates if the cell is the maze exit.
-        :return: True if exit, False otherwise.
+        Check whether the cell is the maze exit.
+
+        Returns
+        -------
+        bool
+            True if this cell is the exit, False otherwise.
         """
         return self.__exit
 
     def get_wall(self, direction: str) -> bool:
         """
-        Returns the state (open/closed) of the wall in a given direction.
-        :param direction: Wall direction (NORTH, SOUTH, EST, WEST).
-        :return: True if wall present, False otherwise.
+        Get the state of a wall in the specified direction.
+
+        Parameters
+        ----------
+        direction : str
+            One of "NORTH", "SOUTH", "EST", "WEST".
+
+        Returns
+        -------
+        bool
+            True if the wall is present (closed), False if open.
         """
         return self.__walls[direction]
 
     def get_state_walls(self, state: bool) -> list[str]:
         """
-        Returns the list of directions where the wall is in the given state.
-        :param state: True for present walls, False for open.
-        :return: List of corresponding directions.
+        Return a list of wall directions that match the given state.
+
+        Parameters
+        ----------
+        state : bool
+            True to list present (closed) walls, False to list open walls.
+
+        Returns
+        -------
+        list[str]
+            Directions in the order ["NORTH", "EST", "SOUTH", "WEST"].
         """
         dir_list: list[str] = []
 
@@ -108,16 +177,33 @@ class Cell():
 
     def set_wall(self, direction: str, state: bool) -> None:
         """
-        Set the state (open/closed) of a wall in a given direction.
-        :param direction: Wall direction (NORTH, SOUTH, EST, WEST).
-        :param state: True for wall present, False for open.
+        Set the state of a wall.
+
+        Parameters
+        ----------
+        direction : str
+            One of "NORTH", "SOUTH", "EST", "WEST".
+        state : bool
+            True to close/present the wall, False to open it.
+
+        Returns
+        -------
+        None
         """
         self.__walls[direction] = state
 
     def get_hex_value(self) -> str:
         """
-        Returns the hexadecimal value representing the state of the cell's walls.
-        :return: Hexadecimal string.
+        Return a single hexadecimal character representing the walls.
+
+        The four walls are treated as bits in the order
+        ["NORTH", "EST", "SOUTH", "WEST"], least-significant first.
+        The resulting value is mapped to a hexadecimal character (0..F).
+
+        Returns
+        -------
+        str
+            A single hex character representing the wall bitmask.
         """
         hex: str = "0123456789ABCDEF"
         dec: int = 0
