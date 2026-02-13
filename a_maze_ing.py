@@ -3,7 +3,6 @@
 from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
-from src.display import Button
 from src.display.button import ButtonText
 from src.button_function import change_path
 from src.button_function import change_theme
