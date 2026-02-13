@@ -3,10 +3,10 @@
     bbbbbbbbbbbbbbbbbbbbbb    
   bbbbbbbbbbbbbbbbbbbbbbbbbb  
   bbbbwwwwwbbbbbbbbwwwwwbbbb  
-  bbwww    wwbbbbww    wwwbb  
-bbbbw   wbww bbbb    bbwwwbbbb
-bbbbw   wbww bbbb    bbwwwbbbb
-bbbbwww    wwbbbbww    wwwbbbb
+  bbwwwwwwwwwbbbbwwwwwwwwwbb  
+bbbbwwww1111wbbbbwwww11111bbbb
+bbbbwwww1111wbbbbwwww11111bbbb
+bbbbwwwwwwwwwbbbbwwwwwwwwwbbbb
 bbbbbbwwwwwbbbbbbbbwwwwwbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

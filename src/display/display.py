@@ -61,6 +61,8 @@ class Displayer():
         self.__image_size = image_size
         self.__maze = maze
 
+        self.animation_finished: bool = True
+
         window_x, window_y = self.get_window_size()
         image_x, image_y = self.get_image_size()
 
@@ -381,7 +383,7 @@ class Displayer():
         self.print_path()
         self.print_entry()
         self.print_exit()
-        if self.move_mode is True:
+        if self.move_mode:
             self.print_player(self.get_walls_color())
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
         if loop:
@@ -440,7 +442,7 @@ class Displayer():
                 self.player_pos = maze.get_entry()
                 self.print_player(self.get_walls_color())
             else:
-                self.__static_display()
+                self.display(False)
 
         if self.move_mode is True and keycode in range(65361, 65365):
             x, y = self.player_pos
@@ -461,10 +463,11 @@ class Displayer():
                 }
 
                 cell_color = self.get_background_color()
-                if maze.is_in_shortest_path(cell) and self.toggle_path:
+                if (maze.is_in_shortest_path(cell)
+                        and self.toggle_path and self.animation_finished):
                     cell_color = self.get_path_color()
 
-                if cell_dict.get((x, y)):
+                if cell_dict.get((x, y)) and self.animation_finished:
                     cell_color = cell_dict.get((x, y))
                 self.print_cell((x, y), cell_color)
                 self.print_walls(
@@ -503,6 +506,7 @@ class Displayer():
         self.fps = fps
         self.timestamp = time.time()
         self.first = True
+        self.animation_finished = False
 
         mlx.mlx_loop_hook(mlx_ptr, self.__animate_display, None)
         mlx.mlx_loop(mlx_ptr)
@@ -587,6 +591,9 @@ class Displayer():
                         self.stack.append(next_coords)
                 self.first = False
         else:
+            if self.animation_finished:
+                return
+            self.animation_finished = True
             self.print_path()
             self.print_entry()
             self.print_exit()
@@ -643,6 +650,8 @@ class Displayer():
         self.print_walls(entry, walls, entry_color)
         walls = cell.get_state_walls(True)
         self.print_walls(entry, walls, walls_color)
+        if self.move_mode:
+            self.print_player(self.get_background_color())
 
     def print_exit(self) -> None:
         """
@@ -666,6 +675,8 @@ class Displayer():
         self.print_walls(exit, walls, exit_color)
         walls = cell.get_state_walls(True)
         self.print_walls(exit, walls, walls_color)
+        if self.move_mode:
+            self.print_player(self.get_background_color())
 
     def set_custom_player(self, player_file: TextIO) -> None:
         player_txt: str = player_file.read(-1)
@@ -923,6 +934,8 @@ class Displayer():
                 cell = maze.get_cell(coords)
                 walls = cell.get_state_walls(True)
                 self.print_walls(coords, walls, walls_color)
+            if self.move_mode:
+                self.print_player(self.get_background_color())
 
     def close(self, _):
         """
