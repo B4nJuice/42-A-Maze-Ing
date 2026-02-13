@@ -5,6 +5,7 @@ import time
 from src.maze_generation.maze import Maze
 from src.maze_generation.cell import Cell
 from src.display.button import Button
+from src.display.button import ButtonText
 
 
 class Displayer():
@@ -99,7 +100,12 @@ class Displayer():
         self.win_buttons_ptr: Any
         self.win_buttons_size: tuple[int, int] = (window_x // 2, window_y)
         self.buttons_img: Any
+        self.button_start_y: int = 0
+        self.spacing: int = 0
         self.win_buttons()
+
+    def set_spacing(self, spacing: int = 50) -> None:
+        self.spacing = spacing
 
     def set_color(self, location: str,
                   rgb: tuple[int, int, int]) -> bool:
@@ -314,7 +320,7 @@ class Displayer():
         """
         return self.__path_color
 
-    def display(self) -> None:
+    def display(self, loop: bool = True) -> None:
         """
         Display the complete maze in the MLX window.
 
@@ -353,7 +359,8 @@ class Displayer():
         if self.move_mode is True:
             self.print_player(self.get_walls_color())
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
-        mlx.mlx_loop(mlx_ptr)
+        if loop:
+            mlx.mlx_loop(mlx_ptr)
 
     def __static_display(self, _=None):
         maze = self.get_maze()
@@ -807,12 +814,6 @@ class Displayer():
         mlx.mlx_destroy_window(mlx_ptr, win_ptr)
         mlx.mlx_loop_exit(mlx_ptr)
 
-# self.buttons: list[Button] = []
-#         self.win_buttons_ptr: Any
-#         self.win_buttons_size: tuple[int, int] = (window_x // 2, window_y)
-#         self.buttons_img: Any
-#         self.win_buttons()
-
     def mouse_event(self, mousecode, x, y, _) -> None:
         for button in self.buttons:
             width, height = button.width, button.height
@@ -824,14 +825,28 @@ class Displayer():
 
     def print_button(self, button, data, bpb, size_line) -> None:
         pixel_x = 0
-        pixel_y = 0
+        pixel_y = self.button_start_y
         button.start_x = pixel_x
         button.start_y = pixel_y
-        width, height = button.width, button.height
+        width = button.width
+        height = button.height
 
         for x in range(pixel_x, pixel_x + width):
             for y in range(pixel_y, pixel_y + height):
-                Displayer.put_pixel(data, x, y, self.get_background_color(), bpb, size_line)
+                Displayer.put_pixel(data, x, y,
+                                    button.background_color, bpb, size_line)
+
+        mlx = self.get_mlx()
+        mlx_ptr = self.get_mlx_ptr()
+        win_ptr = self.win_button_ptr
+        if isinstance(button, ButtonText):
+            mlx.mlx_string_put(mlx_ptr, win_ptr,
+                               pixel_x + button.width//2,
+                               pixel_y + button.height//2,
+                               button.text_color, button.text)
+
+        self.button_start_y += height
+        self.button_start_y += self.spacing
 
     def win_buttons(self) -> None:
         mlx = self.get_mlx()
@@ -859,10 +874,10 @@ class Displayer():
 
         mlx.mlx_put_image_to_window(mlx_ptr, self.win_button_ptr, img, 0, 0)
 
+    def add_button(self, button: Button) -> None:
+        self.buttons.append(button)
+
     # def define_buttons_size(self) -> None:
     #     number_of_buttons = len(self.buttons)
     #     x, y = self.win_buttons_size
     #     self.button_size = (x, math.floor(y / number_of_buttons))
-
-    def add_button(self, button: Button) -> None:
-        self.buttons.append(button)

@@ -4,6 +4,8 @@ from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
 from src.display import Button
+from src.display.button import ButtonText
+from src.theme import change_theme
 import sys
 
 
@@ -45,10 +47,7 @@ def create_config(config: Config) -> None:
 
     config.add_parameter("ANIMATED", [False, [bool]])
     config.add_parameter("FPS", [60, [int]])
-
-
-def test(_):
-    print("BABAYAGA")
+    config.add_parameter("SPACING", [42, [int]])
 
 
 if __name__ == "__main__":
@@ -115,9 +114,13 @@ if __name__ == "__main__":
         displayer.set_color("exit", config.get_value("EXIT_COLOR"))
         displayer.set_color("path", config.get_value("PATH_COLOR"))
 
-    button1 = Button(test, None, 100, 50)
-    displayer.add_button(button1)
-
+    x, _ = displayer.win_buttons_size
+    y = displayer.get_cell_size()
+    # button1 = Button(test, None, (x, y))
+    button2 = ButtonText(next, change_theme(displayer), (x, y), (255, 255, 255), "THEME")
+    # displayer.add_button(button1)
+    displayer.add_button(button2)
+    displayer.set_spacing(config.get_value("SPACING"))
     displayer.print_buttons()
 
     if config.get_value("ANIMATED"):
