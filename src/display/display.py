@@ -104,8 +104,14 @@ class Displayer():
         self.player_pos: tuple[int, int] = (0, 0)
 
         self.custom_player: None = None
+        self.auto_adjust_player: bool = True
 
         self.buttons: list[Button] = []
+
+    def set_auto_adjust_player(self, auto_adjust_player: bool) -> None:
+        if not isinstance(auto_adjust_player, bool):
+            raise ValueError("auto_adjust_player has to be a bool.")
+        self.auto_adjust_player = auto_adjust_player
 
     def set_toggle_path(self, toggle: bool) -> None:
         if not isinstance(toggle, bool):
@@ -697,6 +703,36 @@ class Displayer():
                 else:
                     custom_player_row.append(None)
             self.custom_player.append(custom_player_row)
+
+        if not self.auto_adjust_player:
+            return
+
+        cell_size: int = self.get_cell_size()
+        expected_x_size: int = math.ceil(cell_size * 0.75)
+        expected_y_size: int = math.ceil(cell_size * 0.75)
+
+        src_h = player_height
+        src_w = player_width
+        tgt_h = expected_y_size
+        tgt_w = expected_x_size
+
+        if src_h == 0 or src_w == 0:
+            self.custom_player = None
+        else:
+            resized: list[list] = []
+            for ty in range(tgt_h):
+                src_y = min(src_h - 1, int(ty * src_h / tgt_h))
+                row: list = []
+                for tx in range(tgt_w):
+                    src_x = min(src_w - 1, int(tx * src_w / tgt_w))
+                    try:
+                        val = self.custom_player[src_y][src_x]
+                    except Exception:
+                        val = None
+                    row.append(val)
+                resized.append(row)
+
+            self.custom_player = resized
 
     def print_player(self, color) -> None:
         x, y = self.player_pos

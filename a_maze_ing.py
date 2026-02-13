@@ -46,6 +46,9 @@ def create_config(config: Config) -> None:
     config.add_parameter("ANIMATED", [False, [bool]])
     config.add_parameter("FPS", [60, [int]])
 
+    config.add_parameter("CUSTOM_PLAYER_FILE", ["", [str]])
+    config.add_parameter("AUTO_ADJUST_PLAYER", [True, [bool]])
+
 
 if __name__ == "__main__":
     argv: list[str] = sys.argv
@@ -111,8 +114,14 @@ if __name__ == "__main__":
             displayer.set_color("exit", config.get_value("EXIT_COLOR"))
             displayer.set_color("path", config.get_value("PATH_COLOR"))
 
-        with open("src/default_player.txt", "r") as player_file:
-            displayer.set_custom_player(player_file)
+        player_file: str = config.get_value("CUSTOM_PLAYER_FILE")
+
+        if player_file != "":
+            with open(player_file, "r") as textio_player_file:
+                displayer.set_auto_adjust_player(
+                        config.get_value("AUTO_ADJUST_PLAYER")
+                    )
+                displayer.set_custom_player(textio_player_file)
 
         if config.get_value("TOGGLE_PATH"):
             displayer.set_toggle_path(True)
