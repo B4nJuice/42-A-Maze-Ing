@@ -282,6 +282,21 @@ class Config():
                                               type_list, new_value[i]))
             value = tuple(value)
 
+        elif real_type[0] == dict:
+            real_type[0] = tuple
+            tuple_value: tuple[Any] = self.apply_types(
+                    parameter, parameter_list, value
+                )
+            list_value: list[tuple[Any]] = list(tuple_value)
+
+            for element in list_value:
+                if len(element) != 2:
+                    raise ConfigError(
+                            f"invalid argument \"{value}\" for {parameter}"
+                        )
+
+            value: dict[Any] = {k: v for (k, v) in list_value}
+
         else:
             value = real_type[0](value)
 
@@ -334,7 +349,7 @@ class Config():
         if line.count("=") != 1:
             raise ConfigError(f"undefined config line : {line}")
         parameter, value = line.split("=")
-        value = value.replace('\n', '')
+        parameter = parameter.strip()
         value = value.strip()
         return (parameter, value)
 
