@@ -1,4 +1,4 @@
-from io import TextIOWrapper
+from typing import TextIO
 from typing import Any
 from collections.abc import Generator
 
@@ -136,7 +136,7 @@ class Config():
         """
         return self.__config
 
-    def parse_file(self, file: TextIOWrapper) -> None:
+    def parse_file(self, file: TextIO) -> None:
         """
         Parse a configuration file and update parameter values.
 
@@ -282,13 +282,30 @@ class Config():
                                               type_list, new_value[i]))
             value = tuple(value)
 
+        elif real_type[0] == dict:
+            separator: str = real_type[2]
+            real_type.insert(1, len(value.split(separator)))
+            real_type[0] = tuple
+            tuple_value: tuple[Any] = self.apply_types(
+                    parameter, parameter_list, value
+                )
+            list_value: list[tuple[Any]] = list(tuple_value)
+
+            for element in list_value:
+                if len(element) != 2:
+                    raise ConfigError(
+                            f"invalid argument \"{value}\" for {parameter}"
+                        )
+
+            value: dict[Any] = {k: v for (k, v) in list_value}
+
         else:
             value = real_type[0](value)
 
         return value
 
     @staticmethod
-    def get_next_line(file: TextIOWrapper) -> Generator[int, str, None]:
+    def get_next_line(file: TextIO) -> Generator[int, str, None]:
         """
         Yield lines from a file one by one.
 
@@ -334,7 +351,7 @@ class Config():
         if line.count("=") != 1:
             raise ConfigError(f"undefined config line : {line}")
         parameter, value = line.split("=")
-        value = value.replace('\n', '')
+        parameter = parameter.strip()
         value = value.strip()
         return (parameter, value)
 
