@@ -3,16 +3,43 @@ from typing import Any
 
 
 class Button:
-    def __init__(self, function: Callable, param: Any,
-                 start_x: int, start_y: int,
-                 width: int, height: int, color: int) -> None:
+    def __init__(self, function: Callable, param: Any, size: tuple[int, int],
+                 background_color: tuple = (255, 255, 255)) -> None:
         self.function = function
         self.param = param
-        self.start_x = start_x
-        self.start_y = start_y
-        self.width = width
-        self.height = height
-        self.color = color
+        width, height = size
+        self.height: int = height
+        self.width: int = width
+        self.background_color: int = self.rgb_to_hex(background_color)
+        self.start_x: int = 0
+        self.start_y: int = 0
 
-    def clic(self) -> None:
-        self.function(self.param)
+    @staticmethod
+    def rgb_to_hex(rgb: tuple) -> int:
+        red, green, blue = rgb
+
+        red = abs(red) % 256
+        green = abs(green) % 256
+        blue = abs(blue) % 256
+
+        color: int = (0xFF << 24) | (red << 16) | (green << 8) | blue
+        return color
+
+
+class ButtonText(Button):
+    def __init__(self, function: Callable, param: Any, size: tuple[int, int],
+                 background_color: tuple = (0, 0, 0),
+                 text: str = "No text") -> None:
+        self.text_color = self.text_color_contrast(background_color)
+        self.text = text
+        super().__init__(function, param, size, background_color)
+
+    def text_color_contrast(self, background_color) -> int:
+        r, g, b = background_color
+
+        brightness = 0.299*r + 0.587*g + 0.114*b
+
+        if brightness > 128:
+            return (Button.rgb_to_hex((0, 0, 0)))
+        else:
+            return (Button.rgb_to_hex((255, 255, 255)))
