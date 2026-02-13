@@ -5,7 +5,8 @@ from src.maze_generation import Maze
 from src.display import Displayer
 from src.display import Button
 from src.display.button import ButtonText
-from src.theme import change_theme
+from src.button_function import change_path
+from src.button_function import change_theme
 import sys
 
 
@@ -128,9 +129,11 @@ if __name__ == "__main__":
 
         x, _ = displayer.win_buttons_size
         y = displayer.get_cell_size()
-        # button1 = Button(test, None, (x, y))
-        button2 = ButtonText(next, change_theme(displayer), (x, y), (255, 255, 255), "THEME")
-        # displayer.add_button(button1)
+        button1 = ButtonText(
+            change_path, displayer, (x, y), (255, 255, 255), "PATH")
+        button2 = ButtonText(
+            next, change_theme(displayer), (x, y), (255, 255, 255), "THEME")
+        displayer.add_button(button1)
         displayer.add_button(button2)
         displayer.set_spacing(config.get_value("SPACING"))
         displayer.print_buttons()

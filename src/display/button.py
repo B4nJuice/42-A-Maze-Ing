@@ -30,11 +30,12 @@ class ButtonText(Button):
     def __init__(self, function: Callable, param: Any, size: tuple[int, int],
                  background_color: tuple,
                  text: str = "No text") -> None:
-        self.text_color = ButtonText.rgb_to_rgb24((0, 255, 0))
+        self.text_color = self.text_color_contrast(background_color)
         self.text = text
         super().__init__(function, param, size, background_color)
 
-    def text_color_contrast(self, background_color) -> int:
+    @staticmethod
+    def text_color_contrast(background_color) -> int:
         r, g, b = background_color
 
         brightness = 0.299*r + 0.587*g + 0.114*b
@@ -53,5 +54,4 @@ class ButtonText(Button):
         blue = abs(blue) % 256
 
         color: int = (blue << 16) | (green << 8) | red
-        print(color)
         return color

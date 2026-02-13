@@ -110,8 +110,9 @@ class Displayer():
         self.win_buttons_ptr: Any
         self.win_buttons_size: tuple[int, int] = (window_x // 2, window_y)
         self.buttons_img: Any
-        self.button_start_y: int = 0
         self.spacing: int = 50
+        self.button_printer_x: int = self.spacing
+        self.button_printer_y: int = self.spacing
         self.win_buttons()
 
         self.custom_player: None = None
@@ -120,6 +121,8 @@ class Displayer():
 
     def set_spacing(self, spacing: int) -> None:
         self.spacing = spacing
+        self.button_printer_x = spacing
+        self.button_printer_y = spacing
 
     def set_custom_player_colors(self, colors: dict[str, tuple]) -> None:
         self.custom_player_colors = colors
@@ -965,35 +968,6 @@ class Displayer():
                 if (start_y <= y and y <= start_y + height):
                     button.function(button.param)
 
-    def print_button(self, button, data, bpb, size_line) -> None:
-        pixel_x = 0
-        pixel_y = self.button_start_y
-        button.start_x = pixel_x
-        button.start_y = pixel_y
-        width = button.width
-        height = button.height
-
-        for x in range(pixel_x, pixel_x + width):
-            for y in range(pixel_y, pixel_y + height):
-                Displayer.put_pixel(data, x, y,
-                                    button.background_color, bpb, size_line)
-
-        mlx = self.get_mlx()
-        mlx_ptr = self.get_mlx_ptr()
-        win_ptr = self.win_button_ptr
-        img = self.buttons_img
-
-        mlx.mlx_put_image_to_window(mlx_ptr, self.win_button_ptr, img, 0, 0)
-
-        if isinstance(button, ButtonText):
-            mlx.mlx_string_put(mlx_ptr, win_ptr,
-                               pixel_x + (button.width-len(button.text)*8)//2,
-                               pixel_y + (button.height - 16) // 2,
-                               button.text_color, button.text)
-
-        self.button_start_y += height
-        self.button_start_y += self.spacing
-
     def win_buttons(self) -> None:
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
@@ -1009,13 +983,56 @@ class Displayer():
 
         self.buttons_img = mlx.mlx_new_image(mlx_ptr, x, y)
 
+    def print_background_button(self, button, data, bpb, size_line) -> None:
+        spacing = self.spacing
+
+        pixel_x = self.button_printer_x
+        pixel_y = self.button_printer_y
+
+        button.width -= 2 * spacing
+        width = button.width
+        height = button.height
+
+        button.start_x = pixel_x
+        button.start_y = pixel_y
+
+        for x in range(pixel_x, pixel_x + width):
+            for y in range(pixel_y, pixel_y + height):
+                Displayer.put_pixel(data, x, y,
+                                    button.background_color, bpb, size_line)
+
+        self.button_printer_y += height
+        self.button_printer_y += spacing
+
+    def print_text_button(self, button: ButtonText) -> None:
+        mlx = self.get_mlx()
+        mlx_ptr = self.get_mlx_ptr()
+        win_ptr = self.win_button_ptr
+
+        width = button.width
+        height = button.height
+        pixel_x = button.start_x
+        pixel_y = button.start_y
+
+        mlx.mlx_string_put(mlx_ptr, win_ptr,
+                           pixel_x + (width-len(button.text)*8)//2,
+                           pixel_y + (height - 16) // 2,
+                           button.text_color, button.text)
+
     def print_buttons(self) -> None:
         mlx = self.get_mlx()
         img = self.buttons_img
         data, bpb, size_line, _ = mlx.mlx_get_data_addr(img)
+        mlx_ptr = self.get_mlx_ptr()
 
         for button in self.buttons:
-            self.print_button(button, data, bpb, size_line)
+            self.print_background_button(button, data, bpb, size_line)
+
+        mlx.mlx_put_image_to_window(mlx_ptr, self.win_button_ptr, img, 0, 0)
+
+        for button in self.buttons:
+            if isinstance(button, ButtonText):
+                self.print_text_button(button)
 
     def add_button(self, button: Button) -> None:
         self.buttons.append(button)
