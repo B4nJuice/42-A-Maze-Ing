@@ -369,6 +369,16 @@ class Displayer():
         icon_color = self.get_icon_color()
         walls_color = self. get_walls_color()
 
+        buf, bpp, size_line, endian = mlx.mlx_get_data_addr(new_img)
+
+        addr: memoryview[int] = buf.cast('B')
+
+        image_width, image_height = self.get_image_size()
+
+        addr[:] = \
+            background_color.to_bytes(bpp // 8, 'little') \
+            * (image_width * image_height)
+
         for x in range(width):
             for y in range(height):
                 coords: tuple[int, int] = (x, y)
@@ -376,8 +386,6 @@ class Displayer():
                 walls = cell.get_state_walls(True)
                 if (cell.is_icon()):
                     self.print_cell(coords, icon_color)
-                else:
-                    self.print_cell(coords, background_color)
                 self.print_walls(coords, walls, walls_color)
 
         self.print_path()
