@@ -3,7 +3,7 @@ from typing import Any
 
 
 class Button:
-    def __init__(self, function: callable, param: Any,
+    def __init__(self, function: Callable, param: Any,
                  start_x: int, start_y: int,
                  width: int, height: int, color: int) -> None:
         self.function = function

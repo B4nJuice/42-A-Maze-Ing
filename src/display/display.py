@@ -96,12 +96,30 @@ class Displayer():
         self.player_pos: tuple[int, int] = (0, 0)
 
         self.buttons: list[Button] = []
+        self.display_buttons()
 
-    def set_color(
-                self,
-                location: str,
-                rgb: tuple[int, int, int]
-            ) -> bool:
+    def display_buttons(self) -> None:
+        mlx = self.get_mlx()
+        mlx_ptr = mlx.mlx_init()
+
+        window_x, window_y = self.get_window_size()
+        window_x //= 2
+
+        win_ptr = mlx.mlx_new_window(mlx_ptr, window_x, window_y, "Buttons")
+
+        mlx.mlx_hook(win_ptr, 33, 1 << 17, self.close, None)
+        mlx.mlx_hook(win_ptr, 4, 1 << 2, self.mouse_event, None)
+
+        new_img = mlx.mlx_new_image(mlx_ptr, window_x, window_y)
+        data, bpb, size_line, endian = mlx.mlx_get_data_addr(new_img)
+
+        for button in self.buttons:
+            self.print_button(button, data, bpb, size_line)
+
+        mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
+
+    def set_color(self, location: str,
+                  rgb: tuple[int, int, int]) -> bool:
         """
         Set a color for a specific UI location.
 
@@ -313,22 +331,16 @@ class Displayer():
         """
         return self.__path_color
 
-    def print_button(self) -> None:
-        mlx = self.get_mlx()
-        new_img = self.get_new_img()
-        data, bpb, size_line, endian = mlx.mlx_get_data_addr(new_img)
+    def print_button(self, button, data, bpb, size_line) -> None:
+        pixel_x = button.start_x
+        pixel_y = button.start_y
+        for x in range(pixel_y, pixel_y + button.width):
+            for y in range(pixel_x, pixel_x + button.height):
+                Displayer.put_pixel(data, x + self.x_offset,
+                                    y + self.y_offset,
+                                    button.color, bpb, size_line)
 
-        for button in self.buttons:
-            pixel_x = self.start_x
-            pixel_y = self.start_y
-            color = self.color
-            for x in range(pixel_y, pixel_y + self.width):
-                for y in range(pixel_x, pixel_x + self.height):
-                    Displayer.put_pixel(data,
-                                        x + self.x_offset, y + self.y_offset,
-                                        color, bpb, size_line)
-
-    def display(self):
+    def display(self) -> None:
         """
         Display the complete maze in the MLX window.
 
@@ -454,9 +466,11 @@ class Displayer():
 
     def mouse_event(self, mousecode, x, y, _) -> None:
         for button in self.buttons:
-            if x in range(button.start_x, button.width):
-                if y in range(button.start_y, button.height):
-                    button.function(button.param)
+            start_x = button.start_x
+            start_y = button.start_y
+        if (start_x <= x <= start_x + button.width):
+            if (start_y <= y <= start_y + button.height):
+                button.function(button.param)
 
     def start_static_display(self) -> None:
         mlx = self.get_mlx()
