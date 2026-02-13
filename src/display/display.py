@@ -839,10 +839,14 @@ class Displayer():
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
         win_ptr = self.win_button_ptr
+        img = self.buttons_img
+
+        mlx.mlx_put_image_to_window(mlx_ptr, self.win_button_ptr, img, 0, 0)
+
         if isinstance(button, ButtonText):
             mlx.mlx_string_put(mlx_ptr, win_ptr,
-                               pixel_x + button.width//2,
-                               pixel_y + button.height//2,
+                               pixel_x + (button.width-len(button.text)*8)//2,
+                               pixel_y + (button.height - 16) // 2,
                                button.text_color, button.text)
 
         self.button_start_y += height
@@ -865,14 +869,11 @@ class Displayer():
 
     def print_buttons(self) -> None:
         mlx = self.get_mlx()
-        mlx_ptr = self.get_mlx_ptr()
         img = self.buttons_img
         data, bpb, size_line, _ = mlx.mlx_get_data_addr(img)
 
         for button in self.buttons:
             self.print_button(button, data, bpb, size_line)
-
-        mlx.mlx_put_image_to_window(mlx_ptr, self.win_button_ptr, img, 0, 0)
 
     def add_button(self, button: Button) -> None:
         self.buttons.append(button)
