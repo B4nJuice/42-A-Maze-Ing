@@ -3,6 +3,7 @@
 from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
+from src.display import Button
 import sys
 
 
@@ -46,6 +47,10 @@ def create_config(config: Config) -> None:
     config.add_parameter("FPS", [60, [int]])
 
 
+def test(_):
+    print("BABAYAGA")
+
+
 if __name__ == "__main__":
     argv: list[str] = sys.argv
     argc: int = len(argv)
@@ -57,62 +62,67 @@ if __name__ == "__main__":
 
     config: Config = Config()
 
-    try:
-        create_config(config)
+    # try:
+    create_config(config)
 
-        if config_file_name != "":
-            with open(config_file_name) as config_file:
-                config.parse_file(config_file)
+    if config_file_name != "":
+        with open(config_file_name) as config_file:
+            config.parse_file(config_file)
 
-        width: int = config.get_value("WIDTH")
-        height: int = config.get_value("HEIGHT")
-        seed: int = config.get_value("SEED")
+    width: int = config.get_value("WIDTH")
+    height: int = config.get_value("HEIGHT")
+    seed: int = config.get_value("SEED")
 
-        entry: tuple[int, int] = config.get_value("ENTRY")
-        _exit: tuple[int, int] = config.get_value("EXIT")
+    entry: tuple[int, int] = config.get_value("ENTRY")
+    _exit: tuple[int, int] = config.get_value("EXIT")
 
-        perfect: bool = config.get_value("PERFECT")
+    perfect: bool = config.get_value("PERFECT")
 
-        output_file_name: str = config.get_value("OUTPUT_FILE")
-        icon_file_name: str = config.get_value("ICON_FILE")
+    output_file_name: str = config.get_value("OUTPUT_FILE")
+    icon_file_name: str = config.get_value("ICON_FILE")
 
-        with open(output_file_name, "w") as output_file:
-            with open(icon_file_name, "r") as icon_file:
-                maze: Maze = Maze(
-                                width,
-                                height,
-                                entry,
-                                _exit,
-                                perfect,
-                                seed,
-                                icon_file
+    with open(output_file_name, "w") as output_file:
+        with open(icon_file_name, "r") as icon_file:
+            maze: Maze = Maze(
+                            width,
+                            height,
+                            entry,
+                            _exit,
+                            perfect,
+                            seed,
+                            icon_file
+                        )
+
+            maze.create_full_maze()
+        maze.output_in_file(output_file)
+
+    screen_size, maze_size = config.get_value("MAZE_SIZE")
+    wall_thickness: int = config.get_value("WALL_THICKNESS")
+
+    displayer: Displayer = Displayer(
+                                screen_size,
+                                maze_size,
+                                maze,
+                                wall_thickness
                             )
 
-                maze.create_full_maze()
-            maze.output_in_file(output_file)
+    if config.get_value("CUSTOM_COLORS"):
+        displayer.set_color("background", config.get_value(
+            "BACKGROUND_COLOR"))
+        displayer.set_color("walls", config.get_value("WALLS_COLOR"))
+        displayer.set_color("icon", config.get_value("ICON_COLOR"))
+        displayer.set_color("entry", config.get_value("ENTRY_COLOR"))
+        displayer.set_color("exit", config.get_value("EXIT_COLOR"))
+        displayer.set_color("path", config.get_value("PATH_COLOR"))
 
-        screen_size, maze_size = config.get_value("MAZE_SIZE")
-        wall_thickness: int = config.get_value("WALL_THICKNESS")
+    button1 = Button(test, None, 100, 50)
+    displayer.add_button(button1)
 
-        displayer: Displayer = Displayer(
-                                    screen_size,
-                                    maze_size,
-                                    maze,
-                                    wall_thickness
-                                )
+    displayer.print_buttons()
 
-        if config.get_value("CUSTOM_COLORS"):
-            displayer.set_color("background", config.get_value(
-                "BACKGROUND_COLOR"))
-            displayer.set_color("walls", config.get_value("WALLS_COLOR"))
-            displayer.set_color("icon", config.get_value("ICON_COLOR"))
-            displayer.set_color("entry", config.get_value("ENTRY_COLOR"))
-            displayer.set_color("exit", config.get_value("EXIT_COLOR"))
-            displayer.set_color("path", config.get_value("PATH_COLOR"))
-
-        if config.get_value("ANIMATED"):
-            displayer.start_animated_display(config.get_value("FPS"))
-        else:
-            displayer.display()
-    except Exception as e:
-        print(e)
+    if config.get_value("ANIMATED"):
+        displayer.start_animated_display(config.get_value("FPS"))
+    else:
+        displayer.display()
+    # except Exception as e:
+    #     print(e)
