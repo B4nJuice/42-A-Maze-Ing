@@ -3,6 +3,10 @@
 from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
+from src.display import Button
+from src.display.button import ButtonText
+from src.button_function import change_path
+from src.button_function import change_theme
 import sys
 
 
@@ -15,6 +19,7 @@ def create_config(config: Config) -> None:
     config.add_parameter("PERFECT", [True, [bool]])
     config.add_parameter("SEED", [42, [int]])
     config.add_parameter("ICON_FILE", ["src/default_icon.txt", [str]])
+    config.add_parameter("TOGGLE_PATH", [False, [bool]])
     config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
         tuple, 2, [
             [tuple, 2, [[int], [int]], ","], [tuple, 2, [[int], [int]], ","]
@@ -44,6 +49,18 @@ def create_config(config: Config) -> None:
 
     config.add_parameter("ANIMATED", [False, [bool]])
     config.add_parameter("FPS", [60, [int]])
+    config.add_parameter("SPACING", [42, [int]])
+
+    config.add_parameter("CUSTOM_PLAYER_FILE", ["", [str]])
+    config.add_parameter("AUTO_ADJUST_PLAYER", [True, [bool]])
+    config.add_parameter("CUSTOM_PLAYER_COLORS", [{"r": (255, 0, 0)}, [
+        dict, [
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            ], " "
+        ]])
 
 
 if __name__ == "__main__":
@@ -110,9 +127,35 @@ if __name__ == "__main__":
             displayer.set_color("exit", config.get_value("EXIT_COLOR"))
             displayer.set_color("path", config.get_value("PATH_COLOR"))
 
+        x, _ = displayer.win_buttons_size
+        y = displayer.get_cell_size()
+        button1 = ButtonText(
+            change_path, displayer, (x, y), (255, 255, 255), "PATH")
+        button2 = ButtonText(
+            next, change_theme(displayer), (x, y), (255, 255, 255), "THEME")
+        displayer.add_button(button1)
+        displayer.add_button(button2)
+        displayer.set_spacing(config.get_value("SPACING"))
+        displayer.print_buttons()
+
+        player_file: str = config.get_value("CUSTOM_PLAYER_FILE")
+
+        if player_file != "":
+            with open(player_file, "r") as textio_player_file:
+                displayer.set_auto_adjust_player(
+                        config.get_value("AUTO_ADJUST_PLAYER")
+                    )
+                displayer.set_custom_player_colors(
+                    config.get_value("CUSTOM_PLAYER_COLORS")
+                )
+                displayer.set_custom_player(textio_player_file)
+
+        if config.get_value("TOGGLE_PATH"):
+            displayer.set_toggle_path(True)
+
         if config.get_value("ANIMATED"):
             displayer.start_animated_display(config.get_value("FPS"))
         else:
-            displayer.start_static_display()
+            displayer.display()
     except Exception as e:
         print(e)

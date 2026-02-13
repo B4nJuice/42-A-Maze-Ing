@@ -9,3 +9,4 @@ maze.txt
 .vscode
 .gitignore
 .mypy_cache
+src/config/__pycache__/config.cpython-310.pyc

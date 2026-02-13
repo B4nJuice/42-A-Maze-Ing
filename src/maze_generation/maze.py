@@ -104,6 +104,7 @@ class Maze():
         self.__perfect: bool = perfect
         self.__after_exit = False
         self.__shortest_path = []
+        self.__shortest_path_cells = []
 
         for coords in [entry, exit]:
             x, y = coords
@@ -571,6 +572,11 @@ class Maze():
         self.check_maze()
         self.__shortest_path = self.find_shortest_path()
 
+        coords = self.get_entry()
+        for char in self.get_shortest_path():
+            coords = self.get_coords_by_dir(coords, char)
+            self.__shortest_path_cells.append(self.get_cell(coords))
+
     @staticmethod
     def get_coords_by_dir(coords: tuple[int, int],
                           direction: str) -> tuple[int, int]:
@@ -677,6 +683,9 @@ class Maze():
         if len(cell.get_state_walls(True)) == 4:
             return True
         return False
+
+    def is_in_shortest_path(self, cell: Cell) -> bool:
+        return cell in self.__shortest_path_cells
 
     def check_maze(self) -> None:
         """
