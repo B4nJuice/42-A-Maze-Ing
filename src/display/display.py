@@ -404,9 +404,11 @@ class Displayer():
         up = 65362
         right = 65363
         down = 65364
-        
+
         if keycode == esc:
             self.close(None)
+
+        maze = self.get_maze()
 
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
@@ -415,14 +417,14 @@ class Displayer():
         if keycode == move_mode:
             self.move_mode = not self.move_mode
             if self.move_mode:
-                self.player_pos = self.get_maze().get_entry()
+                self.player_pos = maze.get_entry()
                 self.print_player(self.get_walls_color())
             else:
                 self.__static_display()
 
         if self.move_mode is True and keycode in range(65361, 65365):
             x, y = self.player_pos
-            cell = self.get_maze().get_cell(self.player_pos)
+            cell = maze.get_cell(self.player_pos)
 
             if keycode == left and not cell.get_wall("WEST"):
                 self.player_pos = x - 1, y
@@ -434,11 +436,13 @@ class Displayer():
                 self.player_pos = x, y + 1
             if (x, y) != self.player_pos:
                 cell_dict: dict[Any] = {
-                    self.get_maze().get_exit(): self.get_exit_color(),
-                    self.get_maze().get_entry(): self.get_entry_color(),
+                    maze.get_exit(): self.get_exit_color(),
+                    maze.get_entry(): self.get_entry_color(),
                 }
 
                 cell_color = self.get_background_color()
+                if maze.is_in_shortest_path(cell) and self.toggle_path:
+                    cell_color = self.get_path_color()
 
                 if cell_dict.get((x, y)):
                     cell_color = cell_dict.get((x, y))
@@ -619,13 +623,12 @@ class Displayer():
         entry = maze.get_entry()
         entry_color = self.get_entry_color()
         walls_color = self.get_walls_color()
-        background_color = self.get_background_color()
 
         self.print_cell(entry, entry_color)
 
         cell: Cell = maze.get_cell(entry)
         walls = cell.get_state_walls(False)
-        self.print_walls(entry, walls, background_color)
+        self.print_walls(entry, walls, entry_color)
         walls = cell.get_state_walls(True)
         self.print_walls(entry, walls, walls_color)
 
@@ -643,13 +646,12 @@ class Displayer():
         exit = maze.get_exit()
         exit_color = self.get_exit_color()
         walls_color = self.get_walls_color()
-        background_color = self.get_background_color()
 
         self.print_cell(exit, exit_color)
 
         cell: Cell = maze.get_cell(exit)
         walls = cell.get_state_walls(False)
-        self.print_walls(exit, walls, background_color)
+        self.print_walls(exit, walls, exit_color)
         walls = cell.get_state_walls(True)
         self.print_walls(exit, walls, walls_color)
 
