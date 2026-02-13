@@ -129,9 +129,9 @@ if __name__ == "__main__":
         x, _ = displayer.win_buttons_size
         y = displayer.get_cell_size()
         button1 = ButtonText(
-            change_path, displayer, (x, y), (255, 255, 255), "PATH")
+            change_path, displayer, (x, y), (5, 55, 175), "PATH")
         button2 = ButtonText(
-            next, change_theme(displayer), (x, y), (255, 255, 255), "THEME")
+            next, change_theme(displayer), (x, y), (5, 55, 175), "THEME")
         displayer.add_button(button1)
         displayer.add_button(button2)
         displayer.set_spacing(config.get_value("SPACING"))
