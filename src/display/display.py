@@ -2,9 +2,15 @@ from mlx import Mlx
 from typing import Any
 import math
 import time
+from typing import TextIO
 from src.maze_generation.maze import Maze
 from src.maze_generation.cell import Cell
 from src.display.button import Button
+
+
+class PlayerError(Exception):
+    def __init__(self, message: str = "undefined"):
+        super().__init__(message)
 
 
 class Displayer():
@@ -96,6 +102,8 @@ class Displayer():
 
         self.move_mode: bool = False
         self.player_pos: tuple[int, int] = (0, 0)
+
+        self.custom_player: None = None
 
         self.buttons: list[Button] = []
 
@@ -655,19 +663,75 @@ class Displayer():
         walls = cell.get_state_walls(True)
         self.print_walls(exit, walls, walls_color)
 
+    def set_custom_player(self, player_file: TextIO) -> None:
+        player_txt: str = player_file.read(-1)
+        player_rows: list[str] = player_txt.split("\n")
+
+        for row in player_rows:
+            if row == "":
+                player_rows.remove(row)
+
+        player_height: int = len(player_rows)
+        player_width: int = 0
+        if player_height > 0:
+            player_width = len(player_rows[0])
+            for row in player_rows:
+                if len(row) != player_width:
+                    player_rows.clear()
+                    raise PlayerError(
+                        "player line length has to stay the same."
+                    )
+
+        if max(player_height, player_width) > self.get_cell_size():
+            raise PlayerError("player too big.")
+
+        player_txt = player_txt.replace("\n", "")
+
+        self.custom_player: list = []
+
+        for y in range(player_height):
+            custom_player_row: list = []
+            for x in range(player_width):
+                if player_txt[y * player_width + x] not in ["0", " "]:
+                    custom_player_row.append(self.get_walls_color())
+                else:
+                    custom_player_row.append(None)
+            self.custom_player.append(custom_player_row)
+
     def print_player(self, color) -> None:
         x, y = self.player_pos
         size = self.get_cell_size()
-        pixel_x = x * size + size // 3
-        pixel_y = y * size + size // 3
+
         mlx = self.get_mlx()
         new_img = self.get_new_img()
         data, bpb, size_line, endian = mlx.mlx_get_data_addr(new_img)
 
-        for y in range(pixel_y, pixel_y + size // 3):
-            for x in range(pixel_x, pixel_x + size // 3):
-                Displayer.put_pixel(data, x + self.x_offset, y + self.y_offset,
-                                    color, bpb, size_line)
+        if self.custom_player is not None:
+            player_offset_x: int = (size - len(self.custom_player)) // 2
+            player_offset_y: int = (size - len(self.custom_player[0])) // 2
+            for pixel_y, row in enumerate(self.custom_player):
+                for pixel_x, custom_color in enumerate(row):
+                    if custom_color is not None:
+                        Displayer.put_pixel(
+                            data,
+                            (pixel_x + x * size + self.x_offset
+                                + player_offset_x),
+                            (pixel_y + y * size + self.y_offset
+                                + player_offset_y),
+                            custom_color, bpb, size_line
+                            )
+        else:
+            pixel_x = x * size + size // 3
+            pixel_y = y * size + size // 3
+
+            for y in range(pixel_y, pixel_y + size // 3):
+                for x in range(pixel_x, pixel_x + size // 3):
+                    Displayer.put_pixel(
+                        data,
+                        x + self.x_offset,
+                        y + self.y_offset,
+                        color, bpb, size_line
+                    )
 
     def print_cell(self, coords: tuple[int, int], color: int) -> None:
         """

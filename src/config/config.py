@@ -1,4 +1,4 @@
-from io import TextIOWrapper
+from typing import TextIO
 from typing import Any
 from collections.abc import Generator
 
@@ -136,7 +136,7 @@ class Config():
         """
         return self.__config
 
-    def parse_file(self, file: TextIOWrapper) -> None:
+    def parse_file(self, file: TextIO) -> None:
         """
         Parse a configuration file and update parameter values.
 
@@ -288,7 +288,7 @@ class Config():
         return value
 
     @staticmethod
-    def get_next_line(file: TextIOWrapper) -> Generator[int, str, None]:
+    def get_next_line(file: TextIO) -> Generator[int, str, None]:
         """
         Yield lines from a file one by one.
 

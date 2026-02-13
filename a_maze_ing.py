@@ -111,6 +111,9 @@ if __name__ == "__main__":
             displayer.set_color("exit", config.get_value("EXIT_COLOR"))
             displayer.set_color("path", config.get_value("PATH_COLOR"))
 
+        with open("src/default_player.txt", "r") as player_file:
+            displayer.set_custom_player(player_file)
+
         if config.get_value("TOGGLE_PATH"):
             displayer.set_toggle_path(True)
 
