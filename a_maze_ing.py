@@ -15,6 +15,7 @@ def create_config(config: Config) -> None:
     config.add_parameter("PERFECT", [True, [bool]])
     config.add_parameter("SEED", [42, [int]])
     config.add_parameter("ICON_FILE", ["src/default_icon.txt", [str]])
+    config.add_parameter("TOGGLE_PATH", [False, [bool]])
     config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
         tuple, 2, [
             [tuple, 2, [[int], [int]], ","], [tuple, 2, [[int], [int]], ","]
@@ -109,6 +110,9 @@ if __name__ == "__main__":
             displayer.set_color("entry", config.get_value("ENTRY_COLOR"))
             displayer.set_color("exit", config.get_value("EXIT_COLOR"))
             displayer.set_color("path", config.get_value("PATH_COLOR"))
+
+        if config.get_value("TOGGLE_PATH"):
+            displayer.set_toggle_path(True)
 
         if config.get_value("ANIMATED"):
             displayer.start_animated_display(config.get_value("FPS"))
