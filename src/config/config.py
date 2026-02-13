@@ -283,6 +283,8 @@ class Config():
             value = tuple(value)
 
         elif real_type[0] == dict:
+            separator: str = real_type[2]
+            real_type.insert(1, len(value.split(separator)))
             real_type[0] = tuple
             tuple_value: tuple[Any] = self.apply_types(
                     parameter, parameter_list, value

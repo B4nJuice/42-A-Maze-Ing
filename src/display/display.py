@@ -105,8 +105,12 @@ class Displayer():
 
         self.custom_player: None = None
         self.auto_adjust_player: bool = True
+        self.custom_player_colors: dict = {}
 
         self.buttons: list[Button] = []
+
+    def set_custom_player_colors(self, colors: dict[str, tuple]) -> None:
+        self.custom_player_colors = colors
 
     def set_auto_adjust_player(self, auto_adjust_player: bool) -> None:
         if not isinstance(auto_adjust_player, bool):
@@ -698,8 +702,22 @@ class Displayer():
         for y in range(player_height):
             custom_player_row: list = []
             for x in range(player_width):
-                if player_txt[y * player_width + x] not in ["0", " "]:
-                    custom_player_row.append(self.get_walls_color())
+                char: str = player_txt[y * player_width + x]
+                if char not in ["0", " "]:
+                    rgb: tuple = self.custom_player_colors.get(char)
+                    if rgb is not None:
+                        red, green, blue = rgb
+
+                        red = abs(red) % 256
+                        green = abs(green) % 256
+                        blue = abs(blue) % 256
+
+                        custom_color: int = (
+                            (0xFF << 24) | (red << 16) | (green << 8) | blue
+                        )
+                        custom_player_row.append(custom_color)
+                    else:
+                        custom_player_row.append(self.get_walls_color())
                 else:
                     custom_player_row.append(None)
             self.custom_player.append(custom_player_row)

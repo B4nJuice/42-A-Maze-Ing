@@ -48,6 +48,13 @@ def create_config(config: Config) -> None:
 
     config.add_parameter("CUSTOM_PLAYER_FILE", ["", [str]])
     config.add_parameter("AUTO_ADJUST_PLAYER", [True, [bool]])
+    config.add_parameter("CUSTOM_PLAYER_COLORS", [{"r": (255, 0, 0)}, [
+        dict, [
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            ], " "
+        ]])
 
 
 if __name__ == "__main__":
@@ -121,6 +128,9 @@ if __name__ == "__main__":
                 displayer.set_auto_adjust_player(
                         config.get_value("AUTO_ADJUST_PLAYER")
                     )
+                displayer.set_custom_player_colors(
+                    config.get_value("CUSTOM_PLAYER_COLORS")
+                )
                 displayer.set_custom_player(textio_player_file)
 
         if config.get_value("TOGGLE_PATH"):
