@@ -692,7 +692,8 @@ class Displayer():
                         "player line length has to stay the same."
                     )
 
-        if max(player_height, player_width) > self.get_cell_size():
+        if (max(player_height, player_width) > self.get_cell_size()
+                and not self.auto_adjust_player):
             raise PlayerError("player too big.")
 
         player_txt = player_txt.replace("\n", "")

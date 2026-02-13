@@ -1,10 +1,15 @@
-  1    1  
-  1    1  
-1111111111
-  1rrrr1  
-  1gggg1  
-  1bbbb1  
-  1bbbb1  
-1111111111
-  1    1  
-  1    1  
+          bbbbbbbbbb          
+      bbbbbbbbbbbbbbbbbb      
+    bbbbbbbbbbbbbbbbbbbbbb    
+  bbbbbbbbbbbbbbbbbbbbbbbbbb  
+  bbbbwwwwwbbbbbbbbwwwwwbbbb  
+  bbwww    wwbbbbww    wwwbb  
+bbbbw   wbww bbbb    bbwwwbbbb
+bbbbw   wbww bbbb    bbwwwbbbb
+bbbbwww    wwbbbbww    wwwbbbb
+bbbbbbwwwwwbbbbbbbbwwwwwbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbb bbbbbbbb  bbbbbbbb bbbbb
+bbb     bbbbbb   bbbbb     bbb

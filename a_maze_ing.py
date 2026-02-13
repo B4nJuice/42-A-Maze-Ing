@@ -53,6 +53,7 @@ def create_config(config: Config) -> None:
             [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
             [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
             [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
+            [tuple, 2, [[str], [tuple, 3, [[int], [int], [int]], ","]], ":"],
             ], " "
         ]])
 
