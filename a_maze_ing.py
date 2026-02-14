@@ -62,7 +62,7 @@ def create_config(config: Config) -> None:
         ]])
 
 
-if __name__ == "__main__":
+def main() -> None:
     argv: list[str] = sys.argv
     argc: int = len(argv)
 
@@ -158,3 +158,7 @@ if __name__ == "__main__":
             displayer.display()
     except Exception as e:
         print(e)
+
+
+if __name__ == "__main__":
+    main()
