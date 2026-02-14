@@ -10,7 +10,7 @@ class MazeError(Exception):
 
     Used as a base class for more specific maze-related exceptions.
     """
-    def __init__(self, message="undefined"):
+    def __init__(self, message: str = "undefined"):
         """
         Initialize the exception with a custom message.
 
@@ -26,7 +26,7 @@ class IconError(MazeError):
     """
     Exception raised for errors related to the maze icon.
     """
-    def __init__(self, message="undefined"):
+    def __init__(self, message: str = "undefined"):
         """
         Initialize the exception with a custom message.
 
@@ -42,7 +42,7 @@ class EntryExitError(MazeError):
     """
     Exception for invalid entry/exit positions or related errors.
     """
-    def __init__(self, message="undefined"):
+    def __init__(self, message: str = "undefined"):
         """
         Initialize the exception with a custom message.
 
@@ -173,7 +173,7 @@ class Maze():
         """
         return self.__matrix
 
-    def get_cell(self, coords: tuple[int, int]) -> Cell | None:
+    def get_cell(self, coords: tuple[int, int]) -> Cell:
         """
         Get the Cell at the specified coordinates.
 
@@ -190,7 +190,7 @@ class Maze():
         matrix = self.get_matrix()
         x, y = coords
         if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
-            return None
+            raise ValueError
         cell = matrix[y][x]
         return cell
 
