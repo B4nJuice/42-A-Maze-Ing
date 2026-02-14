@@ -35,7 +35,7 @@ class ButtonText(Button):
         super().__init__(function, param, size, background_color)
 
     @staticmethod
-    def text_color_contrast(background_color) -> int:
+    def text_color_contrast(background_color: tuple[int, int, int]) -> int:
         r, g, b = background_color
 
         brightness = 0.299*r + 0.587*g + 0.114*b

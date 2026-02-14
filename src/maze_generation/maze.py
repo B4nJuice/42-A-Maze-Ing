@@ -173,7 +173,7 @@ class Maze():
         """
         return self.__matrix
 
-    def get_cell(self, coords: tuple[int, int]) -> None | Cell:
+    def get_cell(self, coords: tuple[int, int]) -> Cell | None:
         """
         Get the Cell at the specified coordinates.
 

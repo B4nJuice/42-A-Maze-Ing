@@ -1,5 +1,5 @@
-from mlx import Mlx
 from typing import Any
+from mlx import Mlx
 import math
 import time
 from typing import TextIO
