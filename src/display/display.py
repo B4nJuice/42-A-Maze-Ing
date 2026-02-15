@@ -119,6 +119,9 @@ class Displayer():
         self.auto_adjust_player: bool = True
         self.custom_player_colors: dict = {}
 
+    def set_maze(self, new: Maze) -> None:
+        self.__maze = new
+
     def set_spacing(self, spacing: int) -> None:
         self.spacing = spacing
         self.button_printer_x = spacing
@@ -1044,8 +1047,3 @@ class Displayer():
 
     def add_button(self, button: Button) -> None:
         self.buttons.append(button)
-
-    # def define_buttons_size(self) -> None:
-    #     number_of_buttons = len(self.buttons)
-    #     x, y = self.win_buttons_size
-    #     self.button_size = (x, math.floor(y / number_of_buttons))
