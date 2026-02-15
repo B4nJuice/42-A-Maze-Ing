@@ -15,7 +15,7 @@ def create_seed(seed: int) -> int:
     return seed
 
 
-def next_randint(min: int, max: int):
+def next_randint(min: int, max: int) -> int:
     """
     Returns a pseudo-random integer in the interval [min, max[
     :param min: Lower bound (inclusive).

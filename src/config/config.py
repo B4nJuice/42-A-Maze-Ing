@@ -7,7 +7,7 @@ class ConfigError(Exception):
     """
     Custom exception for configuration errors.
     """
-    def __init__(self, message="undefined") -> None:
+    def __init__(self, message: str = "undefined") -> None:
         """
         Initialize the exception with a custom error message.
 
@@ -38,7 +38,7 @@ class Config():
         self.__config = {}
         self.__commentary_str: str = "#"
 
-    def set_commentary_str(self, commentary_str: str):
+    def set_commentary_str(self, commentary_str: str) -> None:
         """
         Set the prefix used to identify comment lines in the configuration
         file.
@@ -59,7 +59,7 @@ class Config():
                 )
         self.__commentary_str = commentary_str
 
-    def get_commentary_str(self):
+    def get_commentary_str(self) -> str:
         """
         Return the current comment prefix string.
 
