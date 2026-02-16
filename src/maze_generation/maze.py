@@ -107,6 +107,7 @@ class Maze():
         self.__after_exit = False
         self.__shortest_path: list[str] = []
         self.__shortest_path_cells: list[Cell] = []
+        self.set_n_breach(3)
 
         for coords in [entry, exit]:
             x, y = coords
@@ -163,6 +164,9 @@ class Maze():
                             "entry/exit cannot be in the icon")
                     icon_cell: Cell = self.get_cell(icon_cell_coords)
                     icon_cell.set_icon()
+
+    def set_n_breach(self, n_breach: int) -> None:
+        self.n_breach: int = abs(n_breach) + (n_breach == 0)
 
     def get_matrix(self) -> list[list[Cell]]:
         """
@@ -572,7 +576,7 @@ class Maze():
             n_possible_breach: int = len(possible_breach)
 
             if n_possible_breach > 0:
-                n_breach: int = next_randint(1, 3)
+                n_breach: int = next_randint(1, self.n_breach)
                 for _ in range(n_breach):
                     direction, coords = possible_breach[
                         next_randint(0, n_possible_breach)]
