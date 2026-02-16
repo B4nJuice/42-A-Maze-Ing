@@ -70,8 +70,7 @@ class Config():
         """
         return self.__commentary_str
 
-    def add_parameter(self, name: str, param: list[
-            Any, type, int, list[type], str]) -> None:
+    def add_parameter(self, name: str, param: list[Any]) -> None:
         """
         Register a new configuration parameter and its type specification.
 
@@ -125,7 +124,7 @@ class Config():
         param.append(False)
         config.update({name: param})
 
-    def get_config(self) -> dict[str, list[Any, type, Any]]:
+    def get_config(self) -> dict[str, list[Any]]:
         """
         Return the internal configuration dictionary.
 
@@ -305,7 +304,7 @@ class Config():
         return value
 
     @staticmethod
-    def get_next_line(file: TextIO) -> Generator[int, str, None]:
+    def get_next_line(file: TextIO) -> Generator[str, str, None]:
         """
         Yield lines from a file one by one.
 
