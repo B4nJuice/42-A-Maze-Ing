@@ -2,7 +2,7 @@ from mlx import Mlx
 from typing import Any
 import math
 import time
-from typing import TextIO, cast
+from typing import TextIO, cast, Callable
 from src.maze_generation.maze import Maze
 from src.maze_generation.cell import Cell
 from src.display.button import Button
@@ -123,9 +123,13 @@ class Displayer():
         self.custom_player: list[list[int | None]] | None = None
         self.auto_adjust_player: bool = True
         self.custom_player_colors: dict = {}
+        self.function_player: list[Any] | None = None
 
     def set_maze(self, new: Maze) -> None:
         self.__maze = new
+
+    def set_function(self, funct: Callable, param: tuple[Any, Any]) -> None:
+        self.function_player = [funct, param]
 
     def set_spacing(self, spacing: int) -> None:
         if spacing <= 0:
@@ -501,6 +505,8 @@ class Displayer():
                     self.get_walls_color())
                 self.print_player(self.get_walls_color())
 
+        if self.function_player:
+            self.function_player[0](self.function_player[1])
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
     def start_static_display(self) -> None:

@@ -4,7 +4,8 @@ from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
 from src.display.button import ButtonText
-from src.button_function import change_path, change_theme, regenerate_maze
+from src.button_function import change_path, change_theme
+from src.button_function import regenerate_maze, victory_function
 import sys
 
 
@@ -159,6 +160,7 @@ def main() -> None:
 
         if config.get_value("TOGGLE_PATH"):
             displayer.set_toggle_path(True)
+        displayer.set_function(victory_function, (displayer, maze.get_exit()))
 
         if animated is True:
             displayer.start_animated_display(config.get_value("FPS"))
