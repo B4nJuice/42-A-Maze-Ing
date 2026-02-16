@@ -10,7 +10,7 @@ def close(param: tuple) -> None:
     mlx.mlx_destroy_window(mlx_ptr, win_ptr)
 
 
-def key_press(keycode, param: tuple) -> None:
+def key_press(keycode: int, param: tuple) -> None:
     mlx, mlx_ptr, win_ptr = param
     if keycode == 65307:
         mlx.mlx_destroy_window(mlx_ptr, win_ptr)

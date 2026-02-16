@@ -1,4 +1,4 @@
-from mlx import Mlx
+from mlx import Mlx  # type: ignore
 from typing import Any
 import math
 import time
