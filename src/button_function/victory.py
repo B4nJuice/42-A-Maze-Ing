@@ -18,7 +18,7 @@ def key_press(keycode: int, param: tuple) -> None:
 
 def victory_function(param: tuple[Displayer, tuple]) -> None:
     displayer, exit = param
-    path = "src/assets/victory_royale.xpm"
+    path = "src/assets/troll.xpm"
     if displayer.player_pos == exit:
         mlx = displayer.get_mlx()
         mlx_ptr = displayer.get_mlx_ptr()

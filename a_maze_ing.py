@@ -4,7 +4,7 @@ from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
 from src.display.button import ButtonText
-from src.button_function import change_path, change_theme
+from src.button_function import change_path, change_theme, print_seed
 from src.button_function import regenerate_maze, victory_function
 import sys
 
@@ -139,10 +139,13 @@ def main() -> None:
              width, height, entry, _exit,
              perfect, icon_file_name, output_file_name),
             (x, y), (5, 55, 175), "REGENERATE")
+        button4 = ButtonText(
+            print_seed, maze, (x, y), (5, 55, 175), "PRINT SEED")
 
         displayer.add_button(button1)
         displayer.add_button(button2)
         displayer.add_button(button3)
+        displayer.add_button(button4)
         displayer.set_spacing(config.get_value("SPACING"))
         displayer.print_buttons()
 
