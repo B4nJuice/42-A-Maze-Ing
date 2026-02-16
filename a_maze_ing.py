@@ -3,9 +3,8 @@
 from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
-from src.display import Button
 from src.display.button import ButtonText
-from src.theme import change_theme
+from src.button_function import change_path, change_theme, regenerate_maze
 import sys
 
 
@@ -62,7 +61,7 @@ def create_config(config: Config) -> None:
         ]])
 
 
-if __name__ == "__main__":
+def main() -> None:
     argv: list[str] = sys.argv
     argc: int = len(argv)
 
@@ -74,85 +73,100 @@ if __name__ == "__main__":
     config: Config = Config()
 
     try:
-      create_config(config)
+        create_config(config)
 
-      if config_file_name != "":
-          with open(config_file_name) as config_file:
-              config.parse_file(config_file)
+        if config_file_name != "":
+            with open(config_file_name) as config_file:
+                config.parse_file(config_file)
 
-      width: int = config.get_value("WIDTH")
-      height: int = config.get_value("HEIGHT")
-      seed: int = config.get_value("SEED")
+        width: int = config.get_value("WIDTH")
+        height: int = config.get_value("HEIGHT")
+        seed: int = config.get_value("SEED")
 
-      entry: tuple[int, int] = config.get_value("ENTRY")
-      _exit: tuple[int, int] = config.get_value("EXIT")
+        entry: tuple[int, int] = config.get_value("ENTRY")
+        _exit: tuple[int, int] = config.get_value("EXIT")
 
-      perfect: bool = config.get_value("PERFECT")
+        perfect: bool = config.get_value("PERFECT")
 
-      output_file_name: str = config.get_value("OUTPUT_FILE")
-      icon_file_name: str = config.get_value("ICON_FILE")
+        output_file_name: str = config.get_value("OUTPUT_FILE")
+        icon_file_name: str = config.get_value("ICON_FILE")
 
-      with open(output_file_name, "w") as output_file:
-          with open(icon_file_name, "r") as icon_file:
-              maze: Maze = Maze(
-                              width,
-                              height,
-                              entry,
-                              _exit,
-                              perfect,
-                              seed,
-                              icon_file
-                          )
+        with open(output_file_name, "w") as output_file:
+            with open(icon_file_name, "r") as icon_file:
+                maze: Maze = Maze(
+                                width,
+                                height,
+                                entry,
+                                _exit,
+                                perfect,
+                                seed,
+                                icon_file
+                            )
 
-              maze.create_full_maze()
-          maze.output_in_file(output_file)
+                maze.create_full_maze()
+            maze.output_in_file(output_file)
 
-      screen_size, maze_size = config.get_value("MAZE_SIZE")
-      wall_thickness: int = config.get_value("WALL_THICKNESS")
+        screen_size, maze_size = config.get_value("MAZE_SIZE")
+        wall_thickness: int = config.get_value("WALL_THICKNESS")
 
-      displayer: Displayer = Displayer(
-                                  screen_size,
-                                  maze_size,
-                                  maze,
-                                  wall_thickness
-                              )
+        displayer: Displayer = Displayer(
+                                    screen_size,
+                                    maze_size,
+                                    maze,
+                                    wall_thickness
+                                )
 
-      if config.get_value("CUSTOM_COLORS"):
-          displayer.set_color("background", config.get_value(
-              "BACKGROUND_COLOR"))
-          displayer.set_color("walls", config.get_value("WALLS_COLOR"))
-          displayer.set_color("icon", config.get_value("ICON_COLOR"))
-          displayer.set_color("entry", config.get_value("ENTRY_COLOR"))
-          displayer.set_color("exit", config.get_value("EXIT_COLOR"))
-          displayer.set_color("path", config.get_value("PATH_COLOR"))
+        if config.get_value("CUSTOM_COLORS"):
+            displayer.set_color("background", config.get_value(
+                "BACKGROUND_COLOR"))
+            displayer.set_color("walls", config.get_value("WALLS_COLOR"))
+            displayer.set_color("icon", config.get_value("ICON_COLOR"))
+            displayer.set_color("entry", config.get_value("ENTRY_COLOR"))
+            displayer.set_color("exit", config.get_value("EXIT_COLOR"))
+            displayer.set_color("path", config.get_value("PATH_COLOR"))
 
-      x, _ = displayer.win_buttons_size
-      y = displayer.get_cell_size()
-      # button1 = Button(test, None, (x, y))
-      button2 = ButtonText(next, change_theme(displayer), (x, y), (255, 255, 255), "THEME")
-      # displayer.add_button(button1)
-      displayer.add_button(button2)
-      displayer.set_spacing(config.get_value("SPACING"))
-      displayer.print_buttons()
+        x, y = displayer.win_buttons_size
+        y = y // 10
+        animated: bool = config.get_value("ANIMATED")
+        button1 = ButtonText(
+            change_path, displayer, (x, y), (5, 55, 175), "PATH")
+        button2 = ButtonText(
+            next, change_theme(displayer), (x, y), (5, 55, 175), "THEME")
+        button3 = ButtonText(
+            regenerate_maze,
+            (displayer, animated,
+             width, height, entry, _exit,
+             perfect, icon_file_name, output_file_name),
+            (x, y), (5, 55, 175), "REGENERATE")
 
-      player_file: str = config.get_value("CUSTOM_PLAYER_FILE")
+        displayer.add_button(button1)
+        displayer.add_button(button2)
+        displayer.add_button(button3)
+        displayer.set_spacing(config.get_value("SPACING"))
+        displayer.print_buttons()
 
-      if player_file != "":
-          with open(player_file, "r") as textio_player_file:
-              displayer.set_auto_adjust_player(
-                      config.get_value("AUTO_ADJUST_PLAYER")
-                  )
-              displayer.set_custom_player_colors(
-                  config.get_value("CUSTOM_PLAYER_COLORS")
-              )
-              displayer.set_custom_player(textio_player_file)
+        player_file: str = config.get_value("CUSTOM_PLAYER_FILE")
 
-      if config.get_value("TOGGLE_PATH"):
-          displayer.set_toggle_path(True)
+        if player_file != "":
+            with open(player_file, "r") as textio_player_file:
+                displayer.set_auto_adjust_player(
+                        config.get_value("AUTO_ADJUST_PLAYER")
+                    )
+                displayer.set_custom_player_colors(
+                    config.get_value("CUSTOM_PLAYER_COLORS")
+                )
+                displayer.set_custom_player(textio_player_file)
 
-      if config.get_value("ANIMATED"):
-          displayer.start_animated_display(config.get_value("FPS"))
-      else:
-          displayer.display()
+        if config.get_value("TOGGLE_PATH"):
+            displayer.set_toggle_path(True)
+
+        if animated is True:
+            displayer.start_animated_display(config.get_value("FPS"))
+        else:
+            displayer.display()
     except Exception as e:
         print(e)
+
+
+if __name__ == "__main__":
+    main()
