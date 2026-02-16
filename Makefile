@@ -35,5 +35,7 @@ lint-strict: install
 	$(V_FLAKE) $(SRCS)
 	$(V_MYPY) $(SRCS) --strict
 
+debug: install
+	$(PYTHON) -m pdb $(MAIN_PROGRAM)
 
 .PHONY: run clean fclean install lint lint-strict

@@ -1,13 +1,13 @@
-from io import TextIOWrapper
+from typing import TextIO
 from typing import Any
-from collections.abc import Generator
+from typing import Iterator
 
 
 class ConfigError(Exception):
     """
     Custom exception for configuration errors.
     """
-    def __init__(self, message="undefined") -> None:
+    def __init__(self, message: str = "undefined") -> None:
         """
         Initialize the exception with a custom error message.
 
@@ -38,7 +38,7 @@ class Config():
         self.__config = {}
         self.__commentary_str: str = "#"
 
-    def set_commentary_str(self, commentary_str: str):
+    def set_commentary_str(self, commentary_str: str) -> None:
         """
         Set the prefix used to identify comment lines in the configuration
         file.
@@ -59,7 +59,7 @@ class Config():
                 )
         self.__commentary_str = commentary_str
 
-    def get_commentary_str(self):
+    def get_commentary_str(self) -> str:
         """
         Return the current comment prefix string.
 
@@ -70,8 +70,7 @@ class Config():
         """
         return self.__commentary_str
 
-    def add_parameter(self, name: str, param: list[
-            Any, type, int, list[type], str]) -> None:
+    def add_parameter(self, name: str, param: list[Any]) -> None:
         """
         Register a new configuration parameter and its type specification.
 
@@ -125,7 +124,7 @@ class Config():
         param.append(False)
         config.update({name: param})
 
-    def get_config(self) -> dict[str, list[Any, type, Any]]:
+    def get_config(self) -> dict[str, list[Any]]:
         """
         Return the internal configuration dictionary.
 
@@ -136,7 +135,7 @@ class Config():
         """
         return self.__config
 
-    def parse_file(self, file: TextIOWrapper) -> None:
+    def parse_file(self, file: TextIO) -> None:
         """
         Parse a configuration file and update parameter values.
 
@@ -194,7 +193,7 @@ class Config():
         return None
 
     def apply_types(self, parameter: str, parameter_list: list[Any],
-                    value: str) -> list[Any]:
+                    value: Any) -> Any:
         """
         Convert a configuration parameter value to its declared type.
 
@@ -241,6 +240,7 @@ class Config():
             If a boolean value is not "True" or "False".
         """
         already_processed = parameter_list[2]
+        separator: str = ""
         if already_processed is True:
             raise ConfigError(f"Double declaration for \"{parameter}\"")
 
@@ -274,7 +274,7 @@ class Config():
 
             value = []
             for i, nested_real_type in enumerate(types):
-                type_list = []
+                type_list: list[Any] = []
                 type_list.append(None)
                 type_list.append(nested_real_type)
                 type_list.append(False)
@@ -282,13 +282,38 @@ class Config():
                                               type_list, new_value[i]))
             value = tuple(value)
 
+        elif real_type[0] == dict:
+            separator = real_type[2]
+            real_type.insert(1, len(value.split(separator)))
+            real_type[0] = tuple
+            tuple_value: tuple[Any] = self.apply_types(
+                    parameter, parameter_list, value
+                )
+            list_value: list[tuple[Any]] = list(tuple_value)
+
+            for element in list_value:
+                if len(element) != 2:
+                    raise ConfigError(
+                            f"invalid argument \"{value}\" for {parameter}"
+                        )
+
+            result: dict[Any, Any] = {}
+            for element in list_value:
+                if not isinstance(element, (list, tuple)) or len(element) != 2:
+                    raise ConfigError(
+                        f"invalid argument \"{value}\" for {parameter}"
+                    )
+                k, v = element[0], element[1]
+                result[k] = v
+            value = result
+
         else:
             value = real_type[0](value)
 
         return value
 
     @staticmethod
-    def get_next_line(file: TextIOWrapper) -> Generator[int, str, None]:
+    def get_next_line(file: TextIO) -> Iterator[str]:
         """
         Yield lines from a file one by one.
 
@@ -302,11 +327,11 @@ class Config():
         str
             The next line in the file.
         """
-        line = 1
-        while line:
+        line: str = ""
+        while True:
             line = file.readline()
-            if line == "" or line is None:
-                return None
+            if not line:
+                break
             yield line
 
     @staticmethod
@@ -334,7 +359,7 @@ class Config():
         if line.count("=") != 1:
             raise ConfigError(f"undefined config line : {line}")
         parameter, value = line.split("=")
-        value = value.replace('\n', '')
+        parameter = parameter.strip()
         value = value.strip()
         return (parameter, value)
 

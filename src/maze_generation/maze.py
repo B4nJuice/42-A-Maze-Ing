@@ -1,5 +1,7 @@
 import copy
+from typing import Any
 from typing import TextIO
+from typing import cast
 from src.maze_generation.cell import Cell
 from src.maze_generation.seed import (create_seed, next_randint)
 
@@ -10,7 +12,7 @@ class MazeError(Exception):
 
     Used as a base class for more specific maze-related exceptions.
     """
-    def __init__(self, message="undefined"):
+    def __init__(self, message: str = "undefined"):
         """
         Initialize the exception with a custom message.
 
@@ -26,7 +28,7 @@ class IconError(MazeError):
     """
     Exception raised for errors related to the maze icon.
     """
-    def __init__(self, message="undefined"):
+    def __init__(self, message: str = "undefined"):
         """
         Initialize the exception with a custom message.
 
@@ -42,7 +44,7 @@ class EntryExitError(MazeError):
     """
     Exception for invalid entry/exit positions or related errors.
     """
-    def __init__(self, message="undefined"):
+    def __init__(self, message: str = "undefined"):
         """
         Initialize the exception with a custom message.
 
@@ -103,8 +105,8 @@ class Maze():
         self.__seed: int = create_seed(seed)
         self.__perfect: bool = perfect
         self.__after_exit = False
-        self.__shortest_path = []
-        self.__shortest_path_cells = []
+        self.__shortest_path: list[str] = []
+        self.__shortest_path_cells: list[Cell] = []
         self.set_n_breach(3)
 
         for coords in [entry, exit]:
@@ -116,7 +118,7 @@ class Maze():
             raise EntryExitError("entry/exit cannot be the same cell.")
 
         for _ in range(height):
-            row: list[int] = []
+            row: list[Cell] = []
             for _ in range(width):
                 cell: Cell = Cell()
                 cell.set_wall("SOUTH", True)
@@ -132,16 +134,16 @@ class Maze():
         icon_txt: str = icon_file.read(-1)
         icon_rows: list[str] = icon_txt.split("\n")
 
-        for row in icon_rows:
-            if row == "":
-                icon_rows.remove(row)
+        for icon_row in icon_rows:
+            if icon_row == "":
+                icon_rows.remove(icon_row)
 
         icon_height: int = len(icon_rows)
         icon_width: int = 0
         if icon_height > 0:
             icon_width = len(icon_rows[0])
-            for row in icon_rows:
-                if len(row) != icon_width:
+            for icon_row in icon_rows:
+                if len(icon_row) != icon_width:
                     icon_rows.clear()
                     raise IconError("icon line length has to stay the same.")
 
@@ -177,7 +179,7 @@ class Maze():
         """
         return self.__matrix
 
-    def get_cell(self, coords: tuple[int, int]) -> None | Cell:
+    def get_cell(self, coords: tuple[int, int]) -> Cell:
         """
         Get the Cell at the specified coordinates.
 
@@ -194,7 +196,7 @@ class Maze():
         matrix = self.get_matrix()
         x, y = coords
         if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
-            return None
+            raise ValueError
         cell = matrix[y][x]
         return cell
 
@@ -319,8 +321,8 @@ class Maze():
         cell.set_wall(direction, state)
 
         x, y = coords
-        next_dir: str = None
-        next_coords: tuple[int, int] = None
+        next_dir: str | None = None
+        next_coords: tuple[int, int] | None = None
 
         match direction:
             case "NORTH":
@@ -340,7 +342,7 @@ class Maze():
                     next_coords = (x + 1, y)
                     next_dir = "WEST"
 
-        if next_dir is not None:
+        if next_dir is not None and next_coords is not None:
             next_cell: Cell = self.get_cell(next_coords)
             next_cell.set_wall(next_dir, state)
 
@@ -381,8 +383,10 @@ class Maze():
 
         file.write(output)
 
-    def create_path(self, coords: tuple[int, int],
-                    last_coords: tuple[int, int] = None) -> tuple[int, int]:
+    def create_path(self,
+                    coords: tuple[int, int],
+                    last_coords: tuple[int, int] | None = None
+                    ) -> tuple[int, int]:
         """
         Recursively carve a path from ``coords`` using randomized DFS.
 
@@ -427,7 +431,9 @@ class Maze():
         self.set_wall((coords), next_direction, False)
         return self.create_path(next_coords, coords)
 
-    def find_next_cell(self, coords: tuple[int, int]) -> tuple[int, int]:
+    def find_next_cell(self,
+                       coords: tuple[int, int] | None
+                       ) -> tuple[int, int] | None:
         """
         Determine the next cell to continue generation from.
 
@@ -442,6 +448,8 @@ class Maze():
             Next cell coordinates to process, or None if generation is
             complete from this branch.
         """
+        if coords is None:
+            return None
         cell: Cell = self.get_cell(coords)
 
         if cell.is_exit():
@@ -488,10 +496,10 @@ class Maze():
             Valid neighboring coordinates that have not been visited.
         """
         x, y = coords
-        valid_cells: list[str] = []
+        valid_cells: list[tuple[int, int]] = []
 
-        cell: Cell = None
-        cell_coords: tuple[int, int] = None
+        cell: Cell | None = None
+        cell_coords: tuple[int, int] | None = None
 
         if y + 1 < self.__height:
             cell_coords = (x, y + 1)
@@ -528,7 +536,7 @@ class Maze():
         None
         """
         entry_coords: tuple[int, int] = self.get_entry()
-        next_coords: tuple[int, int] = self.create_path(entry_coords)
+        next_coords: tuple[int, int] | None = self.create_path(entry_coords)
         next_coords = self.find_next_cell(next_coords)
 
         while next_coords is not None:
@@ -554,16 +562,16 @@ class Maze():
                         if next_cell.is_icon() or cell.is_icon():
                             continue
                         if next_cell.is_after_exit() != cell.is_after_exit():
-                            possible_breach.append(tuple(("SOUTH", (x, y))))
+                            possible_breach.append(("SOUTH", (x, y)))
 
-                    next_cell: Cell = self.get_cell((x + 1, y))
+                    next_cell = self.get_cell((x + 1, y))
                     if "EST" in closed_walls and next_cell is not None:
                         if next_cell.is_exit():
                             continue
                         if next_cell.is_icon() or cell.is_icon():
                             continue
                         if next_cell.is_after_exit() != cell.is_after_exit():
-                            possible_breach.append(tuple(("EST", (x, y))))
+                            possible_breach.append(("EST", (x, y)))
 
             n_possible_breach: int = len(possible_breach)
 
@@ -606,8 +614,7 @@ class Maze():
             "SOUTH": (x, y + 1),
             "NORTH": (x, y - 1),
         }
-        direction = directions[direction]
-        return direction
+        return directions[direction]
 
     @staticmethod
     def get_dir_by_coords(coords: tuple[int, int],
@@ -639,7 +646,7 @@ class Maze():
         return direction
 
     @staticmethod
-    def get_opposite_dir(direction: str) -> str | None:
+    def get_opposite_dir(direction: str | None) -> str | None:
         """
         Return the opposite direction for a cardinal direction.
 
@@ -653,7 +660,7 @@ class Maze():
         str | None
             Opposite direction string, or None if ``direction`` is None.
         """
-        directions: dict[tuple[int, int], str] = {
+        directions: dict[str, str] = {
             "WEST": "EST",
             "EST": "WEST",
             "NORTH": "SOUTH",
@@ -710,7 +717,7 @@ class Maze():
                 if self.is_isolate_cell(coords):
                     raise IconError(f"isolated cell : {coords}")
 
-    def find_shortest_path(self) -> str:
+    def find_shortest_path(self) -> list[Any]:
         """
         Compute and return the shortest path from entry to exit.
 
@@ -722,47 +729,50 @@ class Maze():
         entry_coords: tuple[int, int] = self.get_entry()
         entry_cell: Cell = self.get_cell(entry_coords)
 
-        entry_path: list[list[str], Cell] = [[], entry_cell, entry_coords]
+        entry_path: list[Any] = [[], entry_cell, entry_coords]
 
-        paths = []
-        paths.append(entry_path)
+        paths: list[list[Any]] = [entry_path]
 
         while True:
-            for path in paths:
+            for path in list(paths):
                 cell: Cell = path[1]
                 if cell.is_exit():
-                    return path[0]
+                    return cast(list[str], path[0])
                 coords: tuple[int, int] = path[2]
                 directions: list[str] | str = cell.get_state_walls(False)
 
+                # Compute last_dir once and reuse it in both branches
+                last_dir: str | None = None
+                if len(path[0]) > 0:
+                    last_dir = path[0][-1]
+
+                # prepare variables once to avoid repeated annotated defs
+                next_coords: tuple[int, int] | None = None
+                next_cell: Cell | None = None
+
                 if len(directions) <= 2 and len(paths) >= 2:
-                    last_dir: str | None = None
-                    if len(path[0]) > 0:
-                        last_dir = path[0][-1]
                     for direction in directions:
-                        if len(path[0]) == 0 or direction !=\
-                                self.get_opposite_dir(last_dir):
+                        if len(path[0]) == 0 or direction != (
+                                self.get_opposite_dir(last_dir)):
                             path[0].append(direction)
-                            next_coords: tuple[int, int] =\
-                                self.get_coords_by_dir(coords, direction)
-                            next_cell: Cell = self.get_cell(next_coords)
+                            next_coords = self.get_coords_by_dir(
+                                coords, direction
+                            )
+                            next_cell = self.get_cell(next_coords)
                             path[2] = next_coords
                             path[1] = next_cell
-                    if len(directions) == 1 and directions[0] ==\
-                            self.get_opposite_dir(last_dir):
+                    if len(directions) == 1 and directions[0] == (
+                            self.get_opposite_dir(last_dir)):
                         paths.remove(path)
                 else:
-                    last_dir: str | None = None
-                    if len(path[0]) > 0:
-                        last_dir = path[0][-1]
                     for direction in directions:
                         if direction != self.get_opposite_dir(last_dir):
-                            new_path: list[list[str], Cell] =\
-                                copy.deepcopy(path)
+                            new_path: list[Any] = copy.deepcopy(path)
                             new_path[0].append(direction)
-                            next_coords: tuple[int, int] =\
-                                self.get_coords_by_dir(coords, direction)
-                            next_cell: Cell = self.get_cell(next_coords)
+                            next_coords = self.get_coords_by_dir(
+                                coords, direction
+                            )
+                            next_cell = self.get_cell(next_coords)
                             new_path[2] = next_coords
                             new_path[1] = next_cell
                             paths.append(new_path)
