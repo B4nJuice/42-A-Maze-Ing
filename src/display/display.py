@@ -957,11 +957,9 @@ class Displayer():
         """
         if self.toggle_path:
             maze = self.get_maze()
-            coords = maze.get_entry()
             path_color = self.get_path_color()
             walls_color = self.get_walls_color()
-            for char in maze.get_shortest_path():
-                coords = maze.get_coords_by_dir(coords, char)
+            for coords in maze.get_shortest_path_coords():
                 self.print_cell(coords, path_color)
                 cell = maze.get_cell(coords)
                 walls = cell.get_state_walls(True)
