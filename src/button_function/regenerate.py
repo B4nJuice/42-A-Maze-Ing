@@ -16,4 +16,4 @@ def regenerate_maze(param: tuple[
     if animated is True:
         displayer.start_animated_display(60)
     else:
-        displayer.display()
+        displayer.display(False)
