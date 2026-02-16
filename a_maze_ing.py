@@ -3,10 +3,8 @@
 from src.config import Config
 from src.maze_generation import Maze
 from src.display import Displayer
-from src.display import Button
 from src.display.button import ButtonText
-from src.button_function import change_path
-from src.button_function import change_theme
+from src.button_function import change_path, change_theme, regenerate_maze
 import sys
 
 
@@ -63,7 +61,7 @@ def create_config(config: Config) -> None:
         ]])
 
 
-if __name__ == "__main__":
+def main() -> None:
     argv: list[str] = sys.argv
     argc: int = len(argv)
 
@@ -127,14 +125,23 @@ if __name__ == "__main__":
             displayer.set_color("exit", config.get_value("EXIT_COLOR"))
             displayer.set_color("path", config.get_value("PATH_COLOR"))
 
-        x, _ = displayer.win_buttons_size
-        y = displayer.get_cell_size()
+        x, y = displayer.win_buttons_size
+        y = y // 10
+        animated: bool = config.get_value("ANIMATED")
         button1 = ButtonText(
-            change_path, displayer, (x, y), (255, 255, 255), "PATH")
+            change_path, displayer, (x, y), (5, 55, 175), "PATH")
         button2 = ButtonText(
-            next, change_theme(displayer), (x, y), (255, 255, 255), "THEME")
+            next, change_theme(displayer), (x, y), (5, 55, 175), "THEME")
+        button3 = ButtonText(
+            regenerate_maze,
+            (displayer, animated,
+             width, height, entry, _exit,
+             perfect, icon_file_name, output_file_name),
+            (x, y), (5, 55, 175), "REGENERATE")
+
         displayer.add_button(button1)
         displayer.add_button(button2)
+        displayer.add_button(button3)
         displayer.set_spacing(config.get_value("SPACING"))
         displayer.print_buttons()
 
@@ -153,9 +160,13 @@ if __name__ == "__main__":
         if config.get_value("TOGGLE_PATH"):
             displayer.set_toggle_path(True)
 
-        if config.get_value("ANIMATED"):
+        if animated is True:
             displayer.start_animated_display(config.get_value("FPS"))
         else:
             displayer.display()
     except Exception as e:
         print(e)
+
+
+if __name__ == "__main__":
+    main()

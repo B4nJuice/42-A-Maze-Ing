@@ -2,7 +2,7 @@ from mlx import Mlx
 from typing import Any
 import math
 import time
-from typing import TextIO
+from typing import TextIO, cast
 from src.maze_generation.maze import Maze
 from src.maze_generation.cell import Cell
 from src.display.button import Button
@@ -11,7 +11,12 @@ from src.display.button import ButtonText
 
 class PlayerError(Exception):
     def __init__(self, message: str = "undefined"):
-        super().__init__(message)
+        super().__init__(f"PlayerError: {message}")
+
+
+class SpacingError(Exception):
+    def __init__(self, message: str = "undefined"):
+        super().__init__(f"SpacingError: {message}")
 
 
 class Displayer():
@@ -115,11 +120,21 @@ class Displayer():
         self.button_printer_y: int = self.spacing
         self.win_buttons()
 
-        self.custom_player: None = None
+        self.custom_player: list[list[int | None]] | None = None
         self.auto_adjust_player: bool = True
         self.custom_player_colors: dict = {}
 
+    def set_maze(self, new: Maze) -> None:
+        self.__maze = new
+
     def set_spacing(self, spacing: int) -> None:
+        if spacing <= 0:
+            raise SpacingError("Spacing must be greater than 0.")
+
+        x, y = self.win_buttons_size
+        if spacing > x // 2 or spacing > y // 2:
+            raise SpacingError("Spacing is too large for the window button.")
+
         self.spacing = spacing
         self.button_printer_x = spacing
         self.button_printer_y = spacing
@@ -372,6 +387,16 @@ class Displayer():
         icon_color = self.get_icon_color()
         walls_color = self. get_walls_color()
 
+        buf, bpp, size_line, endian = mlx.mlx_get_data_addr(new_img)
+
+        addr: memoryview[int] = buf.cast('B')
+
+        image_width, image_height = self.get_image_size()
+
+        addr[:] = \
+            background_color.to_bytes(bpp // 8, 'little') \
+            * (image_width * image_height)
+
         for x in range(width):
             for y in range(height):
                 coords: tuple[int, int] = (x, y)
@@ -379,8 +404,6 @@ class Displayer():
                 walls = cell.get_state_walls(True)
                 if (cell.is_icon()):
                     self.print_cell(coords, icon_color)
-                else:
-                    self.print_cell(coords, background_color)
                 self.print_walls(coords, walls, walls_color)
 
         self.print_path()
@@ -392,7 +415,7 @@ class Displayer():
         if loop:
             mlx.mlx_loop(mlx_ptr)
 
-    def __static_display(self, _=None):
+    def __static_display(self, _: None = None) -> None:
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -422,7 +445,7 @@ class Displayer():
             self.print_player(self.get_walls_color())
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
-    def key_press(self, keycode, _) -> None:
+    def key_press(self, keycode: int, _: None) -> None:
         esc = 65307
         move_mode = 109
         left = 65361
@@ -460,7 +483,7 @@ class Displayer():
             elif keycode == down and not cell.get_wall("SOUTH"):
                 self.player_pos = x, y + 1
             if (x, y) != self.player_pos:
-                cell_dict: dict[Any] = {
+                cell_dict: dict[tuple, int] = {
                     maze.get_exit(): self.get_exit_color(),
                     maze.get_entry(): self.get_entry_color(),
                 }
@@ -471,7 +494,7 @@ class Displayer():
                     cell_color = self.get_path_color()
 
                 if cell_dict.get((x, y)) and self.animation_finished:
-                    cell_color = cell_dict.get((x, y))
+                    cell_color = cell_dict[(x, y)]
                 self.print_cell((x, y), cell_color)
                 self.print_walls(
                     (x, y), cell.get_state_walls(True),
@@ -514,7 +537,7 @@ class Displayer():
         mlx.mlx_loop_hook(mlx_ptr, self.__animate_display, None)
         mlx.mlx_loop(mlx_ptr)
 
-    def __animate_display(self, _=None) -> None:
+    def __animate_display(self, _: None = None) -> None:
         """
         Internal callback used by MLX to update the animated display.
 
@@ -573,7 +596,7 @@ class Displayer():
                     continue
                 self.visited.add(coords)
 
-                cell: Cell = maze.get_cell(coords)
+                cell = maze.get_cell(coords)
 
                 self.print_cell(coords, background_color)
                 walls = cell.get_state_walls(True)
@@ -603,7 +626,8 @@ class Displayer():
             mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
     @staticmethod
-    def put_pixel(data, x, y, color, bpp, size_line) -> None:
+    def put_pixel(data: bytearray, x: int, y: int, color: int,
+                  bpp: int, size_line: int) -> None:
         """
         Put a colored pixel into the image data buffer.
 
@@ -706,14 +730,17 @@ class Displayer():
 
         player_txt = player_txt.replace("\n", "")
 
-        self.custom_player: list = []
+        self.custom_player = []
 
         for y in range(player_height):
             custom_player_row: list = []
             for x in range(player_width):
                 char: str = player_txt[y * player_width + x]
                 if char not in ["0", " "]:
-                    rgb: tuple = self.custom_player_colors.get(char)
+                    rgb: tuple[int, int, int] = cast(
+                        tuple[int, int, int],
+                        self.custom_player_colors.get(char)
+                        )
                     if rgb is not None:
                         red, green, blue = rgb
 
@@ -749,19 +776,19 @@ class Displayer():
             resized: list[list] = []
             for ty in range(tgt_h):
                 src_y = min(src_h - 1, int(ty * src_h / tgt_h))
-                row: list = []
+                row_list: list = []
                 for tx in range(tgt_w):
                     src_x = min(src_w - 1, int(tx * src_w / tgt_w))
                     try:
                         val = self.custom_player[src_y][src_x]
                     except Exception:
                         val = None
-                    row.append(val)
-                resized.append(row)
+                    row_list.append(val)
+                resized.append(row_list)
 
             self.custom_player = resized
 
-    def print_player(self, color) -> None:
+    def print_player(self, color: int) -> None:
         x, y = self.player_pos
         size = self.get_cell_size()
 
@@ -829,7 +856,8 @@ class Displayer():
                     size_line
                 )
 
-    def print_west_east(self, pixel_x_start, pixel_y_start, walls_color):
+    def print_west_east(self, pixel_x_start: int,
+                        pixel_y_start: int, walls_color: int) -> None:
         """
         Draw a vertical wall (west or east) for a cell.
 
@@ -855,7 +883,8 @@ class Displayer():
             for x in range(pixel_x_start, pixel_x_start + size // div):
                 Displayer.put_pixel(data, x, y, walls_color, bpb, size_line)
 
-    def print_north_south(self, pixel_x_start, pixel_y_start, walls_color):
+    def print_north_south(self, pixel_x_start: int,
+                          pixel_y_start: int, walls_color: int) -> None:
         """
         Draw a horizontal wall (north or south) for a cell.
 
@@ -882,7 +911,7 @@ class Displayer():
                 Displayer.put_pixel(data, x, y, walls_color, bpb, size_line)
 
     def print_walls(self, coords: tuple[int, int], walls: list[str],
-                    color: int):
+                    color: int) -> None:
         """
         Draw all walls for a cell according to the provided directions.
 
@@ -940,7 +969,7 @@ class Displayer():
             if self.move_mode:
                 self.print_player(self.get_background_color())
 
-    def close(self, _):
+    def close(self, _: None) -> None:
         """
         Close the MLX window and exit the event loop.
 
@@ -959,7 +988,7 @@ class Displayer():
         mlx.mlx_destroy_window(mlx_ptr, win_ptr)
         mlx.mlx_loop_exit(mlx_ptr)
 
-    def mouse_event(self, mousecode, x, y, _) -> None:
+    def mouse_event(self, mousecode: int, x: int, y: int, _: None) -> None:
         for button in self.buttons:
             width, height = button.width, button.height
             start_x: int = button.start_x
@@ -983,7 +1012,8 @@ class Displayer():
 
         self.buttons_img = mlx.mlx_new_image(mlx_ptr, x, y)
 
-    def print_background_button(self, button, data, bpb, size_line) -> None:
+    def print_background_button(self, button: Button, data: bytearray,
+                                bpb: int, size_line: int) -> None:
         spacing = self.spacing
 
         pixel_x = self.button_printer_x
@@ -1036,8 +1066,3 @@ class Displayer():
 
     def add_button(self, button: Button) -> None:
         self.buttons.append(button)
-
-    # def define_buttons_size(self) -> None:
-    #     number_of_buttons = len(self.buttons)
-    #     x, y = self.win_buttons_size
-    #     self.button_size = (x, math.floor(y / number_of_buttons))
