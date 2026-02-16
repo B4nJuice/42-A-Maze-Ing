@@ -2,7 +2,7 @@ from mlx import Mlx
 from typing import Any
 import math
 import time
-from typing import TextIO
+from typing import TextIO, cast
 from src.maze_generation.maze import Maze
 from src.maze_generation.cell import Cell
 from src.display.button import Button
@@ -115,7 +115,7 @@ class Displayer():
         self.button_printer_y: int = self.spacing
         self.win_buttons()
 
-        self.custom_player: None = None
+        self.custom_player: list[list[int | None]] | None = None
         self.auto_adjust_player: bool = True
         self.custom_player_colors: dict = {}
 
@@ -715,14 +715,17 @@ class Displayer():
 
         player_txt = player_txt.replace("\n", "")
 
-        self.custom_player: list = []
+        self.custom_player = []
 
         for y in range(player_height):
             custom_player_row: list = []
             for x in range(player_width):
                 char: str = player_txt[y * player_width + x]
                 if char not in ["0", " "]:
-                    rgb: tuple = self.custom_player_colors.get(char)
+                    rgb: tuple[int, int, int] = cast(
+                        tuple[int, int, int],
+                        self.custom_player_colors.get(char)
+                        )
                     if rgb is not None:
                         red, green, blue = rgb
 
@@ -1048,8 +1051,3 @@ class Displayer():
 
     def add_button(self, button: Button) -> None:
         self.buttons.append(button)
-
-    # def define_buttons_size(self) -> None:
-    #     number_of_buttons = len(self.buttons)
-    #     x, y = self.win_buttons_size
-    #     self.button_size = (x, math.floor(y / number_of_buttons))
