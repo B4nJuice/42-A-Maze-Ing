@@ -11,7 +11,12 @@ from src.display.button import ButtonText
 
 class PlayerError(Exception):
     def __init__(self, message: str = "undefined"):
-        super().__init__(message)
+        super().__init__(f"PlayerError: {message}")
+
+
+class SpacingError(Exception):
+    def __init__(self, message: str = "undefined"):
+        super().__init__(f"SpacingError: {message}")
 
 
 class Displayer():
@@ -119,7 +124,17 @@ class Displayer():
         self.auto_adjust_player: bool = True
         self.custom_player_colors: dict = {}
 
+    def set_maze(self, new: Maze) -> None:
+        self.__maze = new
+
     def set_spacing(self, spacing: int) -> None:
+        if spacing <= 0:
+            raise SpacingError("Spacing must be greater than 0.")
+
+        x, y = self.win_buttons_size
+        if spacing > x // 2 or spacing > y // 2:
+            raise SpacingError("Spacing is too large for the window button.")
+
         self.spacing = spacing
         self.button_printer_x = spacing
         self.button_printer_y = spacing

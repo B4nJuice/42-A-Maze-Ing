@@ -16,7 +16,9 @@ https://harm-smits.github.io/42docs/
 # A-Maze-Ing
 
 ## Description
-A-Maze-Ing is an interactive project for generating, displaying, and solving mazes. The goal is to allow users to visualize a randomly generated maze, move a player inside it, display the shortest path, and experiment with various display and interaction options.
+A-Maze-Ing is an interactive project for generating, displaying, and solving mazes. 
+The goal is to allow users to visualize a randomly generated maze, move a player inside it, 
+display the shortest path, and experiment with various display and interaction options.
 
 ## Instructions
 
