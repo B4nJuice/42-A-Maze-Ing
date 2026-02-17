@@ -197,7 +197,7 @@ class Maze():
         matrix = self.get_matrix()
         x, y = coords
         if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
-            raise ValueError
+            return None
         cell = matrix[y][x]
         return cell
 
