@@ -5,7 +5,7 @@ import time
 from typing import TextIO, cast, Callable
 from src.maze_generation.maze import Maze
 from src.maze_generation.cell import Cell
-from src.display.button import Button
+from src.display.button import Button, ButtonError
 from src.display.button import ButtonText
 
 
@@ -86,7 +86,7 @@ class Displayer():
         win_ptr = mlx.mlx_new_window(mlx_ptr, window_x, window_y, "A-Maze-ing")
         mlx.mlx_hook(win_ptr, 33, 1 << 17, self.close, None)
         mlx.mlx_hook(win_ptr, 2, 1 << 0, self.key_press, None)
-        mlx.mlx_hook(win_ptr, 4, 1 << 2, self.mouse_event, None)
+
         new_img = mlx.mlx_new_image(mlx_ptr, image_x, image_y)
 
         self.__mlx = mlx
@@ -113,12 +113,11 @@ class Displayer():
 
         self.buttons: list[Button] = []
         self.win_buttons_ptr: Any
-        self.win_buttons_size: tuple[int, int] = (window_x // 2, window_y)
+        self.win_buttons_size: tuple[int, int] | None = None
         self.buttons_img: Any
         self.spacing: int = 50
         self.button_printer_x: int = self.spacing
         self.button_printer_y: int = self.spacing
-        self.win_buttons()
 
         self.custom_player: list[list[int | None]] | None = None
         self.auto_adjust_player: bool = True
@@ -134,10 +133,6 @@ class Displayer():
     def set_spacing(self, spacing: int) -> None:
         if spacing <= 0:
             raise SpacingError("Spacing must be greater than 0.")
-
-        x, y = self.win_buttons_size
-        if spacing > x // 2 or spacing > y // 2:
-            raise SpacingError("Spacing is too large for the window button.")
 
         self.spacing = spacing
         self.button_printer_x = spacing
@@ -1025,7 +1020,6 @@ class Displayer():
         pixel_x = self.button_printer_x
         pixel_y = self.button_printer_y
 
-        button.width -= 2 * spacing
         width = button.width
         height = button.height
 
@@ -1037,8 +1031,8 @@ class Displayer():
                 Displayer.put_pixel(data, x, y,
                                     button.background_color, bpb, size_line)
 
-        self.button_printer_y += height
-        self.button_printer_y += spacing
+        self.button_printer_y += height + spacing
+        _, y = self.win_buttons_size
 
     def print_text_button(self, button: ButtonText) -> None:
         mlx = self.get_mlx()
@@ -1057,10 +1051,13 @@ class Displayer():
 
     def print_buttons(self) -> None:
         mlx = self.get_mlx()
-        img = self.buttons_img
-        data, bpb, size_line, _ = mlx.mlx_get_data_addr(img)
         mlx_ptr = self.get_mlx_ptr()
 
+        self.win_buttons()
+
+        img = self.buttons_img
+        data, bpb, size_line, _ = mlx.mlx_get_data_addr(img)
+        
         for button in self.buttons:
             self.print_background_button(button, data, bpb, size_line)
 
@@ -1071,4 +1068,17 @@ class Displayer():
                 self.print_text_button(button)
 
     def add_button(self, button: Button) -> None:
+        spacing = self.spacing
+        width = button.width
+        height = button.height
+
+        if self.win_buttons_size is None:
+            self.win_buttons_size = ((2*spacing + width), (2*spacing + height))
+        else:
+            x, y = self.win_buttons_size
+            if width > x:
+                x = width + 2 * spacing
+            y += height + spacing
+            self.win_buttons_size = (x, y)
+
         self.buttons.append(button)

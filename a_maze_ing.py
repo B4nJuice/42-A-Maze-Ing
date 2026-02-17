@@ -126,27 +126,28 @@ def main() -> None:
             displayer.set_color("exit", config.get_value("EXIT_COLOR"))
             displayer.set_color("path", config.get_value("PATH_COLOR"))
 
-        x, y = displayer.win_buttons_size
-        y = y // 10
         animated: bool = config.get_value("ANIMATED")
+
+        displayer.set_spacing(config.get_value("SPACING"))
+
         button1 = ButtonText(
-            change_path, displayer, (x, y), (5, 55, 175), "PATH")
+            change_path, displayer, (300, 100), (5, 55, 175), "PATH")
         button2 = ButtonText(
-            next, change_theme(displayer), (x, y), (5, 55, 175), "THEME")
+            next, change_theme(displayer), (300, 100), (5, 55, 175), "THEME")
         button3 = ButtonText(
             regenerate_maze,
             (displayer, animated,
              width, height, entry, _exit,
              perfect, icon_file_name, output_file_name),
-            (x, y), (5, 55, 175), "REGENERATE")
+            (300, 100), (5, 55, 175), "REGENERATE")
         button4 = ButtonText(
-            print_seed, displayer, (x, y), (5, 55, 175), "PRINT SEED")
+            print_seed, displayer, (300, 100), (5, 55, 175), "PRINT SEED")
 
         displayer.add_button(button1)
         displayer.add_button(button2)
         displayer.add_button(button3)
         displayer.add_button(button4)
-        displayer.set_spacing(config.get_value("SPACING"))
+
         displayer.print_buttons()
 
         player_file: str = config.get_value("CUSTOM_PLAYER_FILE")
