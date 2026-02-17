@@ -4,8 +4,8 @@ from mazegen.config import Config
 from mazegen.maze_generation import Maze
 from mazegen.display import Displayer
 from mazegen.display.button import ButtonText
-from button_function import change_path, change_theme, print_seed
-from button_function import regenerate_maze, victory_function
+from src.button_function import change_path, change_theme, print_seed
+from src.button_function import regenerate_maze, victory_function
 import sys
 
 

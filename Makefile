@@ -12,7 +12,7 @@ SRCS			= $(MAIN_PROGRAM) ./src
 
 DEPENDENCIES	= flake8 mypy lib/mlx-2.2-py3-none-any.whl build
 
-run:
+run: install
 	$(V_PYTHON) $(MAIN_PROGRAM)
 
 build: $(OUTPUT_FILE)
