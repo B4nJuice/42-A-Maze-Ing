@@ -615,9 +615,7 @@ class Displayer():
             if self.animation_finished:
                 return
             self.animation_finished = True
-            self.print_path()
-            self.print_entry()
-            self.print_exit()
+            self.display()
             mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
     @staticmethod
