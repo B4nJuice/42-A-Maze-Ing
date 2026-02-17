@@ -107,6 +107,7 @@ class Maze():
         self.__after_exit = False
         self.__shortest_path: list[str] = []
         self.__shortest_path_cells: list[Cell] = []
+        self.__shortest_path_coords: list[tuple[int, int]] = []
         self.set_n_breach(3)
 
         for coords in [entry, exit]:
@@ -196,7 +197,7 @@ class Maze():
         matrix = self.get_matrix()
         x, y = coords
         if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
-            raise ValueError
+            return None
         cell = matrix[y][x]
         return cell
 
@@ -266,6 +267,12 @@ class Maze():
             entry to exit.
         """
         return self.__shortest_path
+
+    def get_shortest_path_cells(self) -> list[Cell]:
+        return self.__shortest_path_cells
+
+    def get_shortest_path_coords(self) -> list[tuple[int, int]]:
+        return self.__shortest_path_coords
 
     def is_perfect(self) -> bool:
         """
@@ -587,6 +594,7 @@ class Maze():
         coords = self.get_entry()
         for char in self.get_shortest_path():
             coords = self.get_coords_by_dir(coords, char)
+            self.__shortest_path_coords.append(coords)
             self.__shortest_path_cells.append(self.get_cell(coords))
 
     @staticmethod
@@ -741,12 +749,10 @@ class Maze():
                 coords: tuple[int, int] = path[2]
                 directions: list[str] | str = cell.get_state_walls(False)
 
-                # Compute last_dir once and reuse it in both branches
                 last_dir: str | None = None
                 if len(path[0]) > 0:
                     last_dir = path[0][-1]
 
-                # prepare variables once to avoid repeated annotated defs
                 next_coords: tuple[int, int] | None = None
                 next_cell: Cell | None = None
 
