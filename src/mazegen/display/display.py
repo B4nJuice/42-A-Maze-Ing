@@ -123,7 +123,7 @@ class Displayer():
 
         self.custom_player: list[list[int | None]] | None = None
         self.auto_adjust_player: bool = True
-        self.custom_player_colors: dict = {}
+        self.custom_player_colors: dict[str, tuple] = {}
         self.function_player: list[Any] | None = None
 
     def set_maze(self, new: Maze) -> None:
@@ -721,7 +721,7 @@ class Displayer():
         self.custom_player = []
 
         for y in range(player_height):
-            custom_player_row: list = []
+            custom_player_row: list[int | None] = []
             for x in range(player_width):
                 char: str = player_txt[y * player_width + x]
                 if char not in ["0", " "]:
@@ -764,7 +764,7 @@ class Displayer():
             resized: list[list] = []
             for ty in range(tgt_h):
                 src_y = min(src_h - 1, int(ty * src_h / tgt_h))
-                row_list: list = []
+                row_list: list[int | None] = []
                 for tx in range(tgt_w):
                     src_x = min(src_w - 1, int(tx * src_w / tgt_w))
                     try:
