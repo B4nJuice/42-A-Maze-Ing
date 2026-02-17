@@ -140,7 +140,7 @@ def main() -> None:
              perfect, icon_file_name, output_file_name),
             (x, y), (5, 55, 175), "REGENERATE")
         button4 = ButtonText(
-            print_seed, maze, (x, y), (5, 55, 175), "PRINT SEED")
+            print_seed, displayer, (x, y), (5, 55, 175), "PRINT SEED")
 
         displayer.add_button(button1)
         displayer.add_button(button2)

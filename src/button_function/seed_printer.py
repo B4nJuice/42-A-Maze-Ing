@@ -1,5 +1,5 @@
-from src.maze_generation import Maze
+from src.display import Displayer
 
 
-def print_seed(maze: Maze) -> None:
-    print(maze.get_seed())
+def print_seed(displayer: Displayer) -> None:
+    print(displayer.get_maze().get_seed())
