@@ -11,3 +11,5 @@ maze.txt
 .mypy_cache
 src/config/__pycache__/config.cpython-310.pyc
 output_validator.py
+mazegen-1.0.0-py3-none-any.whl
+mazegen-1.0.0.tar.gz
