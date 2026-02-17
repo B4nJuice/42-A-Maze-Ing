@@ -106,6 +106,8 @@ class Displayer():
         self.set_color("exit", (88, 99, 248))
         self.set_color("path", (95, 191, 249))
 
+        self.need_refresh: bool = False
+
         self.set_toggle_path(False)
 
         self.move_mode: bool = False
@@ -376,6 +378,11 @@ class Displayer():
         -------
         None
         """
+        if not self.animation_finished:
+            self.need_refresh = True
+            self.__animate_display()
+            return
+
         maze = self.get_maze()
         height: int = maze.get_height()
         width: int = maze.get_width()
@@ -387,15 +394,7 @@ class Displayer():
         icon_color = self.get_icon_color()
         walls_color = self. get_walls_color()
 
-        buf, bpp, size_line, endian = mlx.mlx_get_data_addr(new_img)
-
-        addr: memoryview[int] = buf.cast('B')
-
-        image_width, image_height = self.get_image_size()
-
-        addr[:] = \
-            background_color.to_bytes(bpp // 8, 'little') \
-            * (image_width * image_height)
+        self.clear(background_color)
 
         for x in range(width):
             for y in range(height):
@@ -415,35 +414,19 @@ class Displayer():
         if loop:
             mlx.mlx_loop(mlx_ptr)
 
-    def __static_display(self, _: None = None) -> None:
-        maze = self.get_maze()
-        height: int = maze.get_height()
-        width: int = maze.get_width()
+    def clear(self, color: int) -> None:
         mlx = self.get_mlx()
-        mlx_ptr = self.get_mlx_ptr()
-        win_ptr = self.get_win_ptr()
         new_img = self.get_new_img()
-        background_color = self.get_background_color()
-        icon_color = self.get_icon_color()
-        walls_color = self. get_walls_color()
 
-        for x in range(width):
-            for y in range(height):
-                coords: tuple[int, int] = (x, y)
-                cell: Cell = maze.get_cell(coords)
-                walls = cell.get_state_walls(True)
-                if (cell.is_icon()):
-                    self.print_cell(coords, icon_color)
-                else:
-                    self.print_cell(coords, background_color)
-                self.print_walls(coords, walls, walls_color)
+        buf, bpp, size_line, endian = mlx.mlx_get_data_addr(new_img)
 
-        self.print_path()
-        self.print_entry()
-        self.print_exit()
-        if self.move_mode is True:
-            self.print_player(self.get_walls_color())
-        mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
+        addr: memoryview[int] = buf.cast('B')
+
+        image_width, image_height = self.get_image_size()
+
+        addr[:] = \
+            color.to_bytes(bpp // 8, 'little') \
+            * (image_width * image_height)
 
     def key_press(self, keycode: int, _: None) -> None:
         esc = 65307
@@ -503,16 +486,6 @@ class Displayer():
 
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
-    def start_static_display(self) -> None:
-        mlx = self.get_mlx()
-        mlx_ptr = self.get_mlx_ptr()
-        win_ptr = self.get_win_ptr()
-
-        mlx.mlx_hook(win_ptr, 2, 1 << 0, self.key_press, None)
-        mlx.mlx_hook(win_ptr, 4, 1 << 2, self.mouse_event, None)
-        mlx.mlx_loop_hook(mlx_ptr, self.__static_display, None)
-        mlx.mlx_loop(mlx_ptr)
-
     def start_animated_display(self, fps: int) -> None:
         """
         Start an animated display of the maze.
@@ -561,7 +534,7 @@ class Displayer():
         icon_color = self.get_icon_color()
         walls_color = self.get_walls_color()
 
-        if self.first:
+        if self.first or self.need_refresh:
             for x in range(width):
                 for y in range(height):
                     coords: tuple[int, int] = (x, y)
@@ -570,18 +543,34 @@ class Displayer():
                         self.print_cell(coords, icon_color)
                         walls = cell.get_state_walls(True)
                         self.print_walls(coords, walls, walls_color)
-                    else:
-                        self.print_cell(coords, walls_color)
             mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
             entry_coords: tuple[int, int] = maze.get_entry()
 
-            self.visited: set[tuple[int, int]] = set()
-            self.stack: list[tuple[int, int]] = [entry_coords]
+            if not self.need_refresh:
+                self.visited: set[tuple[int, int]] = set()
+                self.stack: list[tuple[int, int]] = [entry_coords]
 
         if self.fps <= 0:
             self.fps = 1
         frame_delay = 1 / self.fps
+
+        if self.need_refresh:
+            self.need_refresh = False
+
+            if hasattr(self, 'visited') and self.visited:
+                for coords in self.visited:
+                    cell: Cell = maze.get_cell(coords)
+                    if cell.is_icon():
+                        self.print_cell(coords, icon_color)
+                        walls = cell.get_state_walls(True)
+                        self.print_walls(coords, walls, walls_color)
+                    else:
+                        self.print_cell(coords, background_color)
+                        walls = cell.get_state_walls(True)
+                        self.print_walls(coords, walls, walls_color)
+
+                mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
         if time.time() - self.timestamp >= frame_delay or self.first:
             self.timestamp = time.time()
