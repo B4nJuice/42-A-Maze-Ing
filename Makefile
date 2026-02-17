@@ -12,10 +12,8 @@ SRCS			= $(MAIN_PROGRAM) ./src
 
 DEPENDENCIES	= flake8 mypy lib/mlx-2.2-py3-none-any.whl build
 
-run: install
+run:
 	$(V_PYTHON) $(MAIN_PROGRAM)
-	$(MAKE) build
-	$(V_PIP) install $(OUTPUT_FILE) --force-reinstall
 
 build: $(OUTPUT_FILE)
 
@@ -31,6 +29,8 @@ fclean: clean
 
 install: $(VENV)
 	$(V_PIP) install $(DEPENDENCIES)
+	$(MAKE) build
+	$(V_PIP) install $(OUTPUT_FILE) --force-reinstall
 
 $(VENV):
 	$(PYTHON) -m venv $(VENV)

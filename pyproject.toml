@@ -23,7 +23,7 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["src/mazegen"]
 
 [[tool.mypy.overrides]]
 module = "mlx"

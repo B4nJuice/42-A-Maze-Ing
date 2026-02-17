@@ -3,10 +3,10 @@ from typing import Any
 import math
 import time
 from typing import TextIO, cast, Callable
-from src.maze_generation.maze import Maze
-from src.maze_generation.cell import Cell
-from src.display.button import Button
-from src.display.button import ButtonText
+from mazegen.maze_generation.maze import Maze
+from mazegen.maze_generation.cell import Cell
+from mazegen.display.button import Button
+from mazegen.display.button import ButtonText
 
 
 class PlayerError(Exception):

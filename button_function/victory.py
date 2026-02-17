@@ -1,4 +1,4 @@
-from src.display import Displayer
+from mazegen.display import Displayer
 
 
 class ImageError(Exception):

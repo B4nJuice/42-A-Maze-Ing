@@ -1,9 +1,9 @@
 #! .venv/bin/python3
 
-from src.config import Config
-from src.maze_generation import Maze
-from src.display import Displayer
-from src.display.button import ButtonText
+from mazegen.config import Config
+from mazegen.maze_generation import Maze
+from mazegen.display import Displayer
+from mazegen.display.button import ButtonText
 from button_function import change_path, change_theme, print_seed
 from button_function import regenerate_maze, victory_function
 import sys

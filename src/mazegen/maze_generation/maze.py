@@ -2,8 +2,8 @@ import copy
 from typing import Any
 from typing import TextIO
 from typing import cast
-from src.maze_generation.cell import Cell
-from src.maze_generation.seed import (create_seed, next_randint)
+from mazegen.maze_generation.cell import Cell
+from mazegen.maze_generation.seed import (create_seed, next_randint)
 
 
 class MazeError(Exception):

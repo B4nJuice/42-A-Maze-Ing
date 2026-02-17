@@ -1,5 +1,5 @@
-from src.display import Displayer
-from src.maze_generation import Maze
+from mazegen.display import Displayer
+from mazegen.maze_generation import Maze
 
 
 def regenerate_maze(param: tuple[

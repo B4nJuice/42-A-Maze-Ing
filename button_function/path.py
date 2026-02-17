@@ -1,4 +1,4 @@
-from src.display import Displayer
+from mazegen.display import Displayer
 
 
 def change_path(displayer: Displayer) -> None:

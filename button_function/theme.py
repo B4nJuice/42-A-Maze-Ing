@@ -1,5 +1,5 @@
 from typing import Callable, Generator
-from src.display import Displayer
+from mazegen.display import Displayer
 
 
 def theme_purple(displayer: Displayer) -> None:
