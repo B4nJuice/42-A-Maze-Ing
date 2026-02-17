@@ -17,7 +17,7 @@ class Button:
         self.start_x: int = 0
         self.start_y: int = 0
 
-    def set_size(self, size) -> None:
+    def set_size(self, size: tuple[int, int]) -> None:
         width, height = size
         if width < 0 or height < 0:
             raise ButtonError("Button size must be greater than 0.")

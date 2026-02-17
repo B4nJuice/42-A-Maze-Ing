@@ -987,7 +987,8 @@ class Displayer():
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
 
-        x, y = self.win_buttons_size
+        if self.win_buttons_size is not None:
+            x, y = self.win_buttons_size
 
         self.win_button_ptr = mlx.mlx_new_window(mlx_ptr, x, y, "Buttons")
 
@@ -1017,7 +1018,6 @@ class Displayer():
                                     button.background_color, bpb, size_line)
 
         self.button_printer_y += height + spacing
-        _, y = self.win_buttons_size
 
     def print_text_button(self, button: ButtonText) -> None:
         mlx = self.get_mlx()
