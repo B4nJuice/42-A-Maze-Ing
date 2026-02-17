@@ -566,7 +566,7 @@ class Displayer():
 
             if hasattr(self, 'visited') and self.visited:
                 for coords in self.visited:
-                    cell: Cell = maze.get_cell(coords)
+                    cell = maze.get_cell(coords)
                     if cell.is_icon():
                         self.print_cell(coords, icon_color)
                         walls = cell.get_state_walls(True)

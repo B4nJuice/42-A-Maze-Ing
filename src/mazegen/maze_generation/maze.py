@@ -1,7 +1,5 @@
 import copy
-from typing import Any
-from typing import TextIO
-from typing import cast
+from typing import Any, TextIO, cast
 from mazegen.maze_generation.cell import Cell
 from mazegen.maze_generation.seed import (create_seed, next_randint)
 
@@ -197,7 +195,7 @@ class Maze():
         matrix = self.get_matrix()
         x, y = coords
         if x < 0 or y < 0 or x >= self.__width or y >= self.__height:
-            return None
+            return cast(Cell, None)
         cell = matrix[y][x]
         return cell
 
