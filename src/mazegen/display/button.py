@@ -2,17 +2,29 @@ from typing import Callable
 from typing import Any
 
 
+class ButtonError(Exception):
+    def __init__(self, message: str = "undefined"):
+        super().__init__(f"SpacingError: {message}")
+
+
 class Button:
     def __init__(self, function: Callable, param: Any, size: tuple[int, int],
                  background_color: tuple = (255, 255, 255)) -> None:
         self.function = function
         self.param = param
-        width, height = size
-        self.height: int = height
-        self.width: int = width
+        self.set_size(size)
         self.background_color: int = self.rgb_to_argb(background_color)
         self.start_x: int = 0
         self.start_y: int = 0
+
+    def set_size(self, size) -> None:
+        width, height = size
+        if width < 0 or height < 0:
+            raise ButtonError("Button size must be greater than 0.")
+        if not isinstance(width, int) or not isinstance(height, int):
+            raise ButtonError("Button size must be int type.")
+        self.height: int = height
+        self.width: int = width
 
     @staticmethod
     def rgb_to_argb(rgb: tuple) -> int:
