@@ -21,7 +21,7 @@ class MazeError(Exception):
         -------
         None
         """
-        super().__init__(f"Maze error: {message}")
+        super().__init__(f"MazeGenerator error: {message}")
 
 
 class IconError(MazeError):
@@ -58,10 +58,10 @@ class EntryExitError(MazeError):
         super().__init__(f"Entry Exit error: {message}")
 
 
-class Maze():
+class MazeGenerator():
     """Represent a maze grid and provide generation utilities.
 
-    The Maze class stores Cell objects in a matrix and provides methods
+    The MazeGenerator class stores Cell objects in a matrix and provides methods
     to generate, query and export the maze structure.
 
     Attributes
@@ -72,7 +72,7 @@ class Maze():
     def __init__(self, width: int, height: int, entry: tuple[int, int],
                  exit: tuple[int, int], perfect: bool, seed: int,
                  icon_file: TextIO) -> None:
-        """Initialize a Maze instance.
+        """Initialize a MazeGenerator instance.
 
         Creates a maze grid with specified dimensions, entry/exit points,
         and optional icon placement. Validates all parameters.
@@ -80,9 +80,9 @@ class Maze():
         Parameters
         ----------
         width : int
-            Maze width in cells.
+            MazeGenerator width in cells.
         height : int
-            Maze height in cells.
+            MazeGenerator height in cells.
         entry : tuple[int, int]
             Entry coordinates as (x, y).
         exit : tuple[int, int]
@@ -265,7 +265,7 @@ class Maze():
         Returns
         -------
         int
-            Maze width in cells.
+            MazeGenerator width in cells.
         """
         return self.__width
 
@@ -275,7 +275,7 @@ class Maze():
         Returns
         -------
         int
-            Maze height in cells.
+            MazeGenerator height in cells.
         """
         return self.__height
 

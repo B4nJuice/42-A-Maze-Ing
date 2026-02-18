@@ -1,10 +1,10 @@
 from .cell import Cell
-from .maze import Maze
+from .maze import MazeGenerator
 from .seed import create_seed, next_randint
 
 __all__ = [
     "Cell",
-    "Maze",
+    "MazeGenerator",
     "create_seed",
     "next_randint"
     ]

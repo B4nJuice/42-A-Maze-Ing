@@ -3,7 +3,7 @@ from typing import Any
 import math
 import time
 from typing import TextIO, cast, Callable
-from mazegen.maze_generation.maze import Maze
+from mazegen.maze_generation.maze import MazeGenerator
 from mazegen.maze_generation.cell import Cell
 from mazegen.display.button import Button
 from mazegen.display.button import ButtonText
@@ -48,7 +48,7 @@ class Displayer():
     def __init__(self,
                  window_size: tuple[int, int],
                  image_size: tuple[int, int],
-                 maze: Maze,
+                 maze: MazeGenerator,
                  wall_thickness: int) -> None:
         """
         Initialize a Displayer.
@@ -59,8 +59,8 @@ class Displayer():
             Window size (x, y).
         image_size : tuple[int, int]
             Image size (x, y).
-        maze : Maze
-            Maze object to display.
+        maze : MazeGenerator
+            MazeGenerator object to display.
         wall_thickness : int
             Wall size percentage.
 
@@ -146,13 +146,13 @@ class Displayer():
         self.custom_player_colors: dict[str, tuple[int, int, int]] = {}
         self.function_player: list[Any] | None = None
 
-    def set_maze(self, new: Maze) -> None:
+    def set_maze(self, new: MazeGenerator) -> None:
         """Set a new maze to display.
 
         Parameters
         ----------
-        new : Maze
-            The new Maze object to display.
+        new : MazeGenerator
+            The new MazeGenerator object to display.
         """
         self.__maze = new
 
@@ -312,13 +312,13 @@ class Displayer():
         """
         return self.__new_img
 
-    def get_maze(self) -> Maze:
+    def get_maze(self) -> MazeGenerator:
         """Return the maze to display.
 
         Returns
         -------
-        Maze
-            The Maze instance being displayed.
+        MazeGenerator
+            The MazeGenerator instance being displayed.
         """
         return self.__maze
 

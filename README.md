@@ -39,7 +39,7 @@ make lint
 ## Resources
 - [Python Documentation](https://docs.python.org/3/)
 - [MiniLibX Python (mlx)](https://github.com/42Paris/minilibx-linux)
-- [Maze generation algorithms](https://en.wikipedia.org/wiki/Maze_generation_algorithm)
+- [MazeGenerator generation algorithms](https://en.wikipedia.org/wiki/Maze_generation_algorithm)
 - [pdb module tutorial](https://docs.python.org/3/library/pdb.html)
 - [GeeksforGeeks](https://www.geeksforgeeks.org/)
 - [W3Schools](https://www.w3schools.com/)
@@ -240,7 +240,7 @@ entry = config.get_value("ENTRY")   # returns a tuple (x, y)
 ```shell
 # A-Maze-ing — Default configuration
 # --------------------------------------------------
-# Maze dimensions (in cells)
+# MazeGenerator dimensions (in cells)
 WIDTH=20
 HEIGHT=20
 
@@ -302,7 +302,7 @@ CUSTOM_PLAYER_COLORS=r:255,0,0 g:0,255,0 b:0,0,255 w:255,255,255
 ```
 
 
-## Maze Generation Algorithm
+## MazeGenerator Generation Algorithm
 We chose the **Depth-First Search (DFS) with backtracking** algorithm to generate the maze.
 
 ### Why this algorithm ?
@@ -334,8 +334,8 @@ HPB:
 #### lgirard
 ----
 - Config parser
-- Maze generation
-- Maze animation
+- MazeGenerator generation
+- MazeGenerator animation
 - Custom player
 - Makefile
 - Also participate in other shared tasks
@@ -363,7 +363,7 @@ it sometimes hindered the completion of certain parts related to the generation 
 
 ## Bonuses
 - Fully customizable config parser
-- Maze animation
+- MazeGenerator animation
 - Custom maze icon
 - Capability to move in maze
 - Custom player (which can adjust his size automatically)

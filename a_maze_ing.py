@@ -1,7 +1,7 @@
 #! .venv/bin/python3
 
 from mazegen.config import Config
-from mazegen.maze_generation import Maze
+from mazegen.maze_generation import MazeGenerator
 from mazegen.display import Displayer
 from mazegen.display.button import ButtonText
 from src.button_function import change_path, change_theme, print_seed
@@ -120,7 +120,7 @@ def main() -> None:
 
     with open(output_file_name, "w") as output_file:
         with open(icon_file_name, "r") as icon_file:
-            maze: Maze = Maze(
+            maze: MazeGenerator = MazeGenerator(
                             width,
                             height,
                             entry,

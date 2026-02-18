@@ -1,5 +1,5 @@
 from typing import Any
-from mazegen.maze_generation import Maze
+from mazegen.maze_generation import MazeGenerator
 
 
 def regenerate_maze(param: Any) -> None:
@@ -15,8 +15,8 @@ def regenerate_maze(param: Any) -> None:
         A tuple containing:
         - displayer : Displayer - The display instance to update.
         - animated : bool - Whether to animate maze generation.
-        - w : int - Maze width in cells.
-        - h : int - Maze height in cells.
+        - w : int - MazeGenerator width in cells.
+        - h : int - MazeGenerator height in cells.
         - ent : tuple - Entry coordinates as (x, y).
         - ex : tuple - Exit coordinates as (x, y).
         - perf : bool - Whether the maze should be perfect.
@@ -30,7 +30,7 @@ def regenerate_maze(param: Any) -> None:
     displayer, animated, w, h, ent, ex, perf, icon_name, output_name = param
     with open(output_name, "w") as output:
         with open(icon_name, "r") as icon:
-            new_maze: Maze = Maze(w, h, ent, ex, perf, 0, icon)
+            new_maze: MazeGenerator = MazeGenerator(w, h, ent, ex, perf, 0, icon)
             new_maze.create_full_maze()
             new_maze.output_in_file(output)
 
