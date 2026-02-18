@@ -19,6 +19,11 @@ class SpacingError(Exception):
         super().__init__(f"SpacingError: {message}")
 
 
+class WallThicknessError(Exception):
+    def __init__(self, message: str = "undefined"):
+        super().__init__(f"WallThicknessError: {message}")
+
+
 class Displayer():
     """
     Display a maze using the MLX library.
@@ -94,8 +99,9 @@ class Displayer():
         self.__win_ptr = win_ptr
         self.__new_img = new_img
 
-        if wall_thickness <= 0:
-            wall_thickness = 1
+        if wall_thickness <= 0 or wall_thickness > 50:
+            raise WallThicknessError(
+                "wall_thickness has to be between 1 and 50")
         div = round(1 / wall_thickness * 100)
         self.__div = div
 
