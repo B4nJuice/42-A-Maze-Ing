@@ -18,6 +18,7 @@ run: install
 build: $(OUTPUT_FILE)
 
 $(OUTPUT_FILE): $(SRCS)
+	$(V_PIP) install $(DEPENDENCIES)
 	$(V_PYTHON) -m build -o .
 	$(V_PIP) install $(OUTPUT_FILE) --force-reinstall
 
