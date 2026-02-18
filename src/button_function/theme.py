@@ -1,4 +1,4 @@
-from typing import Callable, Generator
+from typing import Callable, Generator, Any
 from mazegen.display import Displayer
 
 
@@ -178,15 +178,15 @@ def change_theme(displayer: Displayer) -> Generator[None, None, None]:
     None
         On each iteration, applies the next theme and refreshes the display.
     """
-    themes: list[Callable] = [theme_purple,
-                              theme_blue,
-                              theme_yellow,
-                              theme_green,
-                              theme_orange,
-                              theme_red,
-                              theme_pink,
-                              theme_multicolor
-                              ]
+    themes: list[Callable[[Any], Any]] = [theme_purple,
+                                          theme_blue,
+                                          theme_yellow,
+                                          theme_green,
+                                          theme_orange,
+                                          theme_red,
+                                          theme_pink,
+                                          theme_multicolor
+                                          ]
     i: int = 0
     len_themes: int = len(themes)
 

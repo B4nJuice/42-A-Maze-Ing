@@ -5,7 +5,7 @@ authors = [
   { name="Lauwerie Felix", email="flauweri@student.42lyon.fr" },
   { name="Girard Louis", email="lgirard@student.42lyon.fr" },
 ]
-description = "Maze lib for A-Maz-Ing"
+description = "Maze lib for A-Maze-Ing"
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [

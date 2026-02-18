@@ -1,10 +1,8 @@
-from mazegen.display import Displayer
+from typing import Any
 from mazegen.maze_generation import Maze
 
 
-def regenerate_maze(param: tuple[
-            Displayer, bool, int, int, tuple,
-            tuple, bool, str, str]) -> None:
+def regenerate_maze(param: Any) -> None:
     """Generate a new maze and display it.
 
     Creates a completely new maze with the given parameters, saves it to
