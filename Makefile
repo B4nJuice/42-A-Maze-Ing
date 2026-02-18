@@ -27,7 +27,6 @@ clean:
 
 fclean: clean
 	rm -rf mazegen-1.0.0-py3-none-any.whl
-	rm -rf mazegen-1.0.0.tar.gz
 	rm -rf $(VENV)
 
 install: $(VENV)
