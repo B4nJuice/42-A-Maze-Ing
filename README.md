@@ -354,7 +354,7 @@ We finished the core part of A-Maze-Ing quickly, but we take our time to polish 
 ### What worked well and what could be improved ?
 
 Teamwork went very well: our different skill levels were a real asset, and
-everyone learned from each other. However, this same difference sometimes complicated the division of tasks—even though flauweri understood the principles of the maze generation algorithm,
+everyone learned from each other. However, this same difference sometimes complicated the division of tasks, even though flauweri understood the principles of the maze generation algorithm,
 it sometimes hindered the completion of certain parts related to the generation process.
 
 ### Tools used
