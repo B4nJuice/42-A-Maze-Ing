@@ -102,7 +102,7 @@ class Maze():
             If entry/exit are outside the maze or are the same cell or
             are located in the icon area.
         IconError
-            If the icon is larger than the maze or has inconsistent row lengths.
+            If the icon is larger than maze or has inconsistent row lengths.
 
         Returns
         -------
@@ -306,12 +306,12 @@ class Maze():
         Returns
         -------
         list[tuple[int, int]]
-            List of (x, y) coordinates from entry to exit along the shortest path.
+            List of (x, y) coordinates from entry to exit along shortest path.
         """
         return self.__shortest_path_coords
 
     def is_perfect(self) -> bool:
-        """Return True if the maze is perfect (contains a single path between any two cells).
+        """Return True if the maze is perfect.
 
         Returns
         -------
@@ -432,7 +432,7 @@ class Maze():
         """Recursively carve a path from ``coords`` using randomized DFS.
 
         Implements a depth-first search algorithm to generate maze passages,
-        marking visited cells and setting appropriate flags for the exit region.
+        marking visited cells and setting appropriate flags for exit region.
 
         Parameters
         ----------
@@ -665,7 +665,7 @@ class Maze():
     @staticmethod
     def get_dir_by_coords(coords: tuple[int, int],
                           next_coords: tuple[int, int]) -> str:
-        """Return the direction name to move from ``coords`` to ``next_coords``.
+        """Return direction name to move from ``coords`` to ``next_coords``.
 
         Parameters
         ----------
@@ -716,7 +716,7 @@ class Maze():
         return directions[direction]
 
     def is_isolate_cell(self, coords: tuple[int, int]) -> bool:
-        """Determine whether the cell at ``coords`` is isolated (all walls closed).
+        """Determine whether the cell at ``coords`` is isolated.
 
         Parameters
         ----------

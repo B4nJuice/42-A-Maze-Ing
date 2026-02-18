@@ -42,12 +42,12 @@ class Config():
         -------
         None
         """
-        self.__config: dict = {}
+        self.__config: dict[str, Any] = {}
         self.__config = {}
         self.__commentary_str: str = "#"
 
     def set_commentary_str(self, commentary_str: str) -> None:
-        """Set the prefix used to identify comment lines in the configuration file.
+        """Set the prefix used to identify comment lines in the config file.
 
         Parameters
         ----------

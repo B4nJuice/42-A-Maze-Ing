@@ -37,8 +37,10 @@ class Button:
     start_y : int
         Y position of the button in pixels.
     """
-    def __init__(self, function: Callable, param: Any, size: tuple[int, int],
-                 background_color: tuple = (255, 255, 255)) -> None:
+    def __init__(self, function: Callable[[Any], Any],
+                 param: Any, size: tuple[int, int],
+                 background_color: tuple[int, int, int] = (255, 255, 255)
+                 ) -> None:
         """Initialize a Button.
 
         Parameters
@@ -50,7 +52,7 @@ class Button:
         size : tuple[int, int]
             Button size as (width, height) in pixels.
         background_color : tuple, optional
-            RGB color tuple (0-255 each) for button background (default is white).
+            RGB color tuple (0-255) for button background (default: white).
 
         Raises
         ------
@@ -90,7 +92,7 @@ class Button:
         self.width: int = width
 
     @staticmethod
-    def rgb_to_argb(rgb: tuple) -> int:
+    def rgb_to_argb(rgb: tuple[int, int, int]) -> int:
         """Convert RGB color tuple to ARGB 32-bit integer.
 
         Parameters
@@ -117,8 +119,9 @@ class Button:
 class ButtonText(Button):
     """A button with a text label.
 
-    Extends Button to display text on the button. The text color is automatically
-    calculated to provide contrast with the background color.
+    Extends Button to display text on the button.
+    The text color is automatically calculated to provide
+    contrast with the background color.
 
     Attributes
     ----------
@@ -127,8 +130,9 @@ class ButtonText(Button):
     text_color : int
         Text color as a 24-bit integer (0xRRGGBB).
     """
-    def __init__(self, function: Callable, param: Any, size: tuple[int, int],
-                 background_color: tuple,
+    def __init__(self, function: Callable[[Any], Any],
+                 param: Any, size: tuple[int, int],
+                 background_color: tuple[int, int, int],
                  text: str = "No text") -> None:
         """Initialize a ButtonText.
 
@@ -183,7 +187,7 @@ class ButtonText(Button):
             return (ButtonText.rgb_to_rgb24((255, 255, 255)))
 
     @staticmethod
-    def rgb_to_rgb24(rgb: tuple) -> int:
+    def rgb_to_rgb24(rgb: tuple[int, int, int]) -> int:
         """Convert RGB color tuple to RGB 24-bit integer.
 
         Converts an RGB color tuple to a 24-bit integer representation in

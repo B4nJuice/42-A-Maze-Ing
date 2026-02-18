@@ -10,7 +10,8 @@ import sys
 
 
 def create_config(config: Config) -> None:
-    """Register all configuration parameters with their default values and types.
+    """
+    Register all configuration parameters with their default values and types.
 
     Sets up the complete configuration schema for the A-Maze-Ing application,
     including maze generation parameters, display settings, colors, and player

@@ -137,7 +137,7 @@ class Displayer():
 
         self.custom_player: list[list[int | None]] | None = None
         self.auto_adjust_player: bool = True
-        self.custom_player_colors: dict[str, tuple] = {}
+        self.custom_player_colors: dict[str, tuple[int, int, int]] = {}
         self.function_player: list[Any] | None = None
 
     def set_maze(self, new: Maze) -> None:
@@ -150,7 +150,8 @@ class Displayer():
         """
         self.__maze = new
 
-    def set_function(self, funct: Callable, param: tuple[Any, Any]) -> None:
+    def set_function(self, funct: Callable[[Any], Any],
+                     param: tuple[Any, Any]) -> None:
         """Set a function and its parameters to be called on key events.
 
         Parameters
@@ -182,7 +183,9 @@ class Displayer():
         self.button_printer_x = spacing
         self.button_printer_y = spacing
 
-    def set_custom_player_colors(self, colors: dict[str, tuple]) -> None:
+    def set_custom_player_colors(self,
+                                 colors: dict[str, tuple[int, int, int]]
+                                 ) -> None:
         """Set custom colors for the player icon.
 
         Parameters
@@ -553,7 +556,7 @@ class Displayer():
             elif keycode == down and not cell.get_wall("SOUTH"):
                 self.player_pos = x, y + 1
             if (x, y) != self.player_pos:
-                cell_dict: dict[tuple, int] = {
+                cell_dict: dict[Any, Any] = {
                     maze.get_exit(): self.get_exit_color(),
                     maze.get_entry(): self.get_entry_color(),
                 }
@@ -789,7 +792,7 @@ class Displayer():
         Reads a player icon from a text file where each character represents
         a pixel. Characters '0' and ' ' are treated as transparent. Other
         characters are mapped to colors using custom_player_colors dictionary.
-        If auto_adjust_player is True, the icon is resized to fit the cell size.
+        If auto_adjust_player is True, the icon is resized to fit cell size.
 
         Parameters
         ----------
@@ -873,7 +876,7 @@ class Displayer():
         if src_h == 0 or src_w == 0:
             self.custom_player = None
         else:
-            resized: list[list] = []
+            resized: list[list[Any]] = []
             for ty in range(tgt_h):
                 src_y = min(src_h - 1, int(ty * src_h / tgt_h))
                 row_list: list[int | None] = []

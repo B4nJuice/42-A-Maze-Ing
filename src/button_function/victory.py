@@ -1,4 +1,5 @@
 from mazegen.display import Displayer
+from typing import Any
 
 
 class ImageError(Exception):
@@ -6,7 +7,7 @@ class ImageError(Exception):
     pass
 
 
-def close(param: tuple) -> None:
+def close(param: tuple[Any, Any, Any]) -> None:
     """Close the MLX window.
 
     Parameters
@@ -22,7 +23,7 @@ def close(param: tuple) -> None:
     mlx.mlx_destroy_window(mlx_ptr, win_ptr)
 
 
-def key_press(keycode: int, param: tuple) -> None:
+def key_press(keycode: int, param: tuple[Any, Any, Any]) -> None:
     """Handle key press events in the victory window.
 
     Closes the window when the ESC key is pressed.
@@ -43,7 +44,7 @@ def key_press(keycode: int, param: tuple) -> None:
         mlx.mlx_destroy_window(mlx_ptr, win_ptr)
 
 
-def victory_function(param: tuple[Displayer, tuple]) -> None:
+def victory_function(param: tuple[Displayer, tuple[int, int]]) -> None:
     """Display a victory screen if the player reaches the exit.
 
     Creates and displays a victory image window when the player position
