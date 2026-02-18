@@ -4,44 +4,50 @@ from typing import Iterator
 
 
 class ConfigError(Exception):
-    """
-    Custom exception for configuration errors.
-    """
+    """Custom exception for configuration errors."""
     def __init__(self, message: str = "undefined") -> None:
-        """
-        Initialize the exception with a custom error message.
+        """Initialize the exception with a custom error message.
 
         Parameters
         ----------
         message : str, optional
             The error message describing the configuration issue.
             Defaults to "undefined".
+
+        Returns
+        -------
+        None
         """
         super().__init__(f"Config error: {message}")
 
 
 class Config():
-    """
-    Manage and parse a configuration file.
+    """Manage and parse a configuration file.
 
     This class provides utilities to register configuration parameters,
     parse them from a file, validate their types, and retrieve their values.
+
+    Attributes
+    ----------
+    commentary_str : str
+        The prefix string used to identify comment lines (default is "#").
     """
     def __init__(self) -> None:
-        """
-        Initialize an empty configuration registry.
+        """Initialize an empty configuration registry.
 
         Creates the internal dictionary used to store configuration
         parameters and sets the default commentary prefix to "#".
+
+        Returns
+        -------
+        None
         """
         self.__config: dict = {}
         self.__config = {}
         self.__commentary_str: str = "#"
 
     def set_commentary_str(self, commentary_str: str) -> None:
-        """
-        Set the prefix used to identify comment lines in the configuration
-        file.
+        """Set the prefix used to identify comment lines in the configuration file.
 
         Parameters
         ----------
@@ -52,6 +58,10 @@ class Config():
         ------
         ConfigError
             If `commentary_str` is not a string.
+
+        Returns
+        -------
+        None
         """
         if not isinstance(commentary_str, str):
             raise ConfigError(
@@ -60,8 +70,7 @@ class Config():
         self.__commentary_str = commentary_str
 
     def get_commentary_str(self) -> str:
-        """
-        Return the current comment prefix string.
+        """Return the current comment prefix string.
 
         Returns
         -------
@@ -71,8 +80,7 @@ class Config():
         return self.__commentary_str
 
     def add_parameter(self, name: str, param: list[Any]) -> None:
-        """
-        Register a new configuration parameter and its type specification.
+        """Register a new configuration parameter and its type specification.
 
         This method adds a parameter to the internal configuration registry.
         The parameter definition includes its default value and a type
@@ -125,8 +133,7 @@ class Config():
         config.update({name: param})
 
     def get_config(self) -> dict[str, list[Any]]:
-        """
-        Return the internal configuration dictionary.
+        """Return the internal configuration dictionary.
 
         Returns
         -------
@@ -136,8 +143,7 @@ class Config():
         return self.__config
 
     def parse_file(self, file: TextIO) -> None:
-        """
-        Parse a configuration file and update parameter values.
+        """Parse a configuration file and update parameter values.
 
         Each non-empty and non-comment line must follow the format:
         `PARAMETER=VALUE`. The value is validated and converted
@@ -154,6 +160,10 @@ class Config():
             If an unknown parameter is encountered.
             If a value does not match its expected type.
             If required parameters are missing.
+
+        Returns
+        -------
+        None
         """
         config = self.get_config()
         parameters = config.keys()
@@ -172,8 +182,7 @@ class Config():
         self.check_config()
 
     def get_value(self, parameter: str) -> Any:
-        """
-        Return the value of a configuration parameter.
+        """Return the value of a configuration parameter.
 
         Parameters
         ----------
@@ -194,8 +203,7 @@ class Config():
 
     def apply_types(self, parameter: str, parameter_list: list[Any],
                     value: Any) -> Any:
-        """
-        Convert a configuration parameter value to its declared type.
+        """Convert a configuration parameter value to its declared type.
 
         This method validates and converts a string value according to the
         type specification stored in ``parameter_list``. Supported types are:
@@ -314,8 +322,7 @@ class Config():
 
     @staticmethod
     def get_next_line(file: TextIO) -> Iterator[str]:
-        """
-        Yield lines from a file one by one.
+        """Yield lines from a file one by one.
 
         Parameters
         ----------
@@ -336,8 +343,7 @@ class Config():
 
     @staticmethod
     def get_unprocessed_value(line: str) -> tuple[str, str]:
-        """
-        Split a configuration line into parameter name and raw value.
+        """Split a configuration line into parameter name and raw value.
 
         The line must contain exactly one "=" character.
 
@@ -364,13 +370,16 @@ class Config():
         return (parameter, value)
 
     def check_config(self) -> None:
-        """
-        Validate that all configuration parameters have assigned values.
+        """Validate that all configuration parameters have assigned values.
 
         Raises
         ------
         ConfigError
             If one or more parameters have no value assigned.
+
+        Returns
+        -------
+        None
         """
         config = self.get_config()
         values = config.values()
