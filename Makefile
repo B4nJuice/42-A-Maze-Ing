@@ -17,8 +17,7 @@ run: install
 
 build: $(OUTPUT_FILE)
 
-$(OUTPUT_FILE): $(SRCS)
-	$(V_PIP) install $(DEPENDENCIES)
+$(OUTPUT_FILE): install $(SRCS)
 	$(V_PYTHON) -m build -o .
 	$(V_PIP) install $(OUTPUT_FILE) --force-reinstall
 
@@ -31,7 +30,7 @@ fclean: clean
 	rm -rf mazegen-1.0.0.tar.gz
 	rm -rf $(VENV)
 
-install: $(VENV) $(OUTPUT_FILE)
+install: $(VENV)
 	$(V_PIP) install $(DEPENDENCIES)
 
 $(VENV):
