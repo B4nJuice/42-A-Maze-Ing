@@ -4,7 +4,7 @@
 
 ## Description
 A-Maze-Ing is an interactive project for generating, displaying, and solving mazes. 
-The goal is to allow users to visualize a randomly generated maze, move a player inside it, 
+The goal is to allow users to visualize a randomly generated maze
 display the shortest path, and experiment with various display and interaction options.
 
 ## Instructions
@@ -233,33 +233,136 @@ height = config.get_value("HEIGHT")
 entry = config.get_value("ENTRY")   # returns a tuple (x, y)
 ```
 
-----
-#### Config Types
+### Default config file format
+
+```shell
+# A-Maze-ing — Default configuration
+# --------------------------------------------------
+# Maze dimensions (in cells)
+WIDTH=20
+HEIGHT=20
+
+# Entry and exit coordinates (format: x,y)
+ENTRY=0,0
+EXIT=19,19
+
+# Output file for the generated maze
+OUTPUT_FILE=maze.txt
+
+# Generate a perfect maze
+PERFECT=True
+
+# Path to the icon file used in the display
+ICON_FILE=src/default_icon.txt
+
+# Random seed for reproducible generation (integer)
+SEED=42
+
+# Wall thickness expressed as a percentage
+# Example: 5 means each wall occupy 5% of a cell
+WALL_THICKNESS=5
+
+# Screen / maze image size in pixels
+# Format: width,height
+MAZE_SIZE=900,900 0,900
+
+# Toggle shortest path
+TOGGLE_PATH=True
+
+# --------------------------------------------------
+# Color section (values in r,g,b format; 0..255)
+# Set CUSTOM_COLORS to True to use the values below
+CUSTOM_COLORS=True
+
+# Color used to draw the shortest path
+PATH_COLOR=200,200,200
+
+# Color for the entry cell
+ENTRY_COLOR=100,100,255
+
+# Color for the exit cell
+EXIT_COLOR=65,80,255
+
+# --------------------------------------------------
+# Animation parameters
+ANIMATED=True
+FPS=60
+
+# Button parameter
+SPACING=50
+
+# --------------------------------------------------
+# Custom player parameters
+CUSTOM_PLAYER_FILE=src/default_player.txt
+AUTO_ADJUST_PLAYER=True
+CUSTOM_PLAYER_COLORS=r:255,0,0 g:0,255,0 b:0,0,255 w:255,255,255
+
+```
 
 
 ## Maze Generation Algorithm
-We chose the **Depth-First Search (DFS) with backtracking** algorithm to generate the maze.  
-This algorithm is simple to implement, guarantees a unique path between any two cells, and is easy to animate.
+We chose the **Depth-First Search (DFS) with backtracking** algorithm to generate the maze.
 
-**Why this algorithm?**
-- Easy to animate and understand
-- Generates perfect mazes (no loops)
-- Easily extendable for other algorithms (bonus)
+### Why this algorithm ?
+We chose DFS algorithm because it create more "natural" maze.
+
+DFS:
+
+![DFS](https://media.discordapp.net/attachments/1394986082721988680/1473608362133291028/image.png?ex=6996d43b&is=699582bb&hm=e6e8f68b6a0083616b3fd35c16f20c7813e12ba2c56388125f85ec2cfe68e233&=&format=webp&quality=lossless&width=641&height=641)
+
+HPB:
+
+![HPB](https://upload.wikimedia.org/wikipedia/commons/3/3f/Horizontally_Influenced_Depth-First_Search_Generated_Maze.png)
 
 ## Reusable Code
 - The `maze_generation/maze.py` module is generic and can be reused for other maze projects.
-- The `display/display.py` module can display any grid or maze compatible with its API.
+- The `display/display.py` module can display any grid or maze compatible.
 - The config parser (`config/config.py`) is adaptable for other projects needing simple config files.
+
+## Team and project management
+
+### Role of each member
+#### flauweri
+----
+- Core Displayer
+- Capability to move in maze
+- Button creator
+- Also participate in other shared tasks
+
+#### lgirard
+----
+- Config parser
+- Maze generation
+- Maze animation
+- Custom player
+- Makefile
+- Also participate in other shared tasks
+
+
+### Planning
+----
+We started the project delayed, mid-January.
+
+lgirard started with the config parser alone when flauweri were grinding python modules so he can be comfortable with python.
+
+We did this project while doing python modules.
+
+We finished the core part of A-Maze-Ing quickly, but we take our time to polish it and add various bonuses.
+
+### What worked well and what could be improved ?
+
+Teamwork went very well: our different skill levels were a real asset, and
+everyone learned from each other. However, this same difference sometimes complicated the division of tasks—even though flauweri understood the principles of the maze generation algorithm,
+it sometimes hindered the completion of certain parts related to the generation process.
 
 ### Tools used
 - Git & GitHub for version control
 - VS Code and GitHub Copilot for editing and AI assistance
-- MiniLibX Python for graphics
-- Flake8 and mypy for code quality
 
-## Advanced Features
-- Buttons to change maze color and toggle shortest path display
-- move_mode and capability to move in maze
-- Dynamic display options (size, colors, etc.)
-
----
+## Bonuses
+- Fully customizable config parser
+- Maze animation
+- Custom maze icon
+- Capability to move in maze
+- Custom player (which can adjust his size automatically)
+- Button creator
