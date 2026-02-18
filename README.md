@@ -7,6 +7,8 @@ A-Maze-Ing is an interactive project for generating, displaying, and solving maz
 The goal is to allow users to visualize a randomly generated maze
 display the shortest path, and experiment with various display and interaction options.
 
+![Video Example](https://media.discordapp.net/attachments/1394986082721988680/1473649817430265907/Screencast-from-02-18-2026-12_56_04-PM.gif?ex=6996fad7&is=6995a957&hm=83ed756d1023ca6bee5bde6c6788f1224e985eca630f0e2fcf1145e78926a81e&=&width=988&height=991)
+
 ## Instructions
 
 ### Installation
