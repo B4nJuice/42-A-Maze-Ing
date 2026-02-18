@@ -10,11 +10,25 @@ from mazegen.display.button import ButtonText
 
 
 class PlayerError(Exception):
+    """Exception raised for errors related to the player icon.
+
+    Parameters
+    ----------
+    message : str, optional
+        The error message (default is "undefined").
+    """
     def __init__(self, message: str = "undefined"):
         super().__init__(f"PlayerError: {message}")
 
 
 class SpacingError(Exception):
+    """Exception raised for invalid spacing values.
+
+    Parameters
+    ----------
+    message : str, optional
+        The error message (default is "undefined").
+    """
     def __init__(self, message: str = "undefined"):
         super().__init__(f"SpacingError: {message}")
 
@@ -129,16 +143,45 @@ class Displayer():
 
         self.custom_player: list[list[int | None]] | None = None
         self.auto_adjust_player: bool = True
-        self.custom_player_colors: dict[str, tuple] = {}
+        self.custom_player_colors: dict[str, tuple[int, int, int]] = {}
         self.function_player: list[Any] | None = None
 
     def set_maze(self, new: Maze) -> None:
+        """Set a new maze to display.
+
+        Parameters
+        ----------
+        new : Maze
+            The new Maze object to display.
+        """
         self.__maze = new
 
-    def set_function(self, funct: Callable, param: tuple[Any, Any]) -> None:
+    def set_function(self, funct: Callable[[Any], Any],
+                     param: tuple[Any, Any]) -> None:
+        """Set a function and its parameters to be called on key events.
+
+        Parameters
+        ----------
+        funct : Callable
+            The function to call.
+        param : tuple[Any, Any]
+            The parameters to pass to the function.
+        """
         self.function_player = [funct, param]
 
     def set_spacing(self, spacing: int) -> None:
+        """Set the spacing between buttons.
+
+        Parameters
+        ----------
+        spacing : int
+            The spacing value (must be > 0).
+
+        Raises
+        ------
+        SpacingError
+            If spacing is not greater than 0.
+        """
         if spacing <= 0:
             raise SpacingError("Spacing must be greater than 0.")
 
@@ -146,23 +189,55 @@ class Displayer():
         self.button_printer_x = spacing
         self.button_printer_y = spacing
 
-    def set_custom_player_colors(self, colors: dict[str, tuple]) -> None:
+    def set_custom_player_colors(self,
+                                 colors: dict[str, tuple[int, int, int]]
+                                 ) -> None:
+        """Set custom colors for the player icon.
+
+        Parameters
+        ----------
+        colors : dict[str, tuple]
+            Dictionary mapping characters to RGB color tuples.
+        """
         self.custom_player_colors = colors
 
     def set_auto_adjust_player(self, auto_adjust_player: bool) -> None:
+        """Enable or disable automatic resizing of the player icon.
+
+        Parameters
+        ----------
+        auto_adjust_player : bool
+            Whether to auto-adjust the player icon size.
+
+        Raises
+        ------
+        ValueError
+            If auto_adjust_player is not a boolean.
+        """
         if not isinstance(auto_adjust_player, bool):
             raise ValueError("auto_adjust_player has to be a bool.")
         self.auto_adjust_player = auto_adjust_player
 
     def set_toggle_path(self, toggle: bool) -> None:
+        """Enable or disable the display of the shortest path.
+
+        Parameters
+        ----------
+        toggle : bool
+            Whether to show the shortest path.
+
+        Raises
+        ------
+        ValueError
+            If toggle is not a boolean.
+        """
         if not isinstance(toggle, bool):
             raise ValueError("toggle has to be a bool.")
         self.toggle_path = toggle
 
     def set_color(self, location: str,
                   rgb: tuple[int, int, int]) -> bool:
-        """
-        Set a color for a specific UI location.
+        """Set a color for a specific UI location.
 
         Parameters
         ----------
@@ -208,8 +283,7 @@ class Displayer():
                 return False
 
     def get_window_size(self) -> tuple[int, int]:
-        """
-        Return the window size.
+        """Return the window size.
 
         Returns
         -------
@@ -219,8 +293,7 @@ class Displayer():
         return self.__window_size
 
     def get_mlx(self) -> Mlx:
-        """
-        Return the MLX instance.
+        """Return the MLX instance.
 
         Returns
         -------
@@ -230,8 +303,7 @@ class Displayer():
         return self.__mlx
 
     def get_new_img(self) -> Any:
-        """
-        Return the MLX image used for rendering.
+        """Return the MLX image used for rendering.
 
         Returns
         -------
@@ -241,8 +313,7 @@ class Displayer():
         return self.__new_img
 
     def get_maze(self) -> Maze:
-        """
-        Return the maze to display.
+        """Return the maze to display.
 
         Returns
         -------
@@ -252,8 +323,7 @@ class Displayer():
         return self.__maze
 
     def get_image_size(self) -> tuple[int, int]:
-        """
-        Return the image size.
+        """Return the image size.
 
         Returns
         -------
@@ -263,8 +333,7 @@ class Displayer():
         return self.__image_size
 
     def get_cell_size(self) -> int:
-        """
-        Return the size (in pixels) of a single maze cell.
+        """Return the size (in pixels) of a single maze cell.
 
         Returns
         -------
@@ -274,8 +343,7 @@ class Displayer():
         return self.__cell_size
 
     def get_mlx_ptr(self) -> Any:
-        """
-        Return the raw MLX context pointer.
+        """Return the raw MLX context pointer.
 
         Returns
         -------
@@ -285,8 +353,7 @@ class Displayer():
         return self.__mlx_ptr
 
     def get_win_ptr(self) -> Any:
-        """
-        Return the MLX window pointer.
+        """Return the MLX window pointer.
 
         Returns
         -------
@@ -296,8 +363,7 @@ class Displayer():
         return self.__win_ptr
 
     def get_div(self) -> int:
-        """
-        Return the divider used to compute wall thickness.
+        """Return the divider used to compute wall thickness.
 
         Returns
         -------
@@ -307,8 +373,7 @@ class Displayer():
         return self.__div
 
     def get_background_color(self) -> int:
-        """
-        Return the background color.
+        """Return the background color.
 
         Returns
         -------
@@ -318,8 +383,7 @@ class Displayer():
         return self.__background_color
 
     def get_walls_color(self) -> int:
-        """
-        Return the wall color.
+        """Return the wall color.
 
         Returns
         -------
@@ -329,8 +393,7 @@ class Displayer():
         return self.__walls_color
 
     def get_entry_color(self) -> int:
-        """
-        Return the entry cell color.
+        """Return the entry cell color.
 
         Returns
         -------
@@ -340,8 +403,7 @@ class Displayer():
         return self.__entry_color
 
     def get_exit_color(self) -> int:
-        """
-        Return the exit cell color.
+        """Return the exit cell color.
 
         Returns
         -------
@@ -351,8 +413,7 @@ class Displayer():
         return self.__exit_color
 
     def get_icon_color(self) -> int:
-        """
-        Return the central icon color.
+        """Return the central icon color.
 
         Returns
         -------
@@ -362,8 +423,7 @@ class Displayer():
         return self.__icon_color
 
     def get_path_color(self) -> int:
-        """
-        Return the path color.
+        """Return the path color.
 
         Returns
         -------
@@ -373,11 +433,15 @@ class Displayer():
         return self.__path_color
 
     def display(self, loop: bool = True) -> None:
-        """
-        Display the complete maze in the MLX window.
+        """Display the complete maze in the MLX window.
 
         Renders all cells, walls, path, entry and exit, then puts the image
-        to the window and starts the MLX event loop.
+        to the window and optionally starts the MLX event loop.
+
+        Parameters
+        ----------
+        loop : bool, optional
+            Whether to start the MLX event loop (default is True).
 
         Returns
         -------
@@ -420,6 +484,17 @@ class Displayer():
             mlx.mlx_loop(mlx_ptr)
 
     def clear(self, color: int) -> None:
+        """Clear the image with a solid color.
+
+        Parameters
+        ----------
+        color : int
+            Fill color as a 32-bit integer (0xAARRGGBB).
+
+        Returns
+        -------
+        None
+        """
         mlx = self.get_mlx()
         new_img = self.get_new_img()
 
@@ -434,6 +509,22 @@ class Displayer():
             * (image_width * image_height)
 
     def key_press(self, keycode: int, _: None) -> None:
+        """Handle keyboard input events.
+
+        Processes keyboard input for player movement, mode toggling, and
+        window closing. Supports movement in four directions when in move mode.
+
+        Parameters
+        ----------
+        keycode : int
+            The key code of the pressed key.
+        _ : None
+            Unused callback argument from MLX.
+
+        Returns
+        -------
+        None
+        """
         esc = 65307
         move_mode = 109
         left = 65361
@@ -471,7 +562,7 @@ class Displayer():
             elif keycode == down and not cell.get_wall("SOUTH"):
                 self.player_pos = x, y + 1
             if (x, y) != self.player_pos:
-                cell_dict: dict[tuple, int] = {
+                cell_dict: dict[Any, Any] = {
                     maze.get_exit(): self.get_exit_color(),
                     maze.get_entry(): self.get_entry_color(),
                 }
@@ -494,8 +585,10 @@ class Displayer():
         mlx.mlx_put_image_to_window(mlx_ptr, win_ptr, new_img, 0, 0)
 
     def start_animated_display(self, fps: int) -> None:
-        """
-        Start an animated display of the maze.
+        """Start an animated display of the maze.
+
+        Creates an animated visualization of the maze generation algorithm
+        and starts the MLX event loop.
 
         Parameters
         ----------
@@ -518,12 +611,15 @@ class Displayer():
         mlx.mlx_loop(mlx_ptr)
 
     def __animate_display(self, _: None = None) -> None:
-        """
-        Internal callback used by MLX to update the animated display.
+        """Internal callback used by MLX to update the animated display.
+
+        This method is called repeatedly by the MLX event loop to animate
+        the maze generation process. It updates the display incrementally
+        to show the maze generation in real-time.
 
         Parameters
         ----------
-        _ : Any
+        _ : None, optional
             Unused callback argument provided by the MLX loop.
 
         Returns
@@ -622,8 +718,7 @@ class Displayer():
     @staticmethod
     def put_pixel(data: bytearray, x: int, y: int, color: int,
                   bpp: int, size_line: int) -> None:
-        """
-        Put a colored pixel into the image data buffer.
+        """Put a colored pixel into the image data buffer.
 
         Parameters
         ----------
@@ -650,8 +745,7 @@ class Displayer():
         data[offset:offset + 4] = color.to_bytes(4, 'little')
 
     def print_entry(self) -> None:
-        """
-        Display the maze entry cell.
+        """Display the maze entry cell.
 
         Draws the entry cell and its walls using configured colors.
 
@@ -675,8 +769,7 @@ class Displayer():
             self.print_player(self.get_background_color())
 
     def print_exit(self) -> None:
-        """
-        Display the maze exit cell.
+        """Display the maze exit cell.
 
         Draws the exit cell and its walls using configured colors.
 
@@ -700,6 +793,28 @@ class Displayer():
             self.print_player(self.get_background_color())
 
     def set_custom_player(self, player_file: TextIO) -> None:
+        """Load and set a custom player icon from a file.
+
+        Reads a player icon from a text file where each character represents
+        a pixel. Characters '0' and ' ' are treated as transparent. Other
+        characters are mapped to colors using custom_player_colors dictionary.
+        If auto_adjust_player is True, the icon is resized to fit cell size.
+
+        Parameters
+        ----------
+        player_file : TextIO
+            A file object opened in read mode containing the player icon.
+
+        Raises
+        ------
+        PlayerError
+            If player icon lines have different lengths or if the icon is too
+            large and auto_adjust_player is False.
+
+        Returns
+        -------
+        None
+        """
         player_txt: str = player_file.read(-1)
         player_rows: list[str] = player_txt.split("\n")
 
@@ -767,7 +882,7 @@ class Displayer():
         if src_h == 0 or src_w == 0:
             self.custom_player = None
         else:
-            resized: list[list] = []
+            resized: list[list[Any]] = []
             for ty in range(tgt_h):
                 src_y = min(src_h - 1, int(ty * src_h / tgt_h))
                 row_list: list[int | None] = []
@@ -783,6 +898,21 @@ class Displayer():
             self.custom_player = resized
 
     def print_player(self, color: int) -> None:
+        """Draw the player icon at the current player position.
+
+        Renders the player as either a custom icon (if set) or a default
+        colored square. The player is centered in the current cell.
+
+        Parameters
+        ----------
+        color : int
+            Fallback color for the player (used if no custom player is set)
+            as a 32-bit integer (0xAARRGGBB).
+
+        Returns
+        -------
+        None
+        """
         x, y = self.player_pos
         size = self.get_cell_size()
 
@@ -818,8 +948,7 @@ class Displayer():
                     )
 
     def print_cell(self, coords: tuple[int, int], color: int) -> None:
-        """
-        Draw a filled cell at the given coordinates.
+        """Draw a filled cell at the given coordinates.
 
         Parameters
         ----------
@@ -852,8 +981,7 @@ class Displayer():
 
     def print_west_east(self, pixel_x_start: int,
                         pixel_y_start: int, walls_color: int) -> None:
-        """
-        Draw a vertical wall (west or east) for a cell.
+        """Draw a vertical wall (west or east) for a cell.
 
         Parameters
         ----------
@@ -879,8 +1007,7 @@ class Displayer():
 
     def print_north_south(self, pixel_x_start: int,
                           pixel_y_start: int, walls_color: int) -> None:
-        """
-        Draw a horizontal wall (north or south) for a cell.
+        """Draw a horizontal wall (north or south) for a cell.
 
         Parameters
         ----------
@@ -906,8 +1033,7 @@ class Displayer():
 
     def print_walls(self, coords: tuple[int, int], walls: list[str],
                     color: int) -> None:
-        """
-        Draw all walls for a cell according to the provided directions.
+        """Draw all walls for a cell according to the provided directions.
 
         Parameters
         ----------
@@ -939,8 +1065,7 @@ class Displayer():
             self.print_north_south(pixel_x, pixel_y + add_to_coord, color)
 
     def print_path(self) -> None:
-        """
-        Draw the shortest path in the maze.
+        """Draw the shortest path in the maze.
 
         Iterates the stored shortest path and renders each step and its
         adjacent walls.
@@ -962,12 +1087,11 @@ class Displayer():
                 self.print_player(self.get_background_color())
 
     def close(self, _: None) -> None:
-        """
-        Close the MLX window and exit the event loop.
+        """Close the MLX window and exit the event loop.
 
         Parameters
         ----------
-        _ : Any
+        _ : None
             Unused callback argument from MLX.
 
         Returns
@@ -981,6 +1105,26 @@ class Displayer():
         mlx.mlx_loop_exit(mlx_ptr)
 
     def mouse_event(self, mousecode: int, x: int, y: int, _: None) -> None:
+        """Handle mouse click events on buttons.
+
+        Checks if a mouse click is within the bounds of any button and
+        executes the associated function if a button is clicked.
+
+        Parameters
+        ----------
+        mousecode : int
+            The mouse button code.
+        x : int
+            X coordinate of the mouse click in pixels.
+        y : int
+            Y coordinate of the mouse click in pixels.
+        _ : None
+            Unused callback argument from MLX.
+
+        Returns
+        -------
+        None
+        """
         for button in self.buttons:
             width, height = button.width, button.height
             start_x: int = button.start_x
@@ -990,6 +1134,7 @@ class Displayer():
                     button.function(button.param)
 
     def win_buttons(self) -> None:
+        """Create a new window for displaying buttons."""
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
 
@@ -1007,6 +1152,26 @@ class Displayer():
 
     def print_background_button(self, button: Button, data: bytearray,
                                 bpb: int, size_line: int) -> None:
+        """Draw the background of a button.
+
+        Fills the button area with the button's background color and updates
+        the button's position information.
+
+        Parameters
+        ----------
+        button : Button
+            The button to draw.
+        data : bytearray
+            The image data buffer for pixel writing.
+        bpb : int
+            Bytes per pixel for the image.
+        size_line : int
+            Number of bytes per image line (stride).
+
+        Returns
+        -------
+        None
+        """
         spacing = self.spacing
 
         pixel_x = self.button_printer_x
@@ -1026,6 +1191,19 @@ class Displayer():
         self.button_printer_y += height + spacing
 
     def print_text_button(self, button: ButtonText) -> None:
+        """Draw the text label on a text button.
+
+        Renders the button's text centered within the button area.
+
+        Parameters
+        ----------
+        button : ButtonText
+            The text button to draw text on.
+
+        Returns
+        -------
+        None
+        """
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
         win_ptr = self.win_button_ptr
@@ -1041,6 +1219,15 @@ class Displayer():
                            button.text_color, button.text)
 
     def print_buttons(self) -> None:
+        """Create and render all buttons.
+
+        Creates a button window, renders all button backgrounds, and then
+        renders text labels for ButtonText instances.
+
+        Returns
+        -------
+        None
+        """
         mlx = self.get_mlx()
         mlx_ptr = self.get_mlx_ptr()
 
@@ -1059,6 +1246,13 @@ class Displayer():
                 self.print_text_button(button)
 
     def add_button(self, button: Button) -> None:
+        """Add a button to the button window.
+
+        Parameters
+        ----------
+        button : Button
+            The button to add.
+        """
         spacing = self.spacing
         width = button.width
         height = button.height

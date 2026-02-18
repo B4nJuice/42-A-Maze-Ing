@@ -10,6 +10,22 @@ import sys
 
 
 def create_config(config: Config) -> None:
+    """
+    Register all configuration parameters with their default values and types.
+
+    Sets up the complete configuration schema for the A-Maze-Ing application,
+    including maze generation parameters, display settings, colors, and player
+    customization options.
+
+    Parameters
+    ----------
+    config : Config
+        The Config instance to register parameters into.
+
+    Returns
+    -------
+    None
+    """
     config.add_parameter("WIDTH", [20, [int]])
     config.add_parameter("HEIGHT", [15, [int]])
     config.add_parameter("ENTRY", [(0, 0), [tuple, 2, [[int], [int]], ","]])
@@ -63,6 +79,17 @@ def create_config(config: Config) -> None:
 
 
 def main() -> None:
+    """Main entry point for the A-Maze-Ing application.
+
+    Initializes the configuration, generates a maze, creates a display window,
+    sets up interactive buttons, and handles the main event loop. Optionally
+    loads custom settings from a configuration file and enables animated
+    maze generation.
+
+    Returns
+    -------
+    None
+    """
     argv: list[str] = sys.argv
     argc: int = len(argv)
 

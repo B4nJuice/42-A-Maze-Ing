@@ -3,6 +3,17 @@ from mazegen.display import Displayer
 
 
 def theme_purple(displayer: Displayer) -> None:
+    """Apply a purple color theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (30, 0, 50))
     displayer.set_color("walls", (90, 0, 130))
     displayer.set_color("entry", (180, 0, 255))
@@ -12,6 +23,17 @@ def theme_purple(displayer: Displayer) -> None:
 
 
 def theme_blue(displayer: Displayer) -> None:
+    """Apply a blue color theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (5, 10, 40))
     displayer.set_color("walls", (0, 40, 120))
     displayer.set_color("entry", (0, 120, 255))
@@ -21,6 +43,17 @@ def theme_blue(displayer: Displayer) -> None:
 
 
 def theme_yellow(displayer: Displayer) -> None:
+    """Apply a yellow color theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (40, 30, 0))
     displayer.set_color("walls", (120, 90, 0))
     displayer.set_color("entry", (255, 200, 0))
@@ -30,6 +63,17 @@ def theme_yellow(displayer: Displayer) -> None:
 
 
 def theme_green(displayer: Displayer) -> None:
+    """Apply a green color theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (0, 30, 10))
     displayer.set_color("walls", (0, 80, 30))
     displayer.set_color("entry", (0, 200, 80))
@@ -39,6 +83,17 @@ def theme_green(displayer: Displayer) -> None:
 
 
 def theme_orange(displayer: Displayer) -> None:
+    """Apply an orange color theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (50, 20, 0))
     displayer.set_color("walls", (120, 50, 0))
     displayer.set_color("entry", (255, 120, 0))
@@ -48,6 +103,17 @@ def theme_orange(displayer: Displayer) -> None:
 
 
 def theme_red(displayer: Displayer) -> None:
+    """Apply a red color theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (40, 0, 0))
     displayer.set_color("walls", (120, 0, 0))
     displayer.set_color("entry", (220, 0, 0))
@@ -57,6 +123,17 @@ def theme_red(displayer: Displayer) -> None:
 
 
 def theme_pink(displayer: Displayer) -> None:
+    """Apply a pink color theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (40, 0, 30))
     displayer.set_color("walls", (120, 20, 90))
     displayer.set_color("entry", (255, 0, 150))
@@ -66,6 +143,17 @@ def theme_pink(displayer: Displayer) -> None:
 
 
 def theme_multicolor(displayer: Displayer) -> None:
+    """Apply a multicolor theme to the maze display.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply the theme to.
+
+    Returns
+    -------
+    None
+    """
     displayer.set_color("background", (20, 20, 20))
     displayer.set_color("walls", (0, 120, 255))
     displayer.set_color("entry", (0, 200, 0))
@@ -75,6 +163,21 @@ def theme_multicolor(displayer: Displayer) -> None:
 
 
 def change_theme(displayer: Displayer) -> Generator[None, None, None]:
+    """Cycle through color themes each time it is called.
+
+    Creates a generator that cycles through all available color themes
+    and applies them to the displayer when the generator is advanced.
+
+    Parameters
+    ----------
+    displayer : Displayer
+        The Displayer instance to apply themes to.
+
+    Yields
+    ------
+    None
+        On each iteration, applies the next theme and refreshes the display.
+    """
     themes: list[Callable] = [theme_purple,
                               theme_blue,
                               theme_yellow,

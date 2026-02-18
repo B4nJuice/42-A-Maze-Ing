@@ -1,22 +1,71 @@
 from mazegen.display import Displayer
+from typing import Any
 
 
 class ImageError(Exception):
+    """Exception raised when image loading fails."""
     pass
 
 
-def close(param: tuple) -> None:
+def close(param: tuple[Any, Any, Any]) -> None:
+    """Close the MLX window.
+
+    Parameters
+    ----------
+    param : tuple
+        A tuple containing (mlx, mlx_ptr, win_ptr).
+
+    Returns
+    -------
+    None
+    """
     mlx, mlx_ptr, win_ptr = param
     mlx.mlx_destroy_window(mlx_ptr, win_ptr)
 
 
-def key_press(keycode: int, param: tuple) -> None:
+def key_press(keycode: int, param: tuple[Any, Any, Any]) -> None:
+    """Handle key press events in the victory window.
+
+    Closes the window when the ESC key is pressed.
+
+    Parameters
+    ----------
+    keycode : int
+        The key code of the pressed key.
+    param : tuple
+        A tuple containing (mlx, mlx_ptr, win_ptr).
+
+    Returns
+    -------
+    None
+    """
     mlx, mlx_ptr, win_ptr = param
     if keycode == 65307:
         mlx.mlx_destroy_window(mlx_ptr, win_ptr)
 
 
-def victory_function(param: tuple[Displayer, tuple]) -> None:
+def victory_function(param: tuple[Displayer, tuple[int, int]]) -> None:
+    """Display a victory screen if the player reaches the exit.
+
+    Creates and displays a victory image window when the player position
+    equals the maze exit position.
+
+    Parameters
+    ----------
+    param : tuple
+        A tuple containing:
+        - displayer : Displayer - The maze displayer instance.
+        - exit : tuple - The exit coordinates (x, y).
+
+    Raises
+    ------
+    ImageError
+        If the victory image file cannot be loaded.
+
+    Returns
+    -------
+    None
+    """
     displayer, exit = param
     path = "src/assets/you_win.xpm"
     if displayer.player_pos == exit:
