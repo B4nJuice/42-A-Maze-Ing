@@ -32,7 +32,7 @@ def create_config(config: Config) -> None:
     config.add_parameter("EXIT", [(19, 14), [tuple, 2, [[int], [int]], ","]])
     config.add_parameter("OUTPUT_FILE", ["maze.txt", [str]])
     config.add_parameter("PERFECT", [True, [bool]])
-    config.add_parameter("SEED", [42, [int]])
+    config.add_parameter("SEED", [0, [int]])
     config.add_parameter("ICON_FILE", ["src/default_icon.txt", [str]])
     config.add_parameter("TOGGLE_PATH", [False, [bool]])
     config.add_parameter("MAZE_SIZE", [((0, 0), (0, 0)), [
