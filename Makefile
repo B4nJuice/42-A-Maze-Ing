@@ -19,6 +19,7 @@ build: $(OUTPUT_FILE)
 
 $(OUTPUT_FILE): $(SRCS)
 	$(V_PYTHON) -m build -o .
+	$(V_PIP) install $(OUTPUT_FILE) --force-reinstall
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -27,13 +28,10 @@ clean:
 fclean: clean
 	rm -rf mazegen-1.0.0-py3-none-any.whl
 	rm -rf mazegen-1.0.0.tar.gz
-	rm -rf maze.txt
 	rm -rf $(VENV)
 
-install: $(VENV)
+install: $(VENV) $(OUTPUT_FILE)
 	$(V_PIP) install $(DEPENDENCIES)
-	$(MAKE) build
-	$(V_PIP) install $(OUTPUT_FILE) --force-reinstall
 
 $(VENV):
 	$(PYTHON) -m venv $(VENV)
