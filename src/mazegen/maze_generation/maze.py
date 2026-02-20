@@ -61,8 +61,8 @@ class EntryExitError(MazeError):
 class MazeGenerator():
     """Represent a maze grid and provide generation utilities.
 
-    The MazeGenerator class stores Cell objects in a matrix and provides methods
-    to generate, query and export the maze structure.
+    The MazeGenerator class stores Cell objects in a matrix and provides
+    methods to generate, query and export the maze structure.
 
     Attributes
     ----------

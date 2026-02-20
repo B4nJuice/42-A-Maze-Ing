@@ -30,7 +30,8 @@ def regenerate_maze(param: Any) -> None:
     displayer, animated, w, h, ent, ex, perf, icon_name, output_name = param
     with open(output_name, "w") as output:
         with open(icon_name, "r") as icon:
-            new_maze: MazeGenerator = MazeGenerator(w, h, ent, ex, perf, 0, icon)
+            new_maze: MazeGenerator = MazeGenerator(
+                w, h, ent, ex, perf, 0, icon)
             new_maze.create_full_maze()
             new_maze.output_in_file(output)
 
