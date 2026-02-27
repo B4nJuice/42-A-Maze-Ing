@@ -1,4 +1,4 @@
-import copy
+from collections import deque
 from typing import Any, TextIO, cast
 from mazegen.maze_generation.cell import Cell
 from mazegen.maze_generation.seed import (create_seed, next_randint)
@@ -498,9 +498,6 @@ class MazeGenerator():
             return None
         cell: Cell = self.get_cell(coords)
 
-        if cell.is_exit():
-            self.invert_after_exit()
-
         open_walls = cell.get_state_walls(False)
         valid_cells: list[tuple[int, int]] = []
         visited_cells: list[tuple[int, int]] = []
@@ -607,8 +604,22 @@ class MazeGenerator():
                             continue
                         if next_cell.is_icon() or cell.is_icon():
                             continue
+
+                        opp_dir = "WEST"
+
+                        del_wall: bool = True
+                        cell1: Cell = self.get_cell((x + 1, y + 2))
+                        cell2: Cell = self.get_cell((x - 1, y + 2))
+
+                        for check_cell in [cell1, cell2]:
+                            if (check_cell is not None and
+                                    not check_cell.get_wall(opp_dir)):
+                                del_wall = False
+                                break
+
                         if next_cell.is_after_exit() != cell.is_after_exit():
-                            possible_breach.append(("SOUTH", (x, y)))
+                            if del_wall:
+                                possible_breach.append(("SOUTH", (x, y)))
 
                     next_cell = self.get_cell((x + 1, y))
                     if "EST" in closed_walls and next_cell is not None:
@@ -616,16 +627,65 @@ class MazeGenerator():
                             continue
                         if next_cell.is_icon() or cell.is_icon():
                             continue
+
+                        opp_dir = "WEST"
+
+                        del_wall = True
+                        cell1 = self.get_cell((x + 2, y + 1))
+                        cell2 = self.get_cell((x + 2, y - 1))
+
+                        for check_cell in [cell1, cell2]:
+                            if (check_cell is not None and
+                                    not check_cell.get_wall(opp_dir)):
+                                del_wall = False
+                                break
+
                         if next_cell.is_after_exit() != cell.is_after_exit():
-                            possible_breach.append(("EST", (x, y)))
+                            if del_wall:
+                                possible_breach.append(("EST", (x, y)))
 
             n_possible_breach: int = len(possible_breach)
 
             if n_possible_breach > 0:
-                n_breach: int = next_randint(1, self.n_breach)
-                for _ in range(n_breach):
+                n_breach: int = min(
+                    n_possible_breach, next_randint(1, self.n_breach))
+
+                while n_breach > 0:
                     direction, coords = possible_breach[
                         next_randint(0, n_possible_breach)]
+                    # x, y = coords
+
+                    # cell1: Cell = self.get_cell((-1, -1))
+                    # cell2: Cell = self.get_cell((-1, -1))
+
+                    # match direction:
+                    #     case "NORTH":
+                    #         opp_dir = "SOUTH"
+                    #         cell1 = self.get_cell((x + 1, y - 1))
+                    #         cell2 = self.get_cell((x - 1, y - 1))
+                    #     case "SOUTH":
+                    #         opp_dir = "NORTH"
+                    #         cell1 = self.get_cell((x + 1, y + 1))
+                    #         cell2 = self.get_cell((x - 1, y + 1))
+                    #     case "WEST":
+                    #         opp_dir = "EST"
+                    #         cell1 = self.get_cell((x - 1, y + 1))
+                    #         cell2 = self.get_cell((x - 1, y - 1))
+                    #     case "EST":
+                    #         opp_dir = "WEST"
+                    #         cell1 = self.get_cell((x + 1, y + 1))
+                    #         cell2 = self.get_cell((x + 1, y - 1))
+
+                    # del_wall: bool = True
+
+                    # for cell in [cell1, cell2]:
+                    #     if (cell is not None and
+                    #             not cell.get_wall(opp_dir)):
+                    #         del_wall = False
+                    #         break
+
+                    # if del_wall:
+                    n_breach -= 1
                     self.set_wall(coords, direction, False)
         self.check_maze()
         self.__shortest_path = self.find_shortest_path()
@@ -781,52 +841,22 @@ class MazeGenerator():
         list[str]
             Sequence of directions representing the shortest path.
         """
-        entry_coords: tuple[int, int] = self.get_entry()
-        entry_cell: Cell = self.get_cell(entry_coords)
+        start: tuple[int, int] = self.get_entry()
+        queue: deque[tuple[tuple[int, int], list[str]]] = deque([(start, [])])
+        visited = set([start])
 
-        entry_path: list[Any] = [[], entry_cell, entry_coords]
+        while queue:
+            coords, path = queue.popleft()
+            cell = self.get_cell(coords)
 
-        paths: list[list[Any]] = [entry_path]
+            if cell.is_exit():
+                return path
 
-        while True:
-            for path in list(paths):
-                cell: Cell = path[1]
-                if cell.is_exit():
-                    return cast(list[str], path[0])
-                coords: tuple[int, int] = path[2]
-                directions: list[str] | str = cell.get_state_walls(False)
+            for direction in cell.get_state_walls(False):
+                next_coords = self.get_coords_by_dir(coords, direction)
 
-                last_dir: str | None = None
-                if len(path[0]) > 0:
-                    last_dir = path[0][-1]
+                if next_coords not in visited:
+                    visited.add(next_coords)
+                    queue.append((next_coords, path + [direction]))
 
-                next_coords: tuple[int, int] | None = None
-                next_cell: Cell | None = None
-
-                if len(directions) <= 2 and len(paths) >= 2:
-                    for direction in directions:
-                        if len(path[0]) == 0 or direction != (
-                                self.get_opposite_dir(last_dir)):
-                            path[0].append(direction)
-                            next_coords = self.get_coords_by_dir(
-                                coords, direction
-                            )
-                            next_cell = self.get_cell(next_coords)
-                            path[2] = next_coords
-                            path[1] = next_cell
-                    if len(directions) == 1 and directions[0] == (
-                            self.get_opposite_dir(last_dir)):
-                        paths.remove(path)
-                else:
-                    for direction in directions:
-                        if direction != self.get_opposite_dir(last_dir):
-                            new_path: list[Any] = copy.deepcopy(path)
-                            new_path[0].append(direction)
-                            next_coords = self.get_coords_by_dir(
-                                coords, direction
-                            )
-                            next_cell = self.get_cell(next_coords)
-                            new_path[2] = next_coords
-                            new_path[1] = next_cell
-                            paths.append(new_path)
-                    paths.remove(path)
+        return []
