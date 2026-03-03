@@ -185,6 +185,9 @@ class Displayer():
         if spacing <= 0:
             raise SpacingError("Spacing must be greater than 0.")
 
+        if spacing > 50:
+            raise SpacingError("Spacing must be lower than 50.")
+
         self.spacing = spacing
         self.button_printer_x = spacing
         self.button_printer_y = spacing
